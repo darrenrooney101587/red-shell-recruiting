@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load static %}
+{% block css-extra %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/common.css' %}">
+    <link rel="stylesheet" href="{% static 'css/signin.css' %}">
+{% endblock %}
+{% block content %}
+    <div class="theme">
+        <div class="qr-codes center-frame section">
+            <h2 class="natural-header">Setup Two-Factor Authentication</h2>
+            <hr>
+            {% if already_setup %}
+                <div>
+                    <p>You already have a two-factor device setup.  If you dont have your device try logging in with your backup codes</p>
+                    <hr>
+                    <div class="flex-display justify-center">
+                        <a href="{% url 'backup-tokens' %}" class="nav-link">Backup Codes</a>
+                    </div>
+                </div>
+
+            {% else %}
+                <p>Scan this QR code with your authenticator app:</p>
+                <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code">
+                <hr>
+                <p>After scanning, enter the verification code below:</p>
+
+                <form id="otp-form" class="flex-display justify-center space-between">
+                    {% csrf_token %}
+                    <div class="input-container flex-display vertical-align" style="width: 80%; margin-right: 1rem;">
+                        <label for="otp-token"></label>
+                        <input
+                                id="otp-token"
+                                name="otp_token"
+                                required
+                                style="border-bottom: 1px solid var(--ui-support-element-color)"
+                                class="text-input"
+                                type="text"
+                                placeholder="Enter OTP Code"
+                                autocomplete="off"
+                        >
+                    </div>
+                    <div style="position: relative; width: 20%">
+                        <button class="button" type="submit">Verify</button>
+                    </div>
+                </form>
+                <div id="opt-response-container" style="display: none">
+                    <br>
+                    <div id="otp-response" class="error-message" style="width: 100%; text-align: center"></div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <script>
+        $(document).ready(function() {
+            $("#otp-form").submit(function(event) {
+                event.preventDefault();
+
+                let otpToken = $("#otp-token").val();
+                let csrfToken = $("input[name='csrfmiddlewaretoken']").val();
+
+                $.ajax({
+                    url: "{% url 'verify-2fa' %}",
+                    type: "POST",
+                    data: {
+                        otp_token: otpToken,
+                        csrfmiddlewaretoken: csrfToken
+                    },
+                    dataType: "json",
+                    success: function(response) {
+                        if (response.success) {
+                            window.location.href = response.redirect_url;
+                        } else {
+                            $("#otp-response").html("<p style='font-weight: bold; color:red'>" + response.failed_message + "</p>");
+                        }
+                    },
+                    error: function(xhr) {
+                        let errorMessage = "An error occurred. Please try again.";
+
+                        if (xhr.responseJSON && xhr.responseJSON.failed_message) {
+                            errorMessage = xhr.responseJSON.failed_message;
+                        } else if (xhr.responseText) {
+                            try {
+                                let jsonResponse = JSON.parse(xhr.responseText);
+                                if (jsonResponse.failed_message) {
+                                    errorMessage = jsonResponse.failed_message;
+                                }
+                            } catch (e) {
+                                console.error("Invalid JSON response", e);
+                            }
+                        }
+
+                        $("#opt-response-container").show();
+                        $("#otp-response").html("<p style='font-weight: bold; color:red'>" + errorMessage + "</p>");
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

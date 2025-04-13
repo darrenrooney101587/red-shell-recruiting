@@ -1,0 +1,11 @@
+{% extends "admin/change_form.html" %}
+{% load i18n  %}
+
+{% block object-tools-items %}
+{{ block.super }}
+{% if original.get_absolute_bms_url %}
+<li>
+    <a href="{{ original.get_absolute_bms_url }}" class="btn btn-high btn-success">View On Site</a>
+</li>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends '_base.html' %}
+{% load static %}
+{% block css-extra %}
+    <link rel="stylesheet" href="{% static 'css/signin.css' %}">
+    <link rel="stylesheet" href="{% static 'css/common.css' %}">
+{% endblock %}
+{% block title %}Login{% endblock %}
+{% block body-class %}text-center{% endblock %}
+{% block body %}
+    <div class="form-signin center-frame">
+        <form method="post">
+            {% csrf_token %}
+            <div style="margin-bottom: 1rem;">
+                <img class="" src="{% static 'img/benchmark-logo-full.png' %}" alt="" width="225" height="80">
+            </div>
+            {% if messages %}
+                {% for message in messages %}
+                    <div
+                        id="lockout-cooldown-message"
+                        class="alert {{ message.tags }} alert-dismissible"
+                        role="alert"
+                        style="margin-bottom: 1rem; {% if is_locked_out %} padding: 1.25rem; {% endif %}"
+                    >
+                        {% if is_locked_out is False %}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                {% include 'service/components/svg_components.html' with type='close-large' %}
+                            </button>
+                        {% endif %}
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            {% if is_locked_out %}
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        let remainingTime = {{ remaining_time|default:0 }};
+                        let display = document.getElementById("lockout-cooldown-message");
+
+                        function updateCountdown() {
+                            if (remainingTime > 0) {
+                                let minutes = Math.floor(remainingTime / 60);
+                                let seconds = Math.floor(remainingTime % 60);
+                                display.innerHTML = `Too many login attempts. Please try again in ${minutes}m ${seconds}s.`;
+                                remainingTime--;
+                                setTimeout(updateCountdown, 1000);
+                            } else {
+                                display.innerHTML = "You can now try logging in again.";
+                            }
+                        }
+                        updateCountdown();
+                    });
+                </script>
+            {% endif %}
+            <div>
+                <div class="input-container flex-display vertical-align" style="width: 100%; margin-bottom: 1rem;">
+                    <label for="id_username"></label>
+                    <input
+                        id="id_username"
+                        name="username"
+                        required
+                        style="border-bottom: 1px solid var(--ui-support-element-color)"
+                        class="text-input"
+                        type="text"
+                        placeholder="Username"
+                        autocomplete="off"
+                    >
+                </div>
+                <div class="input-container flex-display vertical-align" style="width: 100%; margin-bottom: 2rem;">
+                    <label for="id_password"></label>
+                    <input
+                        id="id_password"
+                        name="password"
+                        required
+                        style="border-bottom: 1px solid var(--ui-support-element-color)"
+                        class="text-input"
+                        type="password"
+                        placeholder="Password"
+                        autocomplete="off"
+                    >
+                </div>
+                <div style="position: relative; width: 100%;">
+                    <button type="submit" class="button" style="width: 100%;">Sign in</button>
+                </div>
+            </div>
+        </form>
+        <hr>
+        <form action="{% url 'saml2_login' %}" method="get">
+            <button type="submit" class="button" style="width: 100%;">
+                SSO Login
+            </button>
+        </form>
+    </div>
+{% endblock %}

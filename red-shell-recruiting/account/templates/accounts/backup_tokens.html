@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load static %}
+{% block css-extra %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/common.css' %}">
+    <link rel="stylesheet" href="{% static 'css/signin.css' %}">
+{% endblock %}
+{% block content %}
+    <div class="theme">
+        <div class="backup-codes center-frame section">
+            <h2 class="natural-header">Backup Tokens</h2>
+            <hr>
+            {% if has_no_device %}
+                <p>You have not setup a two-factor device yet.</p>
+            {% else %}
+                <p>Use these codes if you lose access to your 2FA device. Each token can be used only once.</p>
+                <hr>
+                <div class="flex-display justify-center">
+                    {% if not has_existing_tokens %}
+                        <button id="generate-tokens" class="button">Generate New Backup Tokens</button>
+                    {% else %}
+                        <p style="color: red; font-weight: bold">You have already generated backup tokens. If you cannot access them, please contact the DINO team for assistance.</p>
+                    {% endif %}
+                    <div id="token-list" class="flex-display vertical-align column" style="display: none">
+                        <p id="generate-feedback-message" style="color: red; font-weight: bold; width: 100%; text-align: center"></p>
+                        <pre style="width: 115px; word-wrap: normal; text-align: center"></pre>
+                    </div>
+                </div>
+                {% if has_existing_tokens %}
+                    <hr>
+                    <div>
+                        <h3 class="natural-header">Restore Access with a Backup Code</h3>
+                        <br>
+                        {% include 'account/components/otp_backup_token.html' %}
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            const $tokenList = $("#token-list pre");
+            const $generateButton = $("#generate-tokens");
+            const $generateFeedbackDiv = $("#generate-feedback-message");
+
+            $generateButton.click(function () {
+                $.ajax({
+                    url: "{% url 'regenerate-backup-tokens' %}",
+                    type: "POST",
+                    headers: { "X-CSRFToken": "{{ csrf_token }}" },
+                    success: function (data) {
+                        if (data.error) {
+                            $generateFeedbackDiv.text(data.error);
+                            $generateButton.hide();
+                        } else {
+                            $tokenList.empty();
+                            $.each(data.tokens, function (index, token) {
+                                $tokenList.append(token + "\n");
+                            });
+
+                            $generateButton.hide();
+                            $generateFeedbackDiv.text("Backup tokens have been generated. Store them securely.");
+                            $('#token-list').show();
+                        }
+                    },
+                    error: function () {
+                        alert("Error generating backup tokens. Please try again.");
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

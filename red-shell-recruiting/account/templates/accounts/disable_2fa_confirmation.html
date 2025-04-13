@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load static %}
+{% block css-extra %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/common.css' %}">
+    <link rel="stylesheet" href="{% static 'css/signin.css' %}">
+{% endblock %}
+{% block content %}
+    <div class="theme">
+        <div class="disable-2fa center-frame section">
+            <h2 class="natural-header">Disable 2FA</h2>
+            <hr>
+            {% if has_no_device %}
+                <p>You have not setup a two-factor device yet.</p>
+            {% else %}
+                <div style="text-align: center">
+                    <p>Are you sure you want to disable multi form factor?</p>
+                    <button class="button" id="disable-2fa-button">Disable</button>
+                    <hr>
+                    <p id="generate-feedback-message" style="color: red; font-weight: bold; width: 100%; text-align: center"></p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <script>
+        $(document).ready(function() {
+            let $feedback = $('#generate-feedback-message');
+            $('#disable-2fa-button').click(function () {
+                $.ajax({
+                    url: "{% url 'disable-2fa' %}",
+                    type: "POST",
+                    headers: { "X-CSRFToken": "{{ csrf_token }}" },
+                    success: function (data) {
+                        if (data.error) {
+                            $feedback.text(data.error);
+                        } else {
+                            $feedback.text("You have successfully disabled 2FA for this account. ");
+                        }
+                    },
+                    error: function () {
+                        alert("Error generating backup tokens. Please try again.");
+                    }
+                });
+            });
+        })
+    </script>
+{% endblock %}

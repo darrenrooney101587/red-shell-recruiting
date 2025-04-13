@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% block title %}Mechanic{% endblock %}
+{% load static %}
+{% block css-extra %}
+    <link rel="stylesheet" href="{% static 'css/common.css' %}">
+    <style>
+        .accordion {
+            border-left: 1px solid rgba(0,0,0,.1);
+            border-right: 1px solid rgba(0,0,0,.1);
+        }
+    </style>
+{% endblock %}
+{% block content %}
+<h1 class="h2">Mechanic</h1>
+<hr>
+<div class="row">
+    <div class="theme" style="width: 80%; margin: auto">
+        <div class="accordion-section">
+            <div class="accordion root">
+                <div class="flex-display vertical-align" style="padding-left: 5px; padding-right: 10px;">
+                    <i class="fa fa-angle-down" style="margin-right: 10px"></i>
+                    <div class="flex-display vertical-align">
+                        <div style="">
+                            <h3 class="ellipsis" style="font-weight: bold">Django Environment Details</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-content">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>Name</th>
+                            <th>Value</th>
+                        </tr>
+                        {% for variable in django_env_list %}
+                            <tr>
+                                <td>{{ variable.name }}</td>
+                                <td>{{ variable.value }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+            {% if user.is_superuser %}
+                <div class="accordion root">
+                    <div class="flex-display vertical-align" style="padding-left: 5px; padding-right: 10px;">
+                        <i class="fa fa-angle-down" style="margin-right: 10px"></i>
+                        <div class="flex-display vertical-align">
+                            <div style="">
+                                <h3 class="ellipsis" style="font-weight: bold">Environment Details</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel">
+                    <div class="panel-content">
+                        <table class="table table-bordered">
+                            <tr>
+                                <th>Name</th>
+                                <th>Value</th>
+                            </tr>
+                            {% for variable in env_list %}
+                                <tr>
+                                    <td>{{ variable.name }}</td>
+                                    <td>{{ variable.value }}</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+            <div class="accordion root">
+                <div class="flex-display vertical-align" style="padding-left: 5px; padding-right: 10px;">
+                    <i class="fa fa-angle-down" style="margin-right: 10px"></i>
+                    <div class="flex-display vertical-align">
+                        <div style="">
+                            <h3 class="ellipsis" style="font-weight: bold">Database Testers</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-content" style="border: 1px solid #dee2e6">
+                    <div id="buttons-container" class="flex-display column align-baseline" style="padding: 20px; gap: 1rem;">
+                        {% for db_alias in databases %}
+                            <div class="flex-display vertical-align" >
+                                <button class="button test-db-btn" style="width: 150px; margin-right: 1rem;" data-db="{{ db_alias }}">{{ db_alias }}</button>
+                                <span id="status-{{ db_alias }}"></span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+  </div>
+</div>
+<script>
+    $(document).ready(function () {
+
+        $(".test-db-btn").click(function() {
+            let dbAlias = $(this).data("db");
+            let statusSpan = $("#status-" + dbAlias);
+            statusSpan.text("Testing...");
+
+            $.ajax({
+                url: "{% url 'test-database-connection' %}",
+                data: { db_alias: dbAlias },
+                success: function(response) {
+                    statusSpan.text(response.message).css("color", "green");
+                },
+                error: function(xhr) {
+                    statusSpan.text(xhr.responseJSON.message).css("color", "red");
+                }
+            });
+        });
+
+
+    });
+
+</script>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static %}
+{% load breadcrumb %}
+{% block css-extra %}
+    <link rel="stylesheet" href="{% static 'css/common.css' %}">
+    <link rel="stylesheet" href="{% static 'css/signin.css' %}">
+{% endblock %}
+{% block content %}
+    <div style="display: flex;justify-content: center;align-items: center;text-align: center;min-height: 100%;">
+        <div class="opt-check center-frame section">
+            <form action="{% url 'otp-entry' %}" method="post" class="flex-display column">
+                {% csrf_token %}
+                <div style="margin-bottom: 1rem;">
+                    <img class="" src="{% static 'img/benchmark-logo-full.png' %}" alt="" width="225" height="80">
+                </div>
+                <br>
+                <div class="input-container flex-display vertical-align" style="width: 100%; margin-bottom: 1rem;">
+                    <label for="id_username"></label>
+                    <input
+                        id="opt-token"
+                        name="otp_token"
+                        required
+                        style="border-bottom: 1px solid var(--ui-support-element-color)"
+                        class="text-input"
+                        type="text"
+                        placeholder="Enter OTP Token"
+                        autocomplete="off"
+                    >
+                </div>
+                <div style="position: relative; width: 100%">
+                    <button type="submit" class="button" style="width: 100%">Verify</button>
+                </div>
+            </form>
+            <hr>
+            <div>
+                <h3 class="natural-header">Restore Access with a Backup Code</h3>
+                <br>
+                {% include 'accounts/components/otp_backup_token.html' %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,34 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      # Activate port 5000 and share it
+      # port 5000 is what is used for deployments by default-
+      - "${PORT:-5000}:${PORT:-5000}"
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - db
+    environment:
+      # available at runtime
+      - PORT=${PORT:-5000}
+      - PYTHONPATH=/app/
+    entrypoint: [ "/bin/bash", "/docker-entrypoint.sh" ]
+
+  db:
+    image: postgres:15
+    ports:
+      - "5565:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
