@@ -1,2 +1,0 @@
-# copy ssh key to ec2 to pull from github
-scp -i /Users/darren.rooney/Documents/personal/red-shell-recruiting/red-shell-recruiting-dev.pem ~/.ssh/id_red_shell_recruiting ec2-user@3.21.170.36:~/.ssh/id_red_shell_recruiting
