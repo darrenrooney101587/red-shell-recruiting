@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Config
-CONTAINER_NAME="red-shell-db"       # The name of your Postgres container
+CONTAINER_NAME="red-shell-recruiting-db-1"
 DB_NAME="postgres"
 DB_USER="postgres"
 BACKUP_DIR="/home/ec2-user/pg_backups"
