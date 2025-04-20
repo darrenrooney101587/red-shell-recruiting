@@ -15,18 +15,44 @@
                 <li class="nav-item nav-dropdown-container">
                     <a class="nav-link flex-display space-between" style="justify-content: space-between;">
                         <div class="flex-display" style="display: flex; flex-direction: row">
-                                        <span class="sidebar-icon">
-                                            {% include 'red_shell_recruiting/components/svg_components.html' with type='phone'%}
-                                        </span>
-                            <span class="sidebar-text">2FA</span>
+                            <span class="sidebar-icon">
+                                {% include 'red_shell_recruiting/components/svg_components.html' with type='quick-add'%}
+                            </span>
+                            <span class="sidebar-text">Candidates</span>
                         </div>
                         <div class="flex-display flex-end">
-                                        <span class="chevron-down">
-                                            {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}
-                                        </span>
+                            <span class="chevron-down">
+                                {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}
+                            </span>
                             <span class="chevron-up" style="display: none;">
-                                            {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}
-                                        </span>
+                                {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}
+                            </span>
+                        </div>
+                    </a>
+                    <ul class="flex-display column nav-dropdown-submenu" style="display: none; margin-left:1rem; padding: 0;">
+                        <li class="nav-item sub">
+                            <a href="{% url 'candidate-enter' %}" class="nav-link">Enter Candidates</a>
+                        </li>
+                        <li class="nav-item sub">
+                            <a href="{% url 'setup-2fa' %}" class="nav-link">Search Candidates</a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item nav-dropdown-container">
+                    <a class="nav-link flex-display space-between" style="justify-content: space-between;">
+                        <div class="flex-display" style="display: flex; flex-direction: row">
+                            <span class="sidebar-icon">
+                                {% include 'red_shell_recruiting/components/svg_components.html' with type='cog'%}
+                            </span>
+                            <span class="sidebar-text">My User</span>
+                        </div>
+                        <div class="flex-display flex-end">
+                            <span class="chevron-down">
+                                {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}
+                            </span>
+                            <span class="chevron-up" style="display: none;">
+                                {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}
+                            </span>
                         </div>
                     </a>
                     <ul class="flex-display column nav-dropdown-submenu" style="display: none; margin-left:1rem; padding: 0;">
@@ -39,15 +65,10 @@
                         <li class="nav-item sub">
                             <a href="{% url 'disable-2fa-confirmation' %}" class="nav-link">Disable 2FA</a>
                         </li>
+                        <li class="nav-item sub">
+                            <a href="{% url 'password-change' %}" class="nav-link">Change Password</a>
+                        </li>
                     </ul>
-                </li>
-                <li class="nav-item">
-                    <a href="{% url 'password-change' %}" class="nav-link" style="display: flex; align-items: center;">
-                        <span class="sidebar-icon">
-                            {% include 'red_shell_recruiting/components/svg_components.html' with type='keyboard'%}
-                        </span>
-                        <span class="sidebar-text">Change Password</span>
-                    </a>
                 </li>
                 {% if user.is_superuser %}
                     <li class="nav-item">

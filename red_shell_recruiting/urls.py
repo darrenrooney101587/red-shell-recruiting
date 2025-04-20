@@ -1,4 +1,10 @@
-# service/urls.py
 from django.urls import path
+from red_shell_recruiting import views
 
-urlpatterns = []
+urlpatterns = [
+    path(
+        'enter',
+        views.CandidateEnter.as_view(),
+        name='candidate-enter',
+    ),
+]

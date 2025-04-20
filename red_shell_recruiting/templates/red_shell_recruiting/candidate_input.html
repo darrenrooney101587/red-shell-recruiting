@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tags %}
+{% load filters %}
+{% block title %}
+    Candidate Input
+{% endblock %}
+{% block content %}
+    <div style="max-width:1000px; width: 50%; margin: 0 auto; margin-top: 10rem;">
+        <div class="section">
+            <div style="margin-bottom: 3rem">
+                <h1>Enter Candidate</h1>
+                <hr>
+            </div>
+            <div class="field-set flex-display" style="column-gap: 2rem">
+                <div style="margin-bottom: 1rem; position: relative">
+                    <input style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-name" type="text" placeholder="Name of Candidate" autocomplete="off">
+                    <input style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-location" type="text" placeholder="Current Location" autocomplete="off">
+                    <div class="flex-display" style="margin-bottom: 1rem; position: relative">
+                        <div class="custom-dropdown" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                            <div class="selected-option" id="state-dropdown" onclick="toggleDropdown('state')">Select a State</div>
+                            <ul class="dropdown-list" id="state-list">
+                                <li class="option placeholder" data-value="">Select a State</li>
+                                <li class="option" data-value="AL">Alabama</li>
+                                <li class="option" data-value="AK">Alaska</li>
+                                <li class="option" data-value="AZ">Arizona</li>
+                                <li class="option" data-value="AR">Arkansas</li>
+                                <li class="option" data-value="CA">California</li>
+                                <li class="option" data-value="CO">Colorado</li>
+                                <li class="option" data-value="CT">Connecticut</li>
+                                <li class="option" data-value="DE">Delaware</li>
+                                <li class="option" data-value="FL">Florida</li>
+                                <li class="option" data-value="GA">Georgia</li>
+                                <li class="option" data-value="HI">Hawaii</li>
+                                <li class="option" data-value="ID">Idaho</li>
+                                <li class="option" data-value="IL">Illinois</li>
+                                <li class="option" data-value="IN">Indiana</li>
+                                <li class="option" data-value="IA">Iowa</li>
+                                <li class="option" data-value="KS">Kansas</li>
+                                <li class="option" data-value="KY">Kentucky</li>
+                                <li class="option" data-value="LA">Louisiana</li>
+                                <li class="option" data-value="ME">Maine</li>
+                                <li class="option" data-value="MD">Maryland</li>
+                                <li class="option" data-value="MA">Massachusetts</li>
+                                <li class="option" data-value="MI">Michigan</li>
+                                <li class="option" data-value="MN">Minnesota</li>
+                                <li class="option" data-value="MS">Mississippi</li>
+                                <li class="option" data-value="MO">Missouri</li>
+                                <li class="option" data-value="MT">Montana</li>
+                                <li class="option" data-value="NE">Nebraska</li>
+                                <li class="option" data-value="NV">Nevada</li>
+                                <li class="option" data-value="NH">New Hampshire</li>
+                                <li class="option" data-value="NJ">New Jersey</li>
+                                <li class="option" data-value="NM">New Mexico</li>
+                                <li class="option" data-value="NY">New York</li>
+                                <li class="option" data-value="NC">North Carolina</li>
+                                <li class="option" data-value="ND">North Dakota</li>
+                                <li class="option" data-value="OH">Ohio</li>
+                                <li class="option" data-value="OK">Oklahoma</li>
+                                <li class="option" data-value="OR">Oregon</li>
+                                <li class="option" data-value="PA">Pennsylvania</li>
+                                <li class="option" data-value="RI">Rhode Island</li>
+                                <li class="option" data-value="SC">South Carolina</li>
+                                <li class="option" data-value="SD">South Dakota</li>
+                                <li class="option" data-value="TN">Tennessee</li>
+                                <li class="option" data-value="TX">Texas</li>
+                                <li class="option" data-value="UT">Utah</li>
+                                <li class="option" data-value="VT">Vermont</li>
+                                <li class="option" data-value="VA">Virginia</li>
+                                <li class="option" data-value="WA">Washington</li>
+                                <li class="option" data-value="WV">West Virginia</li>
+                                <li class="option" data-value="WI">Wisconsin</li>
+                                <li class="option" data-value="WY">Wyoming</li>
+                            </ul>
+                        </div>
+                        <div class="spinner-wrapper" style="top:12px">
+                            <div class="simple-spinner"></div>
+                        </div>
+                    </div>
+                    <div class="custom-dropdown" style="border-bottom: 1px solid var(--ui-support-element-color); margin-bottom: 1rem; display: none;" id="city-dropdown-wrapper">
+                        <div class="selected-option" id="city-dropdown" onclick="toggleDropdown('city')">Select a City</div>
+                        <ul class="dropdown-list" id="city-list">
+                            <li class="option placeholder" data-value="">Select a City</li>
+                        </ul>
+                    </div>
+                    <input style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-job-title" type="text" placeholder="Job Title" autocomplete="off">
+                </div>
+                <div style="margin-bottom: 1rem">
+                    <input style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-phone-number" type="tel" placeholder="Phone Number" autocomplete="off">
+                    <input style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-email" type="text" placeholder="Email" autocomplete="off">
+                    <input style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-compensation" type="number" placeholder="Compensation" autocomplete="off">
+                </div>
+            </div>
+            <textarea style="border: 1px solid var(--ui-support-element-color); height: 300px" class="text-input" id="candidate-notes" type="text" placeholder="Notes" autocomplete="off"></textarea>
+            <hr>
+            <div class="flex-display space-between">
+                <div class="flex-display vertical-align" style="margin-right:3rem;">
+                    <input style="display: none;" type="file" id="resume" name="candidate-resume" accept=".pdf, .doc, .docx" required>
+                    <div class="vertical-divider" style="height: var(--std-item-height)"></div>
+                    <button class="button"  onclick="document.getElementById('resume').click();">Upload Resume</button>
+                    <div style="margin-left: 1rem;" id="file-name"></div>
+                </div>
+                <button class="button"  onclick="document.getElementById('resume').click();">Submit Candidate</button>
+            </div>
+        <div>
+    </div>
+    <script>
+
+        function toggleDropdown(type) {
+            const listId = `#${type}-list`;
+            if ($(listId).is(':visible')) {
+                $(listId).hide();
+            } else {
+                $(listId).show();
+                if (type === 'state') {
+                    $('#city-list').hide();
+                }
+            }
+        }
+
+        $(document).ready(function() {
+
+            // Click anywhere to close dropdowns
+            $(document).click(function(event) {
+                // Close dropdown if clicked outside
+                if (!$(event.target).closest('.custom-dropdown').length) {
+                    $('.dropdown-list').hide(); // Hide all dropdowns if clicked outside
+                }
+            });
+
+            // Trigger file input when custom upload button is clicked
+            $('#upload-button').click(function() {
+                $('#resume').click();
+            });
+
+            // When a file is selected, display its name
+            $('#resume').change(function() {
+                var fileName = $(this).val().split('\\').pop();
+                $('#file-name').text(fileName);
+            });
+
+            // Handle state selection
+            $('#state-list').on('click', '.option', function() {
+                const state = $(this).data('value');
+                const stateName = $(this).text();
+                $('#state-dropdown').text(stateName);
+                $('#state-list').hide();
+                populateCities(state);
+            });
+
+            // Handle city selection
+            $('#city-list').on('click', '.option', function() {
+                const city = $(this).data('value');
+                const cityName = $(this).text();
+                $('#city-dropdown').text(cityName);
+                $('#city-list').hide();
+            });
+
+            // Fetch and populate cities for the selected state
+            function populateCities(state) {
+                // Show the spinner when fetching cities
+                $('.spinner-wrapper').show();
+                $('.simple-spinner').show();
+
+                // Clear existing city list
+                $('#city-list').empty();
+
+                // GeoNames API call to get cities for the selected state
+                const apiKey = 'darren101587'; // Your GeoNames API key
+                const geocodeUrl = `http://api.geonames.org/searchJSON?formatted=true&lang=en&country=US&adminCode1=${state}&maxRows=500&username=${apiKey}`;
+
+                $.get(geocodeUrl, function(data) {
+                    const cities = data.geonames.sort(function(a, b) {
+                        return a.name.localeCompare(b.name); // Sort cities alphabetically
+                    });
+
+                    cities.forEach(function(city) {
+                        $('#city-list').append(`<li class="option" data-value="${city.name}">${city.name}</li>`);
+                    });
+
+                    // Hide the spinner and show the city list
+                    $('.spinner-wrapper').hide();
+                    $('#city-list').show();
+                    $('#city-dropdown-wrapper').show(); // Make the city dropdown visible
+                }).fail(function() {
+                    alert('Error fetching cities.');
+                    $('.spinner-wrapper').hide();
+                });
+            }
+        });
+    </script>
+{% endblock %}
