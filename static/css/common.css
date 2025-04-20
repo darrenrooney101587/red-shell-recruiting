@@ -567,6 +567,8 @@ pre {
   transition: opacity 0.3s ease, margin-left 0.3s ease;
   margin-left: 0;
   font-size: 14px;
+  top: 2px;
+  position: relative;
 }
 
 #sidebar:hover .sidebar-text {
@@ -634,4 +636,90 @@ li.nav-item.sub {
 
 .white-space-pre {
   white-space: pre
+}
+
+
+
+.field-set input {
+  margin-bottom: 1rem;
+}
+
+.spinner-wrapper {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: none;
+}
+.simple-spinner {
+  display: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ccc;
+  border-top-color: #333;
+  border-radius: 50%;
+  animation: spin 0.675s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+
+.custom-dropdown {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  height: 30px;
+}
+
+.selected-option {
+  background-color: #fff;
+  color: var(--theme-base-color);
+  cursor: pointer;
+  padding-left: 3px;
+  outline: 0;
+  line-height: 24px;
+  font-size: 16px;
+  font-weight: 300;
+  opacity: 0.7;
+}
+
+.dropdown-list {
+  display: none;
+  position: absolute;
+  width: 100%;
+  max-height: 600px;
+  overflow-y: auto;
+  background-color: white;
+  z-index: 10;
+  box-shadow: -1px 8px 20px 3px rgba(0, 0, 0, .04)
+}
+
+.dropdown-list .option {
+  padding-top: 3px;
+  padding-bottom: 3px;
+  padding-left: 5px;
+  cursor: pointer;
+  color: var(--theme-base-color);
+  line-height: 24px;
+  height: 30px;
+  font-size: 16px;
+  font-weight: 300;
+}
+
+.dropdown-list .option:hover {
+  background-color: #f2f2f2;
+}
+
+.dropdown-list .placeholder {
+  color: var(--theme-base-color);
+  opacity: 0.5;
+}
+
+.dropdown-list .option.selected {
+  background-color: #4CAF50;
+  color: white;
 }

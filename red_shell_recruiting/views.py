@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.contrib import messages
+from django.views.generic import TemplateView
 
 
 def index(request):
@@ -25,3 +26,11 @@ def custom_403_view(request, exception=None):
     return render(
         request, "403.html", {"permission_error": permission_error}, status=403
     )
+
+
+class CandidateEnter(TemplateView):
+    template_name = 'red_shell_recruiting/candidate_input.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
