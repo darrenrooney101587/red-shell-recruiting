@@ -20,6 +20,8 @@ django-two-factor-auth = "^1.17.0"
 django-debug-toolbar = "^4.4.6"
 psutil = "^7.0.0"
 pillow = "^11.2.1"
+bcrypt = "^4.3.0"
+djangosaml2 = "^1.10.1"
 
 [build-system]
 requires = ["poetry-core"]

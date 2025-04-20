@@ -146,45 +146,50 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend'
 ]
 
+if os.getenv("SETUP_SSO"):
+    AUTHENTICATION_BACKENDS += ['account.views.CustomSAMLBackend']
+
 HOSTNAME = get_hostname_from_allowed_hosts()
-DEFAULT_PORT = ":8000" if HOSTNAME == "localhost" else ""
-SAML_ACS_URL = os.getenv("SAML_ACS_URL", f"http://{HOSTNAME}{DEFAULT_PORT}/saml2/acs/")
-SAML_SLO_URL = os.getenv("SAML_SLO_URL", f"http://{HOSTNAME}{DEFAULT_PORT}/saml2/ls/")
-SAML_OUTPUT_FILE = os.path.join(BASE_DIR, "account/saml", "saml_metadata.xml")
-SAML_CONFIG = {
-    "xmlsec_binary": os.getenv(
-        "XMLSEC_BINARY", shutil.which("xmlsec1") or "/usr/bin/xmlsec1"
-    ),
-    "entityid": f"sp-bms-admin-local",
-    "metadata": {"local": [SAML_OUTPUT_FILE]},
-    "attribute_mapping": {
-        "uid": ("username",),
-        "mail": ("email",),
-        "NameID": ("email",),
-    },
-    "service": {
-        "sp": {
-            "name": os.getenv("SAML_SP_NAME", "Local Django SAML Test"),
-            "endpoints": {
-                "assertion_consumer_service": [
-                    (SAML_ACS_URL, "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST")
-                ],
-                "single_logout_service": [
-                    (SAML_SLO_URL, "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect")
-                ],
-            },
-            "allow_unsolicited": True,
-            "authn_requests_signed": False,
-            "logout_requests_signed": False,
-            "want_assertions_signed": True,
-            "want_response_signed": False,
-        }
-    },
-}
-LOGIN_URL = "/accounts/auth/login/"
-LOGOUT_URL = "/accounts/auth/logout/"
+
+if os.getenv('SETUP_SSO'):
+    DEFAULT_PORT = ":8000" if HOSTNAME == "localhost" else ""
+    SAML_ACS_URL = os.getenv("SAML_ACS_URL", f"http://{HOSTNAME}{DEFAULT_PORT}/saml2/acs/")
+    SAML_SLO_URL = os.getenv("SAML_SLO_URL", f"http://{HOSTNAME}{DEFAULT_PORT}/saml2/ls/")
+    SAML_OUTPUT_FILE = os.path.join(BASE_DIR, "account/saml", "saml_metadata.xml")
+    SAML_CONFIG = {
+        "xmlsec_binary": os.getenv(
+            "XMLSEC_BINARY", shutil.which("xmlsec1") or "/usr/bin/xmlsec1"
+        ),
+        "entityid": f"sp-bms-admin-local",
+        "metadata": {"local": [SAML_OUTPUT_FILE]},
+        "attribute_mapping": {
+            "uid": ("username",),
+            "mail": ("email",),
+            "NameID": ("email",),
+        },
+        "service": {
+            "sp": {
+                "name": os.getenv("SAML_SP_NAME", "Local Django SAML Test"),
+                "endpoints": {
+                    "assertion_consumer_service": [
+                        (SAML_ACS_URL, "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST")
+                    ],
+                    "single_logout_service": [
+                        (SAML_SLO_URL, "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect")
+                    ],
+                },
+                "allow_unsolicited": True,
+                "authn_requests_signed": False,
+                "logout_requests_signed": False,
+                "want_assertions_signed": True,
+                "want_response_signed": False,
+            }
+        },
+    }
+LOGIN_URL = "/account/auth/login/"
+LOGOUT_URL = "/account/auth/logout/"
 LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "/accounts/auth/login/"
+LOGOUT_REDIRECT_URL = "/account/auth/login/"
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 DEFAULT_LOGGING_FORMAT = os.getenv('DEFAULT_LOGGING_FORMAT', 'json')

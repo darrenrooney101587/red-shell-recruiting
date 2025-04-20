@@ -7,7 +7,6 @@ import time
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
 from django.utils.timezone import now
 from django.contrib.auth import authenticate, login
@@ -24,7 +23,7 @@ import qrcode
 import base64
 from io import BytesIO
 from PIL import Image
-# from djangosaml2.backends import Saml2Backend
+from djangosaml2.backends import Saml2Backend
 from django.contrib.auth.models import Group, User
 
 from account.models import LoginAttempt
@@ -45,7 +44,7 @@ def change_password_view(request):
             messages.error(request, 'Please correct the error below.')
     else:
         form = PasswordChangeForm(request.user)
-    return render(request, 'accounts/change_password.html', {'form': form})
+    return render(request, 'account/change_password.html', {'form': form})
 
 
 def custom_login_view(request):
@@ -95,7 +94,7 @@ def custom_login_view(request):
                 request,
                 f"Too many login attempts. Try again in {remaining_time // 60:.0f} min {remaining_time % 60:.0f} sec.",
             )
-            return render(request, "accounts/login.html", context)
+            return render(request, "account/login.html", context)
 
         if user is not None:
             login(request, user)
@@ -117,7 +116,7 @@ def custom_login_view(request):
             LoginAttempt.record_attempt(username, client_ip, success=False)
             messages.error(request, "Invalid username or password")
 
-    return render(request, "accounts/login.html", context)
+    return render(request, "account/login.html", context)
 
 
 def custom_logout_view(request):
@@ -175,7 +174,7 @@ def otp_entry_view(request):
 
             messages.error(request, "Invalid OTP. Please try again.")
 
-    return render(request, "accounts/enter_otp.html")
+    return render(request, "account/enter_otp.html")
 
 
 @login_required
@@ -215,7 +214,7 @@ def verify_backup_token(request):
 
 
 class Disable2FAConfirmation(LoginRequiredMixin, TemplateView):
-    template_name = 'accounts/disable_2fa_confirmation.html'
+    template_name = 'account/disable_2fa_confirmation.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
@@ -252,7 +251,7 @@ def custom_disable_two_factor(request):
 
 
 class BackupTokensView(LoginRequiredMixin, TemplateView):
-    template_name = "accounts/backup_tokens.html"
+    template_name = "account/backup_tokens.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -308,7 +307,7 @@ def regenerate_backup_tokens(request):
 
 
 class Setup2FAView(LoginRequiredMixin, TemplateView):
-    template_name = "accounts/setup_2fa.html"
+    template_name = "account/setup_2fa.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -360,90 +359,90 @@ def verify_2fa_view(request):
     return JsonResponse(response_data, status=405)
 
 
-# class CustomSAMLBackend(Saml2Backend):
-#     """Custom SAML authentication backend to enforce MFA."""
-#
-#     def authenticate(
-#             self, request, session_info=None, attribute_mapping=None, *args, **kwargs
-#     ):
-#         if session_info is None:
-#             return None
-#
-#         attributes = session_info.get("ava", {})
-#
-#         # authn_info is a dict item provided by djangosaml2 with the
-#         # auth information used via Azure.  However it doesnt parse the MFA
-#         # method or if MFA is present, possibly due to a mismatch in expected
-#         # format.  So we take a first pass at authn_info to check for <AuthnStatement>
-#         # to contain the MFA info before parsing saml response xml
-#         '''
-#             <AuthnStatement
-#                 AuthnInstant="2024-12-27T15:31:57.857Z"
-#                 SessionIndex="_da242938-a4d6-4da6-9b37-abeb99002900"
-#             >
-#                 <AuthnContext>
-#                     <AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</AuthnContextClassRef>
-#                 </AuthnContext>
-#             </AuthnStatement>
-#         '''
-#         authn_methods = attributes.get("authn_methods", [])
-#         if isinstance(authn_methods, str):
-#             authn_methods = [authn_methods]
-#
-#         if not authn_methods and "authn_info" in session_info:
-#             authn_methods = [method[0] for method in session_info["authn_info"]]
-#
-#         # djangosaml2 does not parse out the <authnmethodsreferences> tag natively so
-#         # we need to use the middleware CaptureSAMLResponseMiddleware to capture the response
-#         # set it in the reqeust and parse it out ourselves.
-#         '''
-#             <Attribute Name="http://schemas.microsoft.com/claims/authnmethodsreferences">
-#                 <AttributeValue>http://schemas.microsoft.com/ws/2008/06/identity/authenticationmethod/password</AttributeValue>
-#                 <AttributeValue>http://schemas.microsoft.com/claims/multipleauthn</AttributeValue>
-#             </Attribute>
-#         '''
-#         if "http://schemas.microsoft.com/claims/multipleauthn" not in authn_methods:
-#             from bs4 import BeautifulSoup
-#
-#             soup = BeautifulSoup(request.saml_raw_response, "xml")
-#             authn_refs = soup.find_all(
-#                 "Attribute",
-#                 {"Name": "http://schemas.microsoft.com/claims/authnmethodsreferences"},
-#             )
-#             authn_methods = [
-#                 value.text
-#                 for attr in authn_refs
-#                 for value in attr.find_all("AttributeValue")
-#             ]
-#
-#         # this is the actual check for the MFA presence
-#         if "http://schemas.microsoft.com/claims/multipleauthn" not in authn_methods:
-#             logger.warning("MFA is required but was not verified.")
-#             raise PermissionDenied("MFA is required but was not verified.")
-#
-#         # extract email from NameID and fallback to emailAddress
-#         # since Azure is sending the email address as the NameID
-#         # we can move forward with NameID
-#         name_id_obj = session_info.get("name_id", None)
-#         name_id = (
-#             name_id_obj.text if name_id_obj else attributes.get("emailAddress", [""])[0]
-#         )
-#         email = name_id if name_id else attributes.get("mail", [""])[0]
-#
-#         if not email:
-#             raise PermissionDenied("No email address found in SAML response")
-#
-#         user, created = User.objects.get_or_create(
-#             email=email, defaults={"username": email}
-#         )
-#
-#         user.is_staff = True
-#         if created:
-#             user.groups.clear()
-#             user.is_superuser = False
-#
-#         user.first_name = attributes.get("givenname", [""])[0]
-#         user.last_name = attributes.get("surname", [""])[0]
-#         user.save()
-#
-#         return user
+class CustomSAMLBackend(Saml2Backend):
+    """Custom SAML authentication backend to enforce MFA."""
+
+    def authenticate(
+            self, request, session_info=None, attribute_mapping=None, *args, **kwargs
+    ):
+        if session_info is None:
+            return None
+
+        attributes = session_info.get("ava", {})
+
+        # authn_info is a dict item provided by djangosaml2 with the
+        # auth information used via Azure.  However it doesnt parse the MFA
+        # method or if MFA is present, possibly due to a mismatch in expected
+        # format.  So we take a first pass at authn_info to check for <AuthnStatement>
+        # to contain the MFA info before parsing saml response xml
+        '''
+            <AuthnStatement
+                AuthnInstant="2024-12-27T15:31:57.857Z"
+                SessionIndex="_da242938-a4d6-4da6-9b37-abeb99002900"
+            >
+                <AuthnContext>
+                    <AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</AuthnContextClassRef>
+                </AuthnContext>
+            </AuthnStatement>
+        '''
+        authn_methods = attributes.get("authn_methods", [])
+        if isinstance(authn_methods, str):
+            authn_methods = [authn_methods]
+
+        if not authn_methods and "authn_info" in session_info:
+            authn_methods = [method[0] for method in session_info["authn_info"]]
+
+        # djangosaml2 does not parse out the <authnmethodsreferences> tag natively so
+        # we need to use the middleware CaptureSAMLResponseMiddleware to capture the response
+        # set it in the reqeust and parse it out ourselves.
+        '''
+            <Attribute Name="http://schemas.microsoft.com/claims/authnmethodsreferences">
+                <AttributeValue>http://schemas.microsoft.com/ws/2008/06/identity/authenticationmethod/password</AttributeValue>
+                <AttributeValue>http://schemas.microsoft.com/claims/multipleauthn</AttributeValue>
+            </Attribute>
+        '''
+        if "http://schemas.microsoft.com/claims/multipleauthn" not in authn_methods:
+            from bs4 import BeautifulSoup
+
+            soup = BeautifulSoup(request.saml_raw_response, "xml")
+            authn_refs = soup.find_all(
+                "Attribute",
+                {"Name": "http://schemas.microsoft.com/claims/authnmethodsreferences"},
+            )
+            authn_methods = [
+                value.text
+                for attr in authn_refs
+                for value in attr.find_all("AttributeValue")
+            ]
+
+        # this is the actual check for the MFA presence
+        if "http://schemas.microsoft.com/claims/multipleauthn" not in authn_methods:
+            logger.warning("MFA is required but was not verified.")
+            raise PermissionDenied("MFA is required but was not verified.")
+
+        # extract email from NameID and fallback to emailAddress
+        # since Azure is sending the email address as the NameID
+        # we can move forward with NameID
+        name_id_obj = session_info.get("name_id", None)
+        name_id = (
+            name_id_obj.text if name_id_obj else attributes.get("emailAddress", [""])[0]
+        )
+        email = name_id if name_id else attributes.get("mail", [""])[0]
+
+        if not email:
+            raise PermissionDenied("No email address found in SAML response")
+
+        user, created = User.objects.get_or_create(
+            email=email, defaults={"username": email}
+        )
+
+        user.is_staff = True
+        if created:
+            user.groups.clear()
+            user.is_superuser = False
+
+        user.first_name = attributes.get("givenname", [""])[0]
+        user.last_name = attributes.get("surname", [""])[0]
+        user.save()
+
+        return user

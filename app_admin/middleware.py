@@ -25,8 +25,8 @@ class RestrictSSOAccessMiddleware:
             return self.get_response(request)
 
         if request.path.startswith(
-                "/accounts/auth/otp-entry/"
-        ) or request.path.startswith("/accounts/auth/login/"):
+                "/account/auth/otp-entry/"
+        ) or request.path.startswith("/account/auth/login/"):
             return self.get_response(request)
 
         is_sso_user = (
@@ -62,7 +62,7 @@ class ForceCustomLoginMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
         path = urlparse(request.path_info).path
-        if path.strip() in {"/accounts/login", "/account/login"}:
+        if path.strip() in {"/account/login", "/account/login"}:
             return redirect(settings.LOGIN_URL)
 
 

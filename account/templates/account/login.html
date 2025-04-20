@@ -23,7 +23,7 @@
                     >
                         {% if is_locked_out is False %}
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                {% include 'service/components/svg_components.html' with type='close-large' %}
+                                {% include 'red_shell_recruiting/components/svg_components.html' with type='close-large' %}
                             </button>
                         {% endif %}
                         {{ message }}
@@ -83,11 +83,11 @@
                 </div>
             </div>
         </form>
-        <hr>
-        <form action="{% url 'saml2_login' %}" method="get">
-            <button type="submit" class="button" style="width: 100%;">
-                SSO Login
-            </button>
-        </form>
+{#        <hr>#}
+{#        <form action="{% url 'saml2_login' %}" method="get">#}
+{#            <button type="submit" class="button" style="width: 100%;">#}
+{#                SSO Login#}
+{#            </button>#}
+{#        </form>#}
     </div>
 {% endblock %}

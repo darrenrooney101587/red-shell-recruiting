@@ -9,5 +9,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("healthz/", healthcheck),
     path("mechanic/", include("mechanic.urls")),
-    path("accounts/", include("account.urls"))
+    path("account/", include("account.urls"))
 ]
