@@ -16,7 +16,7 @@ data "aws_subnet" "public_2b" {
 
 resource "aws_security_group" "red_shell_prod_sg" {
   name        = "red-shell-prod-sg"
-  description = "Allow SSH, HTTP, HTTPS"
+  description = "Allow SSH, HTTP, HTTPS, PostgreSQL"
   vpc_id      = data.aws_vpc.default.id
 
   ingress {
@@ -39,6 +39,14 @@ resource "aws_security_group" "red_shell_prod_sg" {
     description = "HTTPS"
     from_port   = 443
     to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "PostgreSQL"
+    from_port   = 5432
+    to_port     = 5432
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
