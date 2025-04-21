@@ -18,7 +18,15 @@
                     <input style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-location" type="text" placeholder="Current Location" autocomplete="off">
                     <div class="flex-display" style="margin-bottom: 1rem; position: relative">
                         <div class="custom-dropdown" style="border-bottom: 1px solid var(--ui-support-element-color)">
-                            <div class="selected-option" id="state-dropdown" onclick="toggleDropdown('state')">Select a State</div>
+                            <div class="flex-display space-between">
+                                <div class="selected-option" id="state-dropdown">Select a State</div>
+                                <span class="chevron-down">
+                                    {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}
+                                </span>
+                                    <span class="chevron-up" style="display: none;">
+                                    {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}
+                                </span>
+                            </div>
                             <ul class="dropdown-list" id="state-list">
                                 <li class="option placeholder" data-value="">Select a State</li>
                                 <li class="option" data-value="AL">Alabama</li>
@@ -73,12 +81,20 @@
                                 <li class="option" data-value="WY">Wyoming</li>
                             </ul>
                         </div>
-                        <div class="spinner-wrapper" style="top:12px">
+                        <div class="spinner-wrapper" style="top:12px; left: calc(100% - 14%)">
                             <div class="simple-spinner"></div>
                         </div>
                     </div>
                     <div class="custom-dropdown" style="border-bottom: 1px solid var(--ui-support-element-color); margin-bottom: 1rem; display: none;" id="city-dropdown-wrapper">
-                        <div class="selected-option" id="city-dropdown" onclick="toggleDropdown('city')">Select a City</div>
+                        <div class="flex-display space-between">
+                            <div class="selected-option" id="city-dropdown">Select a City</div>
+                            <span class="chevron-down">
+                                    {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}
+                                </span>
+                            <span class="chevron-up" style="display: none;">
+                                {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}
+                            </span>
+                        </div>
                         <ul class="dropdown-list" id="city-list">
                             <li class="option placeholder" data-value="">Select a City</li>
                         </ul>
@@ -106,64 +122,82 @@
     </div>
     <script>
 
-        function toggleDropdown(type) {
-            const listId = `#${type}-list`;
-            if ($(listId).is(':visible')) {
-                $(listId).hide();
-            } else {
-                $(listId).show();
-                if (type === 'state') {
-                    $('#city-list').hide();
-                }
-            }
-        }
-
         $(document).ready(function() {
 
-            // Click anywhere to close dropdowns
-            $(document).click(function(event) {
-                // Close dropdown if clicked outside
-                if (!$(event.target).closest('.custom-dropdown').length) {
-                    $('.dropdown-list').hide(); // Hide all dropdowns if clicked outside
+            // Toggle dropdown visibility and handle chevrons
+            $('.custom-dropdown').click(function(event) {
+                const dropdownId = $(this).find('.dropdown-list');
+                const chevronDown = $(this).find('.chevron-down');
+                const chevronUp = $(this).find('.chevron-up');
+
+                // Prevent event from propagating to document (to avoid triggering the document click handler)
+                event.stopPropagation();
+
+                // Show or hide the dropdown and toggle the chevrons
+                if (dropdownId.is(':visible')) {
+                    dropdownId.hide();
+                    chevronDown.show();  // Show the down chevron
+                    chevronUp.hide();    // Hide the up chevron
+                } else {
+                    dropdownId.show();
+                    chevronDown.hide();  // Hide the down chevron
+                    chevronUp.show();    // Show the up chevron
                 }
             });
 
-            // Trigger file input when custom upload button is clicked
-            $('#upload-button').click(function() {
-                $('#resume').click();
-            });
-
-            // When a file is selected, display its name
-            $('#resume').change(function() {
-                var fileName = $(this).val().split('\\').pop();
-                $('#file-name').text(fileName);
+            // Close the dropdown if clicked outside of the dropdown
+            $(document).click(function(event) {
+                // Check if the click is outside the dropdown
+                if (!$(event.target).closest('.custom-dropdown').length) {
+                    $('.dropdown-list').hide(); // Hide all dropdowns if clicked outside
+                    $('.chevron-down').show();  // Reset chevrons to down
+                    $('.chevron-up').hide();    // Hide chevron-up
+                }
             });
 
             // Handle state selection
             $('#state-list').on('click', '.option', function() {
-                const state = $(this).data('value');
-                const stateName = $(this).text();
-                $('#state-dropdown').text(stateName);
-                $('#state-list').hide();
-                populateCities(state);
+                const state = $(this).data('value'); // Get the data-value of the clicked option
+                const stateName = $(this).text();   // Get the text of the clicked option
+
+                // Update the selected state name in the dropdown display
+                $('#state-dropdown').text(stateName); // Corrected this line
+
+                // Hide the state dropdown
+                $(this).hide();
+
+                // Show the down chevron and hide the up chevron
+                $('#state-chevron-down').show();
+                $('#state-chevron-up').hide();
+
+                // Call function to populate cities for the selected state
+                populateCities(state); // Ensure this function is correctly defined
             });
 
             // Handle city selection
             $('#city-list').on('click', '.option', function() {
                 const city = $(this).data('value');
                 const cityName = $(this).text();
+
+                // Update the selected city name
                 $('#city-dropdown').text(cityName);
-                $('#city-list').hide();
+
+                // Hide the city dropdown and flip the chevrons
+                $(this).hide();
+                $('#city-chevron-down').show();
+                $('#city-chevron-up').hide();
             });
 
             // Fetch and populate cities for the selected state
             function populateCities(state) {
+
                 // Show the spinner when fetching cities
                 $('.spinner-wrapper').show();
                 $('.simple-spinner').show();
 
                 // Clear existing city list
                 $('#city-list').empty();
+                $('#city-list').append('<li class="option placeholder" data-value="">Select a City</li>');
 
                 // GeoNames API call to get cities for the selected state
                 const apiKey = 'darren101587'; // Your GeoNames API key
@@ -174,6 +208,7 @@
                         return a.name.localeCompare(b.name); // Sort cities alphabetically
                     });
 
+                    // Populate the city list
                     cities.forEach(function(city) {
                         $('#city-list').append(`<li class="option" data-value="${city.name}">${city.name}</li>`);
                     });
@@ -188,5 +223,6 @@
                 });
             }
         });
+
     </script>
 {% endblock %}
