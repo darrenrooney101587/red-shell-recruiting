@@ -21,6 +21,8 @@ services:
     entrypoint: [ "/bin/bash", "/docker-entrypoint.sh" ]
     expose:
       - "${CONTAINER_PORT:-5000}"
+    networks:
+      - red-shell-recruiting
 
   db:
     image: postgres:15
@@ -32,6 +34,8 @@ services:
       POSTGRES_DB: postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - red-shell-recruiting
 
 
   reverse-proxy:
@@ -47,6 +51,8 @@ services:
     depends_on:
       - web
     profiles: ["production"]
+    networks:
+      - red-shell-recruiting
 
   certbot:
     image: certbot/certbot
@@ -54,6 +60,12 @@ services:
       - ./certbot/www:/var/www/certbot
       - ./certbot/conf:/etc/letsencrypt
     profiles: ["production"]
+    networks:
+      - red-shell-recruiting
 
 volumes:
   postgres_data:
+
+networks:
+  red-shell-recruiting:
+    driver: bridge
