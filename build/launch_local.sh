@@ -1,1 +1,1 @@
-docker-compose --env-file .env.local up
+docker-compose -f docker-compose.local.yml  --env-file .env.local up
