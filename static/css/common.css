@@ -675,6 +675,10 @@ li.nav-item.sub {
   height: 30px;
 }
 
+.custom-dropdown:hover {
+  cursor: pointer;
+}
+
 .selected-option {
   background-color: #fff;
   color: var(--theme-base-color);
@@ -705,7 +709,6 @@ li.nav-item.sub {
   cursor: pointer;
   color: var(--theme-base-color);
   line-height: 24px;
-  height: 30px;
   font-size: 16px;
   font-weight: 300;
 }
