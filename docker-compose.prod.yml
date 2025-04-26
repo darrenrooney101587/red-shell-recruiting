@@ -12,8 +12,6 @@ services:
       - .:/app
     env_file:
       - .env.prod
-    depends_on:
-      - db
     environment:
       # available at runtime
       - PORT=${CONTAINER_PORT:-5000}
@@ -23,20 +21,6 @@ services:
       - "${CONTAINER_PORT:-5000}"
     networks:
       - red-shell-recruiting_red-shell-recruiting
-
-  db:
-    image: postgres:15
-    ports:
-      - "5565:5432"
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - red-shell-recruiting_red-shell-recruiting
-
 
   reverse-proxy:
     image: nginx:latest
