@@ -3,3 +3,4 @@ red-shell-recruiting-dev.pem
 .env
 /.idea/
 red-shell-recruiting.iml
+.env.prod

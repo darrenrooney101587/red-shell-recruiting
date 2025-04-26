@@ -104,7 +104,7 @@ DATABASES = {
         "NAME": os.getenv("POSTGRES_DB"),
         "USER": os.getenv("POSTGRES_USER"),
         "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-        "HOST": 'db' if is_running_in_docker() else os.getenv("POSTGRES_HOST"),
+        "HOST": os.getenv("POSTGRES_HOST"),
         "PORT": 5432 if is_running_in_docker() else os.getenv("POSTGRES_PORT"),
     }
 }
