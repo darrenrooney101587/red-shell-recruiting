@@ -23,10 +23,6 @@ RUN xmlsec1 --version
 RUN pip install --upgrade pip setuptools wheel poetry
 
 COPY . .
-COPY ./config/django_nginx.conf /etc/nginx/sites-available/
-COPY ./config/django_nginx.conf /etc/nginx/sites-available/django_nginx.conf
-
-RUN ln -sf /etc/nginx/sites-available/django_nginx.conf /etc/nginx/sites-enabled/default
 RUN poetry install --no-root
 
 COPY ./config/docker-entrypoint.sh /docker-entrypoint.sh
