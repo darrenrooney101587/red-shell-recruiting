@@ -33,6 +33,7 @@ services:
       - ./certbot/www:/var/www/certbot
       - ./certbot/conf:/etc/letsencrypt
       - .:/app
+      - ./static:/static
     depends_on:
       - web
     profiles: ["production"]
