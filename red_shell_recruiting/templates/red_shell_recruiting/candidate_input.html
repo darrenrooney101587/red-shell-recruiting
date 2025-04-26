@@ -201,7 +201,7 @@
 
                 // GeoNames API call to get cities for the selected state
                 const apiKey = 'darren101587'; // Your GeoNames API key
-                const geocodeUrl = `https://api.geonames.org/searchJSON?formatted=true&lang=en&country=US&adminCode1=${state}&maxRows=500&username=${apiKey}`;
+                const geocodeUrl = `https://secure.geonames.org/searchJSON?formatted=true&lang=en&country=US&adminCode1=${state}&maxRows=500&username=${apiKey}`;
 
                 $.get(geocodeUrl, function(data) {
                     const cities = data.geonames.sort(function(a, b) {
