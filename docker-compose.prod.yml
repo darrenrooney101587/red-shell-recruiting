@@ -22,7 +22,7 @@ services:
     expose:
       - "${CONTAINER_PORT:-5000}"
     networks:
-      - red-shell-recruiting
+      - red-shell-recruiting_red-shell-recruiting
 
   db:
     image: postgres:15
@@ -35,7 +35,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - red-shell-recruiting
+      - red-shell-recruiting_red-shell-recruiting
 
 
   reverse-proxy:
@@ -52,7 +52,7 @@ services:
       - web
     profiles: ["production"]
     networks:
-      - red-shell-recruiting
+      - red-shell-recruiting_red-shell-recruiting
 
   certbot:
     image: certbot/certbot
@@ -61,7 +61,7 @@ services:
       - ./certbot/conf:/etc/letsencrypt
     profiles: ["production"]
     networks:
-      - red-shell-recruiting
+      - red-shell-recruiting_red-shell-recruiting
 
 volumes:
   postgres_data:
