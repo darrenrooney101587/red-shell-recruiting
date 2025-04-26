@@ -1,3 +1,5 @@
 red-shell-recruiting-dev.pem
 /.commands
 .env
+/.idea/
+red-shell-recruiting.iml
