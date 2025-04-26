@@ -106,18 +106,6 @@ DATABASES = {
         "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
         "HOST": 'db' if is_running_in_docker() else os.getenv("POSTGRES_HOST"),
         "PORT": 5432 if is_running_in_docker() else os.getenv("POSTGRES_PORT"),
-    },
-    'bms': {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("BMS_DB", "postgres"),
-        "USER": os.getenv("BMS_USER", "postgres"),
-        "PASSWORD": os.getenv("BMS_PASSWORD", "postgres"),
-        "HOST": os.getenv("BMS_HOST", "localhost"),
-        "PORT": os.getenv("BMS_PORT", "5432"),
-        'OPTIONS': {
-            'options': '-c search_path=public',
-            'application_name': f'reporting-sync-server',
-        }
     }
 }
 

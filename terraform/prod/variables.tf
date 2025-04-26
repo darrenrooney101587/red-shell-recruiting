@@ -19,6 +19,7 @@ variable "eip_allocation_id" {
   description = "Elastic IP allocation ID to attach to the EC2 instance"
   type        = string
 }
+
 variable "db_identifier" {
   description = "RDS instance identifier"
   type        = string

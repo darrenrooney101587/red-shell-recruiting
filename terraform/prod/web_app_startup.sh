@@ -23,4 +23,4 @@ cd /home/ec2-user/red-shell-recruiting
 # sudo -u ec2-user git pull
 
 # Bring up docker-compose (production profile)
-docker-compose --profile production up -d
+docker-compose -f docker-comopose.prod.yml --profile production up -d
