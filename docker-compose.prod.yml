@@ -67,5 +67,5 @@ volumes:
   postgres_data:
 
 networks:
-  red-shell-recruiting:
+  red-shell-recruiting_red-shell-recruiting:
     driver: bridge

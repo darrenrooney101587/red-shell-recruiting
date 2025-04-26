@@ -2,6 +2,17 @@
 import os
 import sys
 
+def setup():
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bms_admin.settings')
+    try:
+        from environment import load_env
+
+        load_env()
+    except ImportError as e:
+        print("Unable to import the environment")
+        pass
+
+
 def main():
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'app_admin.settings')
