@@ -32,6 +32,7 @@ services:
       - ./nginx/conf.d:/etc/nginx/conf.d
       - ./certbot/www:/var/www/certbot
       - ./certbot/conf:/etc/letsencrypt
+      - .:/app
     depends_on:
       - web
     profiles: ["production"]
