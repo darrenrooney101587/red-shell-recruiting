@@ -7,21 +7,21 @@ echo 'Collecting static files...(this may start the application be default)'
 poetry run python manage.py collectstatic --noinput --clear || { echo 'Failed to clear static files!'; }
 echo 'Done collecting static files....'
 
-#PORT=${PORT:-5000}
-#echo "Using PORT: $PORT"
-#sed -i "s/__PORT__/$PORT/g" /etc/nginx/sites-available/django_nginx.conf
+PORT=${PORT:-5000}
+echo "Using PORT: $PORT"
+sed -i "s/__PORT__/$PORT/g" /etc/nginx/sites-available/django_nginx.conf
 
-#cat /etc/nginx/sites-available/django_nginx.conf
-#
-## Start Gunicorn processes
-#echo 'Starting nginx...'
-#nginx -g "daemon on;"
-#if [ $? -eq 0 ]; then
-#    echo 'Nginx started successfully...'
-#else
-#    echo 'Failed to start Nginx...'
-#    exit 1
-#fi
+cat /etc/nginx/sites-available/django_nginx.conf
+
+# Start Gunicorn processes
+echo 'Starting nginx...'
+nginx -g "daemon on;"
+if [ $? -eq 0 ]; then
+    echo 'Nginx started successfully...'
+else
+    echo 'Failed to start Nginx...'
+    exit 1
+fi
 
 echo "Starting Gunicorn..."
 exec poetry run gunicorn app_admin.wsgi \
