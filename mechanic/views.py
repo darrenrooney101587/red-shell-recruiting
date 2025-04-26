@@ -6,7 +6,7 @@ import django
 from django.shortcuts import render
 
 
-@login_required
+
 def index(request):
     sensitive_settings = [
         'SECRET_KEY',
