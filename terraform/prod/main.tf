@@ -84,3 +84,18 @@ output "instance_public_dns" {
 output "instance_id" {
   value = aws_instance.web.id
 }
+
+resource "aws_instance" "web" {
+  ami                    = var.ami_id
+  instance_type          = "t2.micro"
+  subnet_id              = data.aws_subnet.public_2b.id
+  vpc_security_group_ids = [aws_security_group.red_shell_prod_sg.id]
+  key_name               = var.key_name
+  associate_public_ip_address = true
+
+  user_data = file("${path.module}/user_data.sh")
+
+  tags = {
+    Name = var.instance_name
+  }
+}
