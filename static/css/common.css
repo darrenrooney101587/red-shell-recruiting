@@ -567,7 +567,7 @@ pre {
   transition: opacity 0.3s ease, margin-left 0.3s ease;
   margin-left: 0;
   font-size: 14px;
-  top: 2px;
+  top: 0px;
   position: relative;
 }
 
@@ -725,4 +725,8 @@ li.nav-item.sub {
 .dropdown-list .option.selected {
   background-color: #4CAF50;
   color: white;
+}
+
+.footer__separator {
+  margin-right: 0.5rem;
 }
