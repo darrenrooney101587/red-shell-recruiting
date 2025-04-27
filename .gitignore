@@ -5,3 +5,4 @@ red-shell-recruiting-dev.pem
 red-shell-recruiting.iml
 .env.prod
 /staticfiles/
+/reporting-sync-server.sock

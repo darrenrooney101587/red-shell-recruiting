@@ -78,15 +78,24 @@ class CandidateSearch(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         query = self.request.GET.get('q', '')
+        candidates = CandidateProfile.objects.all()
 
-        candidates = CandidateProfile.objects.none()
         if query:
             search_query = SearchQuery(query)
-            candidates = CandidateProfile.objects.annotate(
+            candidates = candidates.annotate(
                 rank=SearchRank(SearchVector('search_document'), search_query)
             ).filter(
                 search_document=search_query
             ).order_by('-rank')
+
+        if self.request.GET.get('candidate-looking'):
+            candidates = candidates.filter(actively_looking=True)
+
+        if self.request.GET.get('candidate-relocation'):
+            candidates = candidates.filter(open_to_relocation=True)
+
+        if self.request.GET.get('currently-working'):
+            candidates = candidates.filter(currently_working=True)
 
         context['candidates'] = candidates
         context['query'] = query

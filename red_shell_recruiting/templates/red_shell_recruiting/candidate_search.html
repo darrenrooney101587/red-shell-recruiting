@@ -8,17 +8,82 @@
 {% endblock %}
 {% block content %}
     <div>
-        <form method="get" action="{% url 'candidate-search' %}">
-            {% csrf_token %}
-            <input type="text" name="q" value="{{ query }}" placeholder="Search candidates..." />
-            <button type="submit">Search</button>
-        </form>
+        <div class="flex-display justify-center" style="margin: 0 auto; width: 600px;">
+            <form method="get" action="{% url 'candidate-search' %}" style="width: 100%;">
+                {% csrf_token %}
+                <div class="flex-display">
+                    <input style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" type="text" class="text-input" name="q" value="{{ query }}" placeholder="Search candidates..." />
+                    <button class="button" type="submit">Search</button>
+                </div>
+
+                <div class="flex-display vertical-align justify-center" style="margin-top: 1rem;">
+                    <label class="toggle flex-display vertical-align justify-center" style="margin-right: 1rem;">
+                        <input type="checkbox" name="candidate-looking" {% if request.GET.actively_looking %}checked{% endif %} class="toggle-checkbox">
+                        <div class="toggle-switch"></div>
+                        <span>Actively Looking</span>
+                    </label>
+
+                    <label class="toggle flex-display vertical-align justify-center" style="margin-right: 1rem;">
+                        <input type="checkbox" name="candidate-relocation" {% if request.GET.open_to_relocation %}checked{% endif %} class="toggle-checkbox">
+                        <div class="toggle-switch"></div>
+                        <span>Open to Relocation</span>
+                    </label>
+
+                    <label class="toggle flex-display vertical-align justify-center">
+                        <input type="checkbox" name="currently-working" {% if request.GET.currently_working %}checked{% endif %} class="toggle-checkbox">
+                        <div class="toggle-switch"></div>
+                        <span>Currently Working</span>
+                    </label>
+                </div>
+            </form>
+        </div>
         {% if candidates %}
             <ul>
                 {% for candidate in candidates %}
                     <li>
-                        <strong>{{ candidate.first_name }} {{ candidate.last_name }}</strong> -
-                        {{ candidate.job_title }} - {{ candidate.city }}, {{ candidate.state }}
+                        <div class="candidate-card section" style="width: 400px">
+                            <div class="flex-display space-between">
+                                <h2>{{ candidate.first_name }} {{ candidate.last_name }}</h2>
+                                <h2>{{ candidate.job_title }}</h2>
+                            </div>
+                            <hr>
+                            <div class="flex-display">
+                                <label class="toggle flex-display vertical-align justify-center">
+                                    <input
+                                        class="toggle-checkbox"
+                                        type="checkbox"
+                                        {% if candidate.actively_looking %}checked{% endif %}
+                                        disabled
+                                    >
+                                    <div class="toggle-switch"></div>
+                                    <span>Actively Looking</span>
+                                </label>
+                            </div>
+                            <div class="flex-display">
+                                <label class="toggle flex-display vertical-align justify-center">
+                                    <input
+                                        class="toggle-checkbox"
+                                        type="checkbox"
+                                        {% if candidate.open_to_relocation %}checked{% endif %}
+                                        disabled
+                                    >
+                                    <div class="toggle-switch"></div>
+                                    <span>Open to Relocation</span>
+                                </label>
+                            </div>
+                            <div class="flex-display">
+                                <label class="toggle flex-display vertical-align justify-center">
+                                    <input
+                                        class="toggle-checkbox"
+                                        type="checkbox"
+                                        {% if candidate.currently_working %}checked{% endif %}
+                                        disabled
+                                    >
+                                    <div class="toggle-switch"></div>
+                                    <span>Currently Working</span>
+                                </label>
+                            </div>
+                        </div>
                     </li>
                 {% endfor %}
             </ul>
