@@ -3,20 +3,23 @@
 {% block title %}
     Candidate Input
 {% endblock %}
+{% block css-extra %}
+    <link rel="stylesheet" href="{% static 'css/candidate.css' %}">
+{% endblock %}
 {% block content %}
     <div style="max-width:1000px; width: 50%; margin: 0 auto; margin-top: 4rem;">
-        <form class="section" action="{% url 'candidate-submit' %}" method="post">
+        <form class="section" action="{% url 'candidate-submit' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div style="margin-bottom: 2rem">
                 <h1>Enter Candidate</h1>
                 <hr>
             </div>
             <div class="field-set flex-display" style="column-gap: 2rem">
-                <div style="margin-bottom: 1rem; position: relative">
-                    <input style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-name" type="text" placeholder="Name of Candidate" autocomplete="off">
-                    <input style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-location" type="text" placeholder="Current Location" autocomplete="off">
+                <div style="width: 50%; margin-bottom: 1rem; position: relative">
+                    <input tabindex="1" required name="candidate-first-name" style="border-bottom: 1px solid var(--ui-support-element-color)" id="candidate-first-name" type="text" class="text-input" placeholder="First Name" autocomplete="off">
+                    <input required name="candidate-last-name" tabindex="2" style="border-bottom: 1px solid var(--ui-support-element-color)" id="candidate-last-name" type="text" class="text-input" placeholder="Last Name" autocomplete="off">
                     <div class="flex-display" style="margin-bottom: 1rem; position: relative">
-                        <div class="custom-dropdown" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                        <div tabindex="3" class="custom-dropdown" style="border-bottom: 1px solid var(--ui-support-element-color)">
                             <div class="flex-display space-between">
                                 <div class="selected-option" id="state-dropdown">Select a State</div>
                                 <span class="chevron-down">
@@ -97,128 +100,179 @@
                         <ul class="dropdown-list" id="city-list">
                             <li class="option placeholder" data-value="">Select a City</li>
                         </ul>
+                        <input required type="hidden" name="candidate-state" id="state-hidden">
+                        <input required type="hidden" name="candidate-city" id="city-hidden">
                     </div>
-                    <input style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-job-title" type="text" placeholder="Job Title" autocomplete="off">
+                    <input tabindex="4" required name="candidate-job-title" style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-job-title" type="text" placeholder="Job Title" autocomplete="off">
                 </div>
-                <div style="margin-bottom: 1rem">
-                    <input style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-phone-number" type="tel" placeholder="Phone Number" autocomplete="off">
-                    <input style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-email" type="text" placeholder="Email" autocomplete="off">
-                    <input style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-compensation" type="number" placeholder="Compensation" autocomplete="off">
+                <div style="width: 50%; margin-bottom: 1rem">
+                    <input required tabindex="5" name="candidate-phone-number" style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-phone-number" type="tel" placeholder="Phone Number" autocomplete="off">
+                    <input required tabindex="6" name="candidate-email" style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-email" type="email" placeholder="Email" autocomplete="off">
+                    <input tabindex="7" name="candidate-compensation" style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-compensation" type="number" placeholder="Compensation" autocomplete="off">
+                    <div class="align-baseline column flex-display flex-start toggle-container">
+                        <label class="toggle flex-display vertical-align justify-center">
+                            <input name="candidate-looking" id="candidate-looking" class="toggle-checkbox" type="checkbox">
+                            <div class="toggle-switch"></div>
+                            <span>Actively Looking</span>
+                        </label>
+                        <label class="toggle flex-display vertical-align justify-center">
+                            <input name="candidate-relocation" id="candidate-relocation" class="toggle-checkbox" type="checkbox">
+                            <div class="toggle-switch"></div>
+                            <span>Open to relocation</span>
+                        </label>
+                        <label class="toggle flex-display vertical-align justify-center">
+                            <input name="candidate-working" id="candidate-working" class="toggle-checkbox" type="checkbox">
+                            <div class="toggle-switch"></div>
+                            <span>Currently working</span>
+                        </label>
+                    </div>
                 </div>
             </div>
-            <textarea style="border: 1px solid var(--ui-support-element-color); height: 200px; padding: 0.5rem;" class="text-input" id="candidate-notes" type="text" placeholder="Notes" autocomplete="off"></textarea>
+            <textarea tabindex="8" required name="candidate-notes" style="border: 1px solid var(--ui-support-element-color); height: 200px; padding: 0.5rem;" class="text-input" id="candidate-notes" type="text" placeholder="Notes" autocomplete="off"></textarea>
             <hr>
             <div class="flex-display space-between">
                 <div class="flex-display vertical-align" style="margin-right:3rem;">
-                    <input style="display: none;" type="file" id="resume" name="candidate-resume" accept=".pdf, .doc, .docx" required>
+                    <input required style="display: none;" type="file" id="resume" name="candidate_resume" accept=".pdf, .doc, .docx">
                     <div class="vertical-divider" style="height: var(--std-item-height)"></div>
-                    <button class="button" onclick="document.getElementById('resume').click();">Upload Resume</button>
+                    <button type="button" class="button" onclick="document.getElementById('resume').click();">Upload Resume</button>
                     <div style="margin-left: 1rem;" id="file-name"></div>
                 </div>
-                <button type="submit" class="button">Submit Candidate</button>
+                <button id="submit-btn" type="submit" class="button">Submit Candidate</button>
             </div>
-        <div>
+        </form>
     </div>
     <script>
 
         $(document).ready(function() {
-
             $('.custom-dropdown').click(function(event) {
-                const dropdownId = $(this).find('.dropdown-list');
+                const dropdownList = $(this).find('.dropdown-list');
                 const chevronDown = $(this).find('.chevron-down');
                 const chevronUp = $(this).find('.chevron-up');
 
-                // prevent event from propagating to document (to avoid triggering the document click handler)
                 event.stopPropagation();
 
-                if (dropdownId.is(':visible')) {
-                    dropdownId.hide();
+                if (dropdownList.is(':visible')) {
+                    dropdownList.hide();
                     chevronDown.show();
                     chevronUp.hide();
                 } else {
-                    dropdownId.show();
+                    dropdownList.show();
                     chevronDown.hide();
                     chevronUp.show();
                 }
             });
 
-            // Close the dropdown if clicked outside of the dropdown
             $(document).click(function(event) {
-                // Check if the click is outside the dropdown
                 if (!$(event.target).closest('.custom-dropdown').length) {
-                    $('.dropdown-list').hide(); // Hide all dropdowns if clicked outside
-                    $('.chevron-down').show();  // Reset chevrons to down
-                    $('.chevron-up').hide();    // Hide chevron-up
+                    $('.dropdown-list').hide();
+                    $('.chevron-down').show();
+                    $('.chevron-up').hide();
                 }
             });
 
-            // Handle state selection
-            $('#state-list').on('click', '.option', function() {
-                const state = $(this).data('value'); // Get the data-value of the clicked option
-                const stateName = $(this).text();   // Get the text of the clicked option
+            $('#submit-btn').click(function(event) {
 
-                // Update the selected state name in the dropdown display
-                $('#state-dropdown').text(stateName); // Corrected this line
+                const state = $('#state-hidden').val();
+                const city = $('#city-hidden').val();
 
-                // Hide the state dropdown
-                $(this).hide();
+                if (!state || !city) {
+                    event.preventDefault();
+                    alert('Please select both a State and a City.');
+                    return false;
+                }
 
-                // Show the down chevron and hide the up chevron
-                $('#state-chevron-down').show();
-                $('#state-chevron-up').hide();
+                const phone = $('#candidate-phone-number').val().trim();
+                const email = $('#candidate-email').val().trim();
 
-                // Call function to populate cities for the selected state
-                populateCities(state); // Ensure this function is correctly defined
+                const phoneDigits = phone.replace(/\D/g, '');
+                if (phoneDigits.length < 10 || phoneDigits.length > 15) {
+                    event.preventDefault();
+                    alert('Please enter a valid phone number.');
+                    return false;
+                }
+
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    event.preventDefault();
+                    alert('Please enter a valid email address.');
+                    return false;
+                }
+
             });
 
-            // Handle city selection
-            $('#city-list').on('click', '.option', function() {
+            $('#candidate-phone-number').on('input', function() {
+                let input = $(this).val();
+                input = input.replace(/\D/g, '');
+
+                if (input.length > 3 && input.length <= 6) {
+                    input = input.slice(0,3) + '-' + input.slice(3);
+                } else if (input.length > 6) {
+                    input = input.slice(0,3) + '-' + input.slice(3,6) + '-' + input.slice(6,10);
+                }
+
+                $(this).val(input);
+            });
+
+            $('#state-list').on('click', '.option', function(event) {
+                event.stopPropagation();
+                const state = $(this).data('value');
+                const stateName = $(this).text();
+
+                $('#state-dropdown').text(stateName);
+                $('#state-hidden').val(state);
+
+                $(this).closest('.dropdown-list').hide();
+                $(this).closest('.custom-dropdown').find('.chevron-down').show();
+                $(this).closest('.custom-dropdown').find('.chevron-up').hide();
+
+                populateCities(state);
+            });
+
+            $('#city-list').on('click', '.option', function(event) {
+                event.stopPropagation();
                 const city = $(this).data('value');
                 const cityName = $(this).text();
 
-                // Update the selected city name
                 $('#city-dropdown').text(cityName);
+                $('#city-hidden').val(city);
 
-                // Hide the city dropdown and flip the chevrons
-                $(this).hide();
-                $('#city-chevron-down').show();
-                $('#city-chevron-up').hide();
+                $(this).closest('.dropdown-list').hide();
+                $(this).closest('.custom-dropdown').find('.chevron-down').show();
+                $(this).closest('.custom-dropdown').find('.chevron-up').hide();
             });
 
-            // Fetch and populate cities for the selected state
             function populateCities(state) {
-
-                // Show the spinner when fetching cities
                 $('.spinner-wrapper').show();
                 $('.simple-spinner').show();
 
-                // Clear existing city list
                 $('#city-list').empty();
                 $('#city-list').append('<li class="option placeholder" data-value="">Select a City</li>');
 
-                // GeoNames API call to get cities for the selected state
-                const apiKey = 'darren101587'; // Your GeoNames API key
+                const apiKey = 'darren101587';
                 const geocodeUrl = `https://secure.geonames.org/searchJSON?formatted=true&lang=en&country=US&adminCode1=${state}&maxRows=500&username=${apiKey}`;
 
                 $.get(geocodeUrl, function(data) {
                     const cities = data.geonames.sort(function(a, b) {
-                        return a.name.localeCompare(b.name); // Sort cities alphabetically
+                        return a.name.localeCompare(b.name);
                     });
 
-                    // Populate the city list
                     cities.forEach(function(city) {
                         $('#city-list').append(`<li class="option" data-value="${city.name}">${city.name}</li>`);
                     });
 
-                    // Hide the spinner and show the city list
                     $('.spinner-wrapper').hide();
                     $('#city-list').show();
-                    $('#city-dropdown-wrapper').show(); // Make the city dropdown visible
+                    $('#city-dropdown-wrapper').show();
                 }).fail(function() {
                     alert('Error fetching cities.');
                     $('.spinner-wrapper').hide();
                 });
             }
+
+            $('#resume').on('change', function() {
+                var fileName = $(this).val().split('\\').pop();
+                $('#file-name').text(fileName);
+            });
         });
 
     </script>
