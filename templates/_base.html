@@ -61,7 +61,7 @@
                                     <a href="{% url 'candidate-submit' %}" class="nav-link">Enter Candidates</a>
                                 </li>
                                 <li class="nav-item sub">
-                                    <a href="{% url 'setup-2fa' %}" class="nav-link">Search Candidates</a>
+                                    <a href="{% url 'candidate-search' %}" class="nav-link">Search Candidates</a>
                                 </li>
                             </ul>
                         </li>
@@ -71,7 +71,7 @@
                                     <span class="sidebar-icon">
                                         {% include 'red_shell_recruiting/components/svg_components.html' with type='cog'%}
                                     </span>
-                                    <span class="sidebar-text">My User</span>
+                                    <span class="sidebar-text">Self Service</span>
                                 </div>
                                 <div class="flex-display flex-end">
                                     <span class="chevron-down">
@@ -104,6 +104,14 @@
                                         {% include 'red_shell_recruiting/components/svg_components.html' with type='plug-and-play'%}
                                     </span>
                                     <span class="sidebar-text">Mechanic</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{% url 'admin:index' %}" class="nav-link" style="display: flex; align-items: center;">
+                                    <span class="sidebar-icon">
+                                        {% include 'red_shell_recruiting/components/svg_components.html' with type='cog'%}
+                                    </span>
+                                    <span class="sidebar-text">Django Admin</span>
                                 </a>
                             </li>
                         {% endif %}

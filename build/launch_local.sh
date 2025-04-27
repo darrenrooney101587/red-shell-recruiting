@@ -1,1 +1,2 @@
-docker-compose -f docker-compose.local.yml  --env-file .env.local up
+docker-compose -f docker-compose.local.yml  --env-file .env down
+docker-compose -f docker-compose.local.yml  --env-file .env up  -d

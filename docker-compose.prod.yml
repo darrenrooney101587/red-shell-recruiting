@@ -49,6 +49,22 @@ services:
     networks:
       - red-shell-recruiting_red-shell-recruiting
 
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  celery:
+    build: .
+    command: celery -A app_admin worker --loglevel=info
+    depends_on:
+      - redis
+      - web
+    environment:
+      - DJANGO_SETTINGS_MODULE=app_admin.settings
+    volumes:
+      - .:/app
+
 volumes:
   postgres_data:
 

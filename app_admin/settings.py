@@ -40,16 +40,21 @@ else:
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SITE_DIR = os.path.join(BASE_DIR, '..')
-STATIC_DIR = os.path.join(SITE_DIR, 'static')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 STATIC_URL = '/static/'
-STATIC_ROOT = STATIC_DIR
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+if not AWS_ACCESS_KEY_ID:
+    exit('AWS_ACCESS_KEY_ID environment variable not set')
 AWS_SECRET_ACCESS_KEY =  os.getenv('AWS_SECRET_ACCESS_KEY')
+if not AWS_SECRET_ACCESS_KEY:
+    exit('AWS_SECRET_ACCESS_KEY environment variable not set')
 AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+if not AWS_STORAGE_BUCKET_NAME:
+    exit('AWS_STORAGE_BUCKET_NAME environment variable not set')
 AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'us-east-2')
 AWS_S3_ADDRESSING_STYLE = "virtual"
 AWS_QUERYSTRING_AUTH = False
@@ -80,8 +85,10 @@ ALLOWED_HOSTS = (
 CSRF_TRUSTED_ORIGINS = [
     origin.strip() for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if origin.strip()
 ]
-ENABLE_OTP = os.getenv("ENABLE_OTP", "True")
-ENABLE_SSO = os.getenv("ENABLE_SSO", "True")
+ENABLE_OTP = os_env_boolean("ENABLE_OTP", "True")
+ENABLE_SSO = os_env_boolean("ENABLE_SSO", "True")
+CELERY_BROKER_URL = "redis://redis:6379/0"
+CELERY_RESULT_BACKEND = "redis://redis:6379/0"
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -113,7 +120,8 @@ DATABASES = {
         "NAME": os.getenv("POSTGRES_DB"),
         "USER": os.getenv("POSTGRES_USER"),
         "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-        "HOST": os.getenv("POSTGRES_HOST"),
+        # use localhost reference to "db" which is our docker-compose service id
+        "HOST": 'db' if os_env_boolean('LOCAL_DOCKER', False) else os.getenv("POSTGRES_HOST"),
         "PORT": 5432 if is_running_in_docker() else os.getenv("POSTGRES_PORT"),
     }
 }

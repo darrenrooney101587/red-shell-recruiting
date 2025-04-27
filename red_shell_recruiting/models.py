@@ -1,7 +1,11 @@
 import os
 
+import boto3
+from django.conf import settings
 from django.db import models
 from django.utils.timezone import now
+from django.contrib.postgres.search import SearchVectorField, SearchVector
+from django.contrib.postgres.indexes import GinIndex
 
 
 def resume_upload_path(instance, filename):
@@ -24,13 +28,29 @@ class CandidateProfile(models.Model):
     actively_looking = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    search_document = SearchVectorField(null=True)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} - {self.job_title}"
 
+    def update_search_document(self):
+        self.search_document = (
+                SearchVector('first_name', weight='A') +
+                SearchVector('last_name', weight='A') +
+                SearchVector('city', weight='B') +
+                SearchVector('state', weight='B') +
+                SearchVector('job_title', weight='B') +
+                SearchVector('email', weight='C') +
+                SearchVector('notes', weight='D')
+        )
+        self.save(update_fields=['search_document'])
+
     class Meta:
         managed = True
         db_table = 'candidate_profile'
+        indexes = [
+            GinIndex(fields=['search_document']),
+        ]
 
 
 class Resume(models.Model):
@@ -38,10 +58,38 @@ class Resume(models.Model):
     file = models.FileField(upload_to=resume_upload_path)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    extracted_text = models.TextField(null=True, blank=True)
+    search_document = SearchVectorField(null=True)
 
     def __str__(self):
-        return f"Resume for {self.candidate.name}"
+        return f"Resume for {self.candidate.first_name} {self.candidate.last_name}"
 
     class Meta:
         managed = True
         db_table = 'candidate_resume'
+        indexes = [
+            GinIndex(fields=['search_document']),
+        ]
+
+class SearchVectorProcessingLog(models.Model):
+    DOCUMENT_TYPE_CHOICES = [
+        ('resume', 'Resume'),
+        ('profile', 'Candidate Profile'),
+    ]
+
+    resume = models.ForeignKey('red_shell_recruiting.Resume', on_delete=models.CASCADE)
+    document_type = models.CharField(max_length=50, choices=DOCUMENT_TYPE_CHOICES)
+    status = models.CharField(max_length=50)  # 'success', 'ignored', 'failed'
+    message = models.TextField(null=True, blank=True)
+    attempts = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        managed = True
+        db_table = 'search_vector_processing_log'
+        indexes = [
+            models.Index(fields=['resume', 'document_type', 'status']),
+        ]
+
+    def __str__(self):
+        return f"{self.resume} - {self.document_type} - {self.status}"

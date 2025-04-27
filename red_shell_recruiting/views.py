@@ -1,8 +1,11 @@
-from django.http import JsonResponse
+from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
+from django.views.generic import TemplateView
+
+from red_shell_recruiting.tasks import update_resume_search_vector
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.views import View
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 
 from red_shell_recruiting.models import CandidateProfile, Resume
 
@@ -34,29 +37,57 @@ class CandidateEnter(View):
         candidate_resume = request.FILES.get('candidate_resume')
 
         try:
-            candidate = CandidateProfile.objects.create(
-                first_name=first_name,
-                last_name=last_name,
-                state=candidate_state,
-                city=candidate_city,
-                job_title=job_title,
-                phone_number=phone_number,
-                email=email,
-                compensation=compensation,
-                notes=notes,
-                open_to_relocation=open_to_relocation,
-                currently_working=currently_working,
-                actively_looking=actively_looking
-            )
-
-            if candidate_resume:
-                Resume.objects.create(
-                    candidate=candidate,
-                    file=candidate_resume
+            with transaction.atomic():
+                candidate = CandidateProfile.objects.create(
+                    first_name=first_name,
+                    last_name=last_name,
+                    state=candidate_state,
+                    city=candidate_city,
+                    job_title=job_title,
+                    phone_number=phone_number,
+                    email=email,
+                    compensation=compensation,
+                    notes=notes,
+                    open_to_relocation=open_to_relocation,
+                    currently_working=currently_working,
+                    actively_looking=actively_looking
                 )
 
-            messages.success(request, f"{first_name} {last_name} has been added.")
-        except IntegrityError:
-            messages.error(request, f"A candidate with the email {email} already exists.")
+                if candidate_resume:
+                    resume = Resume.objects.create(
+                        candidate=candidate,
+                        file=candidate_resume
+                    )
 
+                    update_resume_search_vector.delay(resume.id) # async
+                else:
+                    raise IntegrityError("Resume upload failed.")
+
+        except IntegrityError as e:
+            messages.error(request, f"Error saving candidate: {str(e)}")
+            return redirect('candidate-submit')
+
+        messages.success(request, f"{first_name} {last_name} has been added.")
         return redirect('candidate-submit')
+
+
+
+class CandidateSearch(TemplateView):
+    template_name = 'red_shell_recruiting/candidate_search.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        query = self.request.GET.get('q', '')
+
+        candidates = CandidateProfile.objects.none()
+        if query:
+            search_query = SearchQuery(query)
+            candidates = CandidateProfile.objects.annotate(
+                rank=SearchRank(SearchVector('search_document'), search_query)
+            ).filter(
+                search_document=search_query
+            ).order_by('-rank')
+
+        context['candidates'] = candidates
+        context['query'] = query
+        return context

@@ -260,3 +260,63 @@ class Resume(models.Model):
 ---
 
 Ready for production-level candidate intake, AWS deployment, and resume management!
+
+
+# Revectoring Candidate Profiles
+
+## When to Run
+
+You should run the candidate profile revectoring command **whenever**:
+
+- You add new searchable text fields to `CandidateProfile` (e.g., adding `bio`, `phone_number`, etc.)
+- You want to refresh full-text search (`search_document`) across all existing profiles.
+
+**You do NOT need to run this for normal profile creation** — new candidates automatically vectorize when created.
+
+---
+
+## Vectoring/Revectoring
+
+### 1. Launch the Docker web container if it's not running:
+
+```bash
+# If not already up
+docker-compose up web
+```
+
+---
+
+### 2. Run the revector command:
+
+```bash
+docker-compose exec web poetry run python manage.py revector_candidate_profiles
+```
+
+✅ This will loop through all `CandidateProfile` records.
+
+✅ It will dynamically rebuild each candidate's `search_document` field based on the configured fields (first name, last name, job title, city, state, notes, email, phone number, compensation, etc.).
+
+✅ Compensation is automatically cast to text. Booleans (actively_looking, currently_working, etc.) are **NOT** included in full-text search (they are handled separately as filters).
+
+---
+
+## Important Notes
+
+- **Revectoring is only needed when database text fields change**, NOT when resumes are uploaded.
+- **Resume search_document** is managed separately by the Celery task during upload.
+
+---
+
+## Command Summary
+
+| Purpose | Command |
+|:--------|:--------|
+| Revector all candidate profiles | `docker-compose exec web poetry run python manage.py revector_candidate_profiles` |
+
+---
+
+## Additional Tips
+
+- Always double-check if you added new text fields into the `SEARCHABLE_FIELDS` config list.
+- You do not need to revector profiles for boolean-only changes.
+- You do not need to revector resumes unless you change resume extraction logic.

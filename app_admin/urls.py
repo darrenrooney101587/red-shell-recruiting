@@ -18,3 +18,8 @@ urlpatterns = [
     path('force-404/', force_404, name='force-404'),
     path('force-500/', force_500, name='force-500'),
 ]
+
+
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

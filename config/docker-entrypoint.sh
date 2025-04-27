@@ -7,9 +7,12 @@ echo 'Collecting static files...(this may start the application be default)'
 poetry run python manage.py collectstatic --noinput --clear || { echo 'Failed to clear static files!'; }
 echo 'Done collecting static files....'
 
+BIND_ADDRESS=${BIND_ADDRESS:-0.0.0.0:5000}
+
 echo "Starting Gunicorn..."
 exec poetry run gunicorn app_admin.wsgi \
     --name reporting-sync-server \
+    --bind ${BIND_ADDRESS} \
     --bind unix:/app/reporting-sync-server.sock \
     --timeout 300 \
     --access-logfile - \

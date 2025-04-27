@@ -1,0 +1,31 @@
+{% extends '_base.html' %}
+{% load static %}
+{% block title %}
+    Candidate Search
+{% endblock %}
+{% block css-extra %}
+    <link rel="stylesheet" href="{% static 'css/candidate.css' %}">
+{% endblock %}
+{% block content %}
+    <div>
+        <form method="get" action="{% url 'candidate-search' %}">
+            {% csrf_token %}
+            <input type="text" name="q" value="{{ query }}" placeholder="Search candidates..." />
+            <button type="submit">Search</button>
+        </form>
+        {% if candidates %}
+            <ul>
+                {% for candidate in candidates %}
+                    <li>
+                        <strong>{{ candidate.first_name }} {{ candidate.last_name }}</strong> -
+                        {{ candidate.job_title }} - {{ candidate.city }}, {{ candidate.state }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            {% if query %}
+                <p>No results found.</p>
+            {% endif %}
+        {% endif %}
+    </div>
+{% endblock %}
