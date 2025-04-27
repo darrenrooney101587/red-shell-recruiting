@@ -1,4 +1,4 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from django.shortcuts import render
 from django.contrib import messages
 
@@ -28,3 +28,12 @@ def custom_403_view(request, exception=None):
     return render(
         request, "403.html", {"permission_error": permission_error}, status=403
     )
+
+
+def force_404(request):
+    """Force a 404 error manually."""
+    raise Http404("This page does not exist.")
+
+def force_500(request):
+    """Render 500 error template manually for testing."""
+    return render(request, "500.html", status=500)
