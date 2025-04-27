@@ -100,17 +100,20 @@ def custom_login_view(request):
             login(request, user)
             LoginAttempt.clear_attempts(username, client_ip)
 
-            has_otp_device = TOTPDevice.objects.filter(
-                user=user, confirmed=True
-            ).exists()
+            if settings.ENABLT_OTP and settings.ENABLE_OTP == True:
+                has_otp_device = TOTPDevice.objects.filter(
+                    user=user, confirmed=True
+                ).exists()
 
-            if has_otp_device:
-                return redirect("otp-entry")
+                if has_otp_device:
+                    return redirect("otp-entry")
+                else:
+                    messages.warning(
+                        request, "You need to set up Two-Factor Authentication."
+                    )
+                    return redirect("setup-2fa")
             else:
-                messages.warning(
-                    request, "You need to set up Two-Factor Authentication."
-                )
-                return redirect("setup-2fa")
+                return redirect("/")
 
         else:
             LoginAttempt.record_attempt(username, client_ip, success=False)

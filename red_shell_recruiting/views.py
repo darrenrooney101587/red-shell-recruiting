@@ -34,3 +34,11 @@ class CandidateEnter(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+
+
+class CandidateSubmit(TemplateView):
+    template_name = 'red_shell_recruiting/candidate_input.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context

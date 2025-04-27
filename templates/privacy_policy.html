@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+    {% block css-extra %}
+        <link rel="stylesheet" href="{% static 'css/formal.css' %}">
+    {% endblock %}
+    <div class="privacy-policy" style="width: 60%; margin: auto;">
+        <div class="flex-display" style="margin-bottom: 0.5rem;">
+            <h1>Privacy Policy</h1>
+        </div>
+
+        <p><strong>Effective Date:</strong> April 26, 2025</p>
+        <hr>
+        <p>Red Shell Recruiting ("we," "us," or "our") is committed to protecting the privacy and security of the personal information we collect from users of our website, <a href="https://www.redshellrecruiting.com">www.redshellrecruiting.com</a>.</p>
+
+        <h2 class="content-header">Information We Collect</h2>
+        <p>We may collect the following types of personal information:</p>
+        <ul class="formal-list">
+            <li>Name</li>
+            <li>Contact information (such as email address)</li>
+            <li>Resume details (including work history, education, certifications, and skills)</li>
+            <li>Other information you voluntarily provide through forms or email</li>
+        </ul>
+        <br>
+        <h2 class="content-header">How We Use Your Information</h2>
+        <p>We use the information you provide to:</p>
+        <ul class="formal-list">
+            <li>Evaluate candidate qualifications</li>
+            <li>Match candidates with potential employment opportunities</li>
+            <li>Communicate with you regarding your application or profile</li>
+            <li>Improve our services</li>
+        </ul>
+        <p>We will not sell your personal information to third parties.</p>
+        <br>
+        <h2 class="content-header">Information Sharing</h2>
+        <p>We may share your information only with:</p>
+        <ul class="formal-list">
+            <li>Prospective employers who are seeking candidates for job opportunities</li>
+            <li>Service providers who assist in operating our website or providing services to you (under confidentiality agreements)</li>
+        </ul>
+        <p>We do not share your information with advertisers or unrelated third parties.</p>
+        <br>
+        <h2 class="content-header">Data Security</h2>
+        <p>We implement reasonable administrative, technical, and physical safeguards to protect the personal information we collect. However, no system can be guaranteed 100% secure.</p>
+        <br>
+        <h2 class="content-header">Your Rights and Choices</h2>
+        <p>You may:</p>
+        <ul class="formal-list">
+            <li>Request access to the personal information we hold about you</li>
+            <li>Request that we correct or delete your personal information</li>
+            <li>Withdraw consent for us to use your information at any time</li>
+        </ul>
+        <p>To make a request, please contact us at: <a href="mailto:info@redshellrecruiting.com">info@redshellrecruiting.com</a></p>
+        <br>
+        <h2 class="content-header">Changes to This Privacy Policy</h2>
+        <p>We may update this Privacy Policy from time to time. Any changes will be posted on this page with an updated effective date.</p>
+        {% include 'account/components/contact_us.html' with text='privacy policy' %}
+    </div>
+{% endblock %}

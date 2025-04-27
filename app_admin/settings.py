@@ -74,6 +74,8 @@ ALLOWED_HOSTS = (
 CSRF_TRUSTED_ORIGINS = [
     origin.strip() for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if origin.strip()
 ]
+ENABLE_OTP = os.getenv("ENABLE_OTP", "True")
+ENABLE_SSO = os.getenv("ENABLE_SSO", "True")
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -118,13 +120,19 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django_otp.middleware.OTPMiddleware',  # OTP
-    'app_admin.middleware.EnforceAdminOTP',
-    'app_admin.middleware.OTPRequiredMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware'
     # "djangosaml2.middleware.SamlSessionMiddleware",  # sml SSO Middleware
-    "app_admin.middleware.RestrictSSOAccessMiddleware",
 ]
+
+if ENABLE_SSO:
+    MIDDLEWARE += ["app_admin.middleware.RestrictSSOAccessMiddleware"]
+
+if ENABLE_OTP:
+    MIDDLEWARE += [
+        'django_otp.middleware.OTPMiddleware',
+        'app_admin.middleware.EnforceAdminOTP',
+        'app_admin.middleware.OTPRequiredMiddleware',
+    ]
 
 if DEBUG_TOOLBAR:
     print('...Found DEBUG_TOOLBAR env. variables, setting toolbar middleware')

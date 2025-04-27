@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+    {% block css-extra %}
+        <link rel="stylesheet" href="{% static 'css/formal.css' %}">
+    {% endblock %}
+    <div class="terms-of-service" style="width: 60%; margin: auto;">
+        <div class="flex-display" style="margin-bottom: 0.5rem;">
+            <h1>Terms of Service</h1>
+        </div>
+        <p><strong>Effective Date:</strong> April 26, 2025</p>
+        <hr>
+
+        <p>Welcome to Red Shell Recruiting ("we," "us," or "our"). These Terms of Service govern your access to and use of our website, <a href="https://www.redshellrecruiting.com">www.redshellrecruiting.com</a> ("Website"). By accessing or using our Website, you agree to these Terms of Service.</p>
+
+        <h2 class="content-header">Use of the Website</h2>
+        <p>You agree to use this Website only for lawful purposes. You must not use the Website to transmit any material that is unlawful, harmful, defamatory, or otherwise objectionable.</p>
+
+        <h2 class="content-header">Submission of Information</h2>
+        <p>By submitting your personal information, including resumes, you represent that the information is accurate and complete. You authorize us to use this information for recruiting and placement purposes, as described in our <a href="{% url 'privacy-policy' %}">Privacy Policy</a>.</p>
+
+        <h2 class="content-header">Intellectual Property</h2>
+        <p>All content on this Website, including text, graphics, logos, and software, is the property of Red Shell Recruiting or its content suppliers and is protected by copyright laws.</p>
+
+        <h2 class="content-header">Disclaimer</h2>
+        <p>We do not guarantee job placement or employment opportunities. Use of the Website is at your own risk. We provide the Website "as is" without warranties of any kind.</p>
+
+        <h2 class="content-header">Limitation of Liability</h2>
+        <p>To the maximum extent permitted by law, Red Shell Recruiting is not liable for any damages arising out of your use of or inability to use the Website.</p>
+
+        <h2 class="content-header">Changes to Terms</h2>
+        <p>We may update these Terms of Service at any time. Continued use of the Website after changes means you accept the updated Terms.</p>
+
+        <h2 class="content-header">Governing Law</h2>
+        <p>These Terms are governed by the laws of the State of [Your State], without regard to its conflict of law principles.</p>
+        {% include 'account/components/contact_us.html' with text='Terms of Service' %}
+    </div>
+{% endblock %}

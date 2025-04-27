@@ -7,4 +7,9 @@ urlpatterns = [
         views.CandidateEnter.as_view(),
         name='candidate-enter',
     ),
+    path(
+        'submit',
+        views.CandidateSubmit.as_view(),
+        name='candidate-submit',
+    )
 ]

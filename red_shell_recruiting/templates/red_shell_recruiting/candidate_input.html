@@ -1,14 +1,13 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load tags %}
-{% load filters %}
 {% block title %}
     Candidate Input
 {% endblock %}
 {% block content %}
-    <div style="max-width:1000px; width: 50%; margin: 0 auto; margin-top: 10rem;">
-        <div class="section">
-            <div style="margin-bottom: 3rem">
+    <div style="max-width:1000px; width: 50%; margin: 0 auto; margin-top: 4rem;">
+        <form class="section" action="{% url 'candidate-submit' %}" method="post">
+            {% csrf_token %}
+            <div style="margin-bottom: 2rem">
                 <h1>Enter Candidate</h1>
                 <hr>
             </div>
@@ -107,16 +106,16 @@
                     <input style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-compensation" type="number" placeholder="Compensation" autocomplete="off">
                 </div>
             </div>
-            <textarea style="border: 1px solid var(--ui-support-element-color); height: 300px" class="text-input" id="candidate-notes" type="text" placeholder="Notes" autocomplete="off"></textarea>
+            <textarea style="border: 1px solid var(--ui-support-element-color); height: 200px; padding: 0.5rem;" class="text-input" id="candidate-notes" type="text" placeholder="Notes" autocomplete="off"></textarea>
             <hr>
             <div class="flex-display space-between">
                 <div class="flex-display vertical-align" style="margin-right:3rem;">
                     <input style="display: none;" type="file" id="resume" name="candidate-resume" accept=".pdf, .doc, .docx" required>
                     <div class="vertical-divider" style="height: var(--std-item-height)"></div>
-                    <button class="button"  onclick="document.getElementById('resume').click();">Upload Resume</button>
+                    <button class="button" onclick="document.getElementById('resume').click();">Upload Resume</button>
                     <div style="margin-left: 1rem;" id="file-name"></div>
                 </div>
-                <button class="button"  onclick="document.getElementById('resume').click();">Submit Candidate</button>
+                <button type="submit" class="button">Submit Candidate</button>
             </div>
         <div>
     </div>
@@ -124,24 +123,22 @@
 
         $(document).ready(function() {
 
-            // Toggle dropdown visibility and handle chevrons
             $('.custom-dropdown').click(function(event) {
                 const dropdownId = $(this).find('.dropdown-list');
                 const chevronDown = $(this).find('.chevron-down');
                 const chevronUp = $(this).find('.chevron-up');
 
-                // Prevent event from propagating to document (to avoid triggering the document click handler)
+                // prevent event from propagating to document (to avoid triggering the document click handler)
                 event.stopPropagation();
 
-                // Show or hide the dropdown and toggle the chevrons
                 if (dropdownId.is(':visible')) {
                     dropdownId.hide();
-                    chevronDown.show();  // Show the down chevron
-                    chevronUp.hide();    // Hide the up chevron
+                    chevronDown.show();
+                    chevronUp.hide();
                 } else {
                     dropdownId.show();
-                    chevronDown.hide();  // Hide the down chevron
-                    chevronUp.show();    // Show the up chevron
+                    chevronDown.hide();
+                    chevronUp.show();
                 }
             });
 

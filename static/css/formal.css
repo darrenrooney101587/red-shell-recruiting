@@ -1,0 +1,11 @@
+.content-header {
+    margin-bottom: 0.5rem;
+}
+p, li {
+    color: #747272
+}
+.formal-list {
+    list-style: circle outside;
+    margin-left: 2rem;
+    margin-bottom: 1rem;
+}
