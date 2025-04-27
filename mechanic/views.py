@@ -16,6 +16,8 @@ def index(request):
         'EMAIL_BACKEND',
         'PASSWORD_RESET_TIMEOUT',
         'PASSWORD_HASHERS',
+        'AWS_ACCESS_KEY_ID',
+        'AWS_SECRET_ACCESS_KEY'
     ]
 
     django_env_list = [

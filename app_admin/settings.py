@@ -30,14 +30,13 @@ def get_hostname_from_allowed_hosts():
 if is_running_in_docker():
     print('Running on Docker')
 
-DEBUG = os.getenv('DEBUG', 'False') == 'True'
+DEBUG = os_env_boolean('DEBUG', default='false')
 if DEBUG:
-    print(f"...Found DEBUG flag TRUE, setting Log level to DEBUG")
+    print("[STARTUP] Found DEBUG flag TRUE, setting Log level to DEBUG")
     DJANGO_LOG_LEVEL = os.getenv('DJANGO_LOG_LEVEL', "DEBUG")
 else:
-    print(f"...Setting Log level to INFO")
+    print("[STARTUP] Setting Log level to INFO")
     DJANGO_LOG_LEVEL = os.getenv('DJANGO_LOG_LEVEL', "INFO")
-
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SITE_DIR = os.path.join(BASE_DIR, '..')
@@ -106,7 +105,7 @@ if DEBUG and not ALLOWED_HOSTS:
 
 if DEBUG_TOOLBAR:
     INSTALLED_APPS.append('debug_toolbar')
-    print('...Installed DEBUG_TOOLBAR')
+    print('[STARTUP] Installed DEBUG_TOOLBAR')
 
 DATABASES = {
     "default": {
@@ -143,7 +142,7 @@ if ENABLE_OTP:
     ]
 
 if DEBUG_TOOLBAR:
-    print('...Found DEBUG_TOOLBAR env. variables, setting toolbar middleware')
+    print('[STARTUP] Found DEBUG_TOOLBAR env. variables, setting toolbar middleware')
     MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
 
 AUTHENTICATION_BACKENDS = [

@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.views import View
-from django.views.generic import TemplateView
+from django.db import IntegrityError
 
 from red_shell_recruiting.models import CandidateProfile, Resume
 
@@ -10,25 +10,6 @@ from red_shell_recruiting.models import CandidateProfile, Resume
 def index(request):
     context = {}
     return render(request, 'red_shell_recruiting/index.html', context)
-
-def healthcheck(request):
-    return JsonResponse({"status": "ok"})
-
-def custom_403_view(request, exception=None):
-    """
-    Custom 403 handler to extract permission error messages
-    and render the standalone 403.html page.
-    """
-    permission_error = None
-    storage = messages.get_messages(request)
-    for message in storage:
-        if "permission" in str(message).lower():
-            permission_error = message
-            break
-
-    return render(
-        request, "403.html", {"permission_error": permission_error}, status=403
-    )
 
 
 class CandidateEnter(View):
@@ -51,25 +32,31 @@ class CandidateEnter(View):
         open_to_relocation = bool(request.POST.get('candidate-relocation'))
         currently_working = bool(request.POST.get('candidate-working'))
         candidate_resume = request.FILES.get('candidate_resume')
-        candidate = CandidateProfile.objects.create(
-            first_name=first_name,
-            last_name=last_name,
-            state=candidate_state,
-            city=candidate_city,
-            job_title=job_title,
-            phone_number=phone_number,
-            email=email,
-            compensation=compensation,
-            notes=notes,
-            open_to_relocation=open_to_relocation,
-            currently_working=currently_working,
-            actively_looking=actively_looking
-        )
 
-        if candidate_resume:
-            Resume.objects.create(
-                candidate=candidate,
-                file=candidate_resume
+        try:
+            candidate = CandidateProfile.objects.create(
+                first_name=first_name,
+                last_name=last_name,
+                state=candidate_state,
+                city=candidate_city,
+                job_title=job_title,
+                phone_number=phone_number,
+                email=email,
+                compensation=compensation,
+                notes=notes,
+                open_to_relocation=open_to_relocation,
+                currently_working=currently_working,
+                actively_looking=actively_looking
             )
+
+            if candidate_resume:
+                Resume.objects.create(
+                    candidate=candidate,
+                    file=candidate_resume
+                )
+
+            messages.success(request, f"{first_name} {last_name} has been added.")
+        except IntegrityError:
+            messages.error(request, f"A candidate with the email {email} already exists.")
 
         return redirect('candidate-submit')

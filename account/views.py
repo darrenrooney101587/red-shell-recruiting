@@ -100,7 +100,7 @@ def custom_login_view(request):
             login(request, user)
             LoginAttempt.clear_attempts(username, client_ip)
 
-            if settings.ENABLT_OTP and settings.ENABLE_OTP == True:
+            if settings.ENABLE_OTP and settings.ENABLE_OTP == True:
                 has_otp_device = TOTPDevice.objects.filter(
                     user=user, confirmed=True
                 ).exists()
