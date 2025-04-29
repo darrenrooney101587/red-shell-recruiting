@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
+from django.db.models import F
 from django.http import JsonResponse
 from django.views.generic import TemplateView
 
@@ -14,31 +15,35 @@ from django.db import IntegrityError, transaction
 
 from red_shell_recruiting.models import CandidateProfile, Resume
 
+
 @login_required
 def index(request):
     context = {}
-    return render(request, 'red_shell_recruiting/index.html', context)
+    return render(request, "red_shell_recruiting/index.html", context)
+
 
 class CandidateEnter(LoginRequiredMixin, View):
-    template_name = 'red_shell_recruiting/candidate_input.html'
+    template_name = "red_shell_recruiting/candidate_input.html"
 
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name)
 
     def post(self, request, *args, **kwargs):
-        first_name = request.POST.get('candidate-first-name')
-        last_name = request.POST.get('candidate-last-name')
-        job_title = request.POST.get('candidate-job-title')
-        phone_number = request.POST.get('candidate-phone-number')
-        email = request.POST.get('candidate-email')
-        compensation = str(request.POST.get('candidate-compensation')).replace(',', '') or 0
-        notes = request.POST.get('candidate-notes')
-        candidate_state = request.POST.get('candidate-state')
-        candidate_city = request.POST.get('candidate-city')
-        actively_looking = bool(request.POST.get('candidate-looking'))
-        open_to_relocation = bool(request.POST.get('candidate-relocation'))
-        currently_working = bool(request.POST.get('candidate-working'))
-        candidate_resume = request.FILES.get('candidate_resume')
+        first_name = request.POST.get("candidate-first-name")
+        last_name = request.POST.get("candidate-last-name")
+        job_title = request.POST.get("candidate-job-title")
+        phone_number = request.POST.get("candidate-phone-number")
+        email = request.POST.get("candidate-email")
+        compensation = (
+            str(request.POST.get("candidate-compensation")).replace(",", "") or 0
+        )
+        notes = request.POST.get("candidate-notes")
+        candidate_state = request.POST.get("candidate-state")
+        candidate_city = request.POST.get("candidate-city")
+        actively_looking = bool(request.POST.get("candidate-looking"))
+        open_to_relocation = bool(request.POST.get("candidate-relocation"))
+        currently_working = bool(request.POST.get("candidate-working"))
+        candidate_resume = request.FILES.get("candidate_resume")
 
         try:
             with transaction.atomic():
@@ -54,147 +59,145 @@ class CandidateEnter(LoginRequiredMixin, View):
                     notes=notes,
                     open_to_relocation=open_to_relocation,
                     currently_working=currently_working,
-                    actively_looking=actively_looking
+                    actively_looking=actively_looking,
                 )
 
                 if candidate_resume:
                     resume = Resume.objects.create(
-                        candidate=candidate,
-                        file=candidate_resume
+                        candidate=candidate, file=candidate_resume
                     )
 
-                    update_resume_search_vector.delay(resume.id) # async
+                    update_resume_search_vector.delay(resume.id)  # async
                 else:
                     raise IntegrityError("Resume upload failed.")
 
         except IntegrityError as e:
             messages.error(request, f"Error saving candidate: {str(e)}")
-            return redirect('candidate-submit')
+            return redirect("candidate-submit")
 
         messages.success(request, f"{first_name} {last_name} has been added.")
-        return redirect('candidate-submit')
+        return redirect("candidate-submit")
 
 
 class CandidateSearch(LoginRequiredMixin, TemplateView):
-    template_name = 'red_shell_recruiting/candidate_search.html'
+    template_name = "red_shell_recruiting/candidate_search.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        query = self.request.GET.get('q', '').strip()
+        query = self.request.GET.get("q", "").strip()
         candidates = CandidateProfile.objects.none()
 
         filters_applied = (
-                self.request.GET.get('actively_looking') or
-                self.request.GET.get('open_to_relocation') or
-                self.request.GET.get('currently_working')
+            self.request.GET.get("actively_looking")
+            or self.request.GET.get("open_to_relocation")
+            or self.request.GET.get("currently_working")
         )
 
         if query:
             search_query = SearchQuery(query)
-            candidates = CandidateProfile.objects.annotate(
-                rank=SearchRank(SearchVector('search_document'), search_query)
-            ).filter(
-                search_document=search_query
-            ).order_by('-rank')
+            candidates = (
+                CandidateProfile.objects.annotate(
+                    rank=SearchRank(F("search_document"), search_query)
+                )
+                .filter(search_document__search=search_query)
+                .order_by("-rank")
+            )
 
         elif filters_applied:
             candidates = CandidateProfile.objects.all()
 
         # Apply toggles
-        if self.request.GET.get('actively_looking'):
+        if self.request.GET.get("actively_looking"):
             candidates = candidates.filter(actively_looking=True)
 
-        if self.request.GET.get('open_to_relocation'):
+        if self.request.GET.get("open_to_relocation"):
             candidates = candidates.filter(open_to_relocation=True)
 
-        if self.request.GET.get('currently_working'):
+        if self.request.GET.get("currently_working"):
             candidates = candidates.filter(currently_working=True)
 
-        context['candidates'] = candidates
-        context['query'] = query
+        context["candidates"] = candidates
+        context["query"] = query
         return context
-
 
 
 class CandidateDetail(LoginRequiredMixin, TemplateView):
-    template_name = 'red_shell_recruiting/candidate_detail.html'
+    template_name = "red_shell_recruiting/candidate_detail.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        candidate_id = self.kwargs.get('candidate_id')
+        candidate_id = self.kwargs.get("candidate_id")
         candidate = get_object_or_404(CandidateProfile, id=candidate_id)
-        context['candidate'] = candidate
+        context["candidate"] = candidate
         return context
 
     def post(self, request, *args, **kwargs):
-        candidate_id = self.kwargs.get('candidate_id')
+        candidate_id = self.kwargs.get("candidate_id")
         candidate = get_object_or_404(CandidateProfile, id=candidate_id)
-        candidate.first_name = request.POST.get('first_name', candidate.first_name)
-        candidate.last_name = request.POST.get('last_name', candidate.last_name)
-        candidate.state = request.POST.get('candidate-state', candidate.state)
-        candidate.city = request.POST.get('candidate-city', candidate.city)
-        candidate.job_title = request.POST.get('job_title', candidate.job_title)
-        candidate.phone_number = request.POST.get('phone_number', candidate.phone_number)
-        candidate.email = request.POST.get('email', candidate.email)
-        candidate.compensation = str(request.POST.get('compensation', candidate.compensation)).replace(',', '')
-        candidate.notes = request.POST.get('notes', candidate.notes)
-        candidate.open_to_relocation = request.POST.get('open_to_relocation') == 'on'
-        candidate.currently_working = request.POST.get('currently_working') == 'on'
-        candidate.actively_looking = request.POST.get('actively_looking') == 'on'
+        candidate.first_name = request.POST.get("first_name", candidate.first_name)
+        candidate.last_name = request.POST.get("last_name", candidate.last_name)
+        candidate.state = request.POST.get("candidate-state", candidate.state)
+        candidate.city = request.POST.get("candidate-city", candidate.city)
+        candidate.job_title = request.POST.get("job_title", candidate.job_title)
+        candidate.phone_number = request.POST.get(
+            "phone_number", candidate.phone_number
+        )
+        candidate.email = request.POST.get("email", candidate.email)
+        candidate.compensation = str(
+            request.POST.get("compensation", candidate.compensation)
+        ).replace(",", "")
+        candidate.notes = request.POST.get("notes", candidate.notes)
+        candidate.open_to_relocation = request.POST.get("open_to_relocation") == "on"
+        candidate.currently_working = request.POST.get("currently_working") == "on"
+        candidate.actively_looking = request.POST.get("actively_looking") == "on"
         candidate.save()
 
-        uploaded_file = request.FILES.get('resume-file')
+        uploaded_file = request.FILES.get("resume-file")
         if uploaded_file:
-            Resume.objects.create(
-                candidate=candidate,
-                file=uploaded_file
-            )
+            Resume.objects.create(candidate=candidate, file=uploaded_file)
 
-        return redirect('candidate-detail', candidate_id=candidate.id)
+        return redirect("candidate-detail", candidate_id=candidate.id)
+
 
 class ArchiveResume(LoginRequiredMixin, View):
     def post(self, request, resume_id):
         resume = get_object_or_404(Resume, id=resume_id)
 
         s3 = boto3.client(
-            's3',
+            "s3",
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
             aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
             region_name=settings.AWS_S3_REGION_NAME,
         )
         bucket = settings.AWS_STORAGE_BUCKET_NAME
         original_key = resume.file.name
-        archive_key = original_key.replace('resumes/', 'resumes/archive/')
+        archive_key = original_key.replace("resumes/", "resumes/archive/")
 
         s3.copy_object(
             Bucket=bucket,
-            CopySource={'Bucket': bucket, 'Key': original_key},
-            Key=archive_key
+            CopySource={"Bucket": bucket, "Key": original_key},
+            Key=archive_key,
         )
 
-        s3.delete_object(
-            Bucket=bucket,
-            Key=original_key
-        )
+        s3.delete_object(Bucket=bucket, Key=original_key)
 
         resume.archived = True
-        resume.save(update_fields=['archived'])
+        resume.save(update_fields=["archived"])
 
-        return redirect('candidate-detail', candidate_id=resume.candidate.id)
+        return redirect("candidate-detail", candidate_id=resume.candidate.id)
+
 
 class UploadResume(LoginRequiredMixin, View):
     def post(self, request, candidate_id):
         candidate = get_object_or_404(CandidateProfile, id=candidate_id)
-        uploaded_file = request.FILES.get('resume')
+        uploaded_file = request.FILES.get("resume")
 
         if uploaded_file:
             resume = Resume.objects.create(
-                candidate=candidate,
-                file=uploaded_file,
-                archived=False
+                candidate=candidate, file=uploaded_file, archived=False
             )
             update_resume_search_vector.delay(resume.id)
 
-            return JsonResponse({'success': True})
+            return JsonResponse({"success": True})
 
-        return JsonResponse({'success': False, 'error': 'No file uploaded'}, status=400)
+        return JsonResponse({"success": False, "error": "No file uploaded"}, status=400)
