@@ -134,8 +134,6 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
                 .distinct()
             )
 
-            print(candidates.query)
-
         elif toggles_active:
             candidates = CandidateProfile.objects.all()
 
@@ -152,6 +150,9 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
 
         context["candidates"] = candidates
         context["query"] = query
+        context["selected_count"] = candidates.count()
+        context["total_count_profile"] = CandidateProfile.objects.count()
+        context["total_count_resume"] = Resume.objects.count()
         return context
 
 
