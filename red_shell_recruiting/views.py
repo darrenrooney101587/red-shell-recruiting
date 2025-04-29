@@ -3,7 +3,8 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
-from django.db.models import F
+from django.db.models import F, Count, Q
+from django.db.models.expressions import RawSQL
 from django.http import JsonResponse
 from django.views.generic import TemplateView
 
@@ -84,37 +85,70 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        query = self.request.GET.get("q", "").strip()
+        request = self.request
+        query = request.GET.get("q", "").strip()
+
+        toggle_filters = {
+            "actively_looking": request.GET.get("actively_looking"),
+            "open_to_relocation": request.GET.get("open_to_relocation"),
+            "currently_working": request.GET.get("currently_working"),
+        }
+        toggles_active = any(toggle_filters.values())
+
         candidates = CandidateProfile.objects.none()
 
-        filters_applied = (
-            self.request.GET.get("actively_looking")
-            or self.request.GET.get("open_to_relocation")
-            or self.request.GET.get("currently_working")
-        )
-
         if query:
-            search_query = SearchQuery(query)
             candidates = (
-                CandidateProfile.objects.annotate(
-                    rank=SearchRank(F("search_document"), search_query)
+                CandidateProfile.objects.extra(
+                    tables=["candidate_resume"],
+                    where=[
+                        """
+                        (
+                            candidate_profile.search_document @@ plainto_tsquery(%s)
+                            OR
+                            (
+                                candidate_resume.candidate_id = candidate_profile.id
+                                AND candidate_resume.search_document @@ plainto_tsquery(%s)
+                            )
+                        )
+                        """
+                    ],
+                    params=[query, query],
                 )
-                .filter(search_document__search=search_query)
+                .annotate(
+                    rank=RawSQL(
+                        """
+                        GREATEST(
+                            ts_rank(candidate_profile.search_document, plainto_tsquery(%s)),
+                            COALESCE((
+                                SELECT MAX(ts_rank(candidate_resume.search_document, plainto_tsquery(%s)))
+                                FROM candidate_resume
+                                WHERE candidate_resume.candidate_id = candidate_profile.id
+                            ), 0)
+                        )
+                        """,
+                        (query, query),
+                    )
+                )
                 .order_by("-rank")
+                .distinct()
             )
 
-        elif filters_applied:
+            print(candidates.query)
+
+        elif toggles_active:
             candidates = CandidateProfile.objects.all()
 
-        # Apply toggles
-        if self.request.GET.get("actively_looking"):
+        if toggle_filters["actively_looking"]:
             candidates = candidates.filter(actively_looking=True)
 
-        if self.request.GET.get("open_to_relocation"):
+        if toggle_filters["open_to_relocation"]:
             candidates = candidates.filter(open_to_relocation=True)
 
-        if self.request.GET.get("currently_working"):
+        if toggle_filters["currently_working"]:
             candidates = candidates.filter(currently_working=True)
+
+        candidates = candidates.annotate(resume_count=Count("resumes"))
 
         context["candidates"] = candidates
         context["query"] = query

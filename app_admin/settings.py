@@ -123,7 +123,7 @@ DATABASES = {
         "HOST": "db"
         if os_env_boolean("LOCAL_DOCKER", False)
         else os.getenv("POSTGRES_HOST"),
-        "PORT": os.getenv("POSTGRES_PORT", 5432),
+        "PORT": 5432,
     }
 }
 
