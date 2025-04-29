@@ -31,6 +31,7 @@ RUN poetry install --no-root --only main
 COPY . .
 
 COPY ./config/docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
+COPY ./config/docker-entrypoint-celery.sh /docker-entrypoint-celery.sh
+RUN chmod +x /docker-entrypoint.sh /docker-entrypoint-celery.sh
 
 ENTRYPOINT ["/docker-entrypoint.sh"]

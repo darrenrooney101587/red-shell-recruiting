@@ -58,8 +58,7 @@ services:
 
   celery:
     build: .
-    command: celery -A app_admin worker --loglevel=info
-    entrypoint: [""]
+    entrypoint: ["/docker-entrypoint-celery.sh"]
     depends_on:
       - redis
       - web
