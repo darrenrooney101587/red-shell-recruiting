@@ -66,6 +66,8 @@ services:
       - DJANGO_SETTINGS_MODULE=app_admin.settings
     volumes:
       - .:/app
+    networks:
+      - red-shell-recruiting_red-shell-recruiting
 
 volumes:
   postgres_data:
