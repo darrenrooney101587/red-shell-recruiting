@@ -1,7 +1,6 @@
 import os
 import shutil
 from pathlib import Path
-import sys
 
 from dotenv import load_dotenv
 from django.contrib.messages import constants as messages
@@ -10,6 +9,9 @@ load_dotenv()
 
 
 def is_running_in_docker():
+    """Check if running inside a Docker or Kubernetes container."""
+    if os.path.exists("/.dockerenv"):
+        return True
     try:
         with open("/proc/1/cgroup", "rt") as f:
             return "docker" in f.read() or "kubepods" in f.read()
@@ -54,6 +56,19 @@ STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+if not AWS_ACCESS_KEY_ID:
+    exit("AWS_ACCESS_KEY_ID environment variable not set")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+if not AWS_SECRET_ACCESS_KEY:
+    exit("AWS_SECRET_ACCESS_KEY environment variable not set")
+AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
+if not AWS_STORAGE_BUCKET_NAME:
+    exit("AWS_STORAGE_BUCKET_NAME environment variable not set")
+AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME", "us-east-2")
+AWS_S3_ADDRESSING_STYLE = "virtual"
+AWS_QUERYSTRING_AUTH = False
 ROOT_URLCONF = "app_admin.urls"
 WSGI_APPLICATION = "app_admin.wsgi.application"
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "< change me >")
@@ -88,27 +103,6 @@ INTERNAL_IPS = [
     "127.0.0.1",
     "localhost",
 ]
-
-IS_CELERY = any("celery" in arg for arg in sys.argv)
-if not IS_CELERY:
-    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
-
-    AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
-    if not AWS_ACCESS_KEY_ID:
-        exit("AWS_ACCESS_KEY_ID environment variable not set")
-
-    AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
-    if not AWS_SECRET_ACCESS_KEY:
-        exit("AWS_SECRET_ACCESS_KEY environment variable not set")
-
-    AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
-    if not AWS_STORAGE_BUCKET_NAME:
-        exit("AWS_STORAGE_BUCKET_NAME environment variable not set")
-
-    AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME", "us-east-2")
-    AWS_S3_ADDRESSING_STYLE = "virtual"
-    AWS_QUERYSTRING_AUTH = False
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",

@@ -34,11 +34,16 @@ services:
       POSTGRES_DB: postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - red-shell-recruiting_red-shell-recruiting
+
 
   redis:
     image: redis:7
     ports:
       - "6379:6379"
+    networks:
+      - red-shell-recruiting_red-shell-recruiting
 
   celery:
     build: .
@@ -46,6 +51,8 @@ services:
     depends_on:
       - redis
       - web
+    env_file:
+      - .env
     environment:
       - DJANGO_SETTINGS_MODULE=app_admin.settings
     volumes:
