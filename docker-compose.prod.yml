@@ -59,6 +59,7 @@ services:
   celery:
     build: .
     command: celery -A app_admin worker --loglevel=info
+    entrypoint: [""]
     depends_on:
       - redis
       - web
@@ -69,8 +70,6 @@ services:
     networks:
       - red-shell-recruiting_red-shell-recruiting
 
-volumes:
-  postgres_data:
 
 networks:
   red-shell-recruiting_red-shell-recruiting:
