@@ -1,0 +1,7 @@
+<div class="flex-display justify-center vertical-align">
+    {% if value|lower in 'true,success,True' %}
+        <span class="general-success-bg small-alert"></span>
+    {% elif value|lower in 'false,fail,False' %}
+        <span class="general-failed-bg small-alert"></span>
+    {% endif %}
+</div>

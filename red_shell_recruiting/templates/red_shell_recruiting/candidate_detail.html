@@ -1,0 +1,216 @@
+{% extends '_base.html' %}
+{% load static %}
+{% load filters %}
+{% block title %}
+    Candidate Search
+{% endblock %}
+{% block css-extra %}
+    <link rel="stylesheet" href="{% static 'css/candidate.css' %}">
+{% endblock %}
+{% block content %}
+    <div style="max-width:1000px; width: 50%; margin: 4rem auto 0;">
+        <div id="candidate-view-mode" class="section">
+            <div class="field-set flex-display" style="column-gap: 2rem">
+                <div style="width: 50%; position: relative">
+                    <div>
+                        <span style="font-size: 10px; color: var(--faded-gray-color)">First Name</span>
+                        <input type="text" value="{{ candidate.first_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                    </div>
+                    <div>
+                        <span style="font-size: 10px; color: var(--faded-gray-color)">Last Name</span>
+                        <input type="text" value="{{ candidate.last_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                    </div>
+                    <div>
+                        <span style="font-size: 10px; color: var(--faded-gray-color)">State</span>
+                        <input type="text" value="{{ candidate.state }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                    </div>
+                    <div>
+                        <span style="font-size: 10px; color: var(--faded-gray-color)">City</span>
+                        <input type="text" value="{{ candidate.city }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                    </div>
+                    <div>
+                        <span style="font-size: 10px; color: var(--faded-gray-color)">Job Title</span>
+                        <input type="text" value="{{ candidate.job_title }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                    </div>
+                </div>
+                <div style="width: 50%; position: relative">
+                    <div>
+                        <span style="font-size: 10px; color: var(--faded-gray-color)">Phone Number</span>
+                        <input type="tel" value="{{ candidate.phone_number }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                    </div>
+                    <div>
+                        <span style="font-size: 10px; color: var(--faded-gray-color)">Email</span>
+                        <input type="email" value="{{ candidate.email }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                    </div>
+                    <div>
+                        <span style="font-size: 10px; color: var(--faded-gray-color)">Compensation</span>
+                        <input type="text" value="{{ candidate.compensation }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                    </div>
+                    <div class="align-baseline column flex-display flex-start toggle-container" style="margin-top: 1rem;">
+                        <div class="flex-display vertical-align space-between" style="width: 150px; margin-bottom: 1rem">
+                            <h4 style="margin-right: 0.5rem; color: var(--theme-base-color); opacity: 0.7;">Actively Looking</h4>
+                            {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.actively_looking %}
+                        </div>
+                        <div class="flex-display vertical-align space-between" style="width: 150px; margin-bottom: 1rem">
+                            <h4 style="margin-right: 0.5rem; color: var(--theme-base-color); opacity: 0.7;">Open to Relocation</h4>
+                            {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.open_to_relocation %}
+                        </div>
+                        <div class="flex-display vertical-align space-between" style="width: 150px;">
+                            <h4 style="margin-right: 0.5rem; color: var(--theme-base-color); opacity: 0.7;">Currently Working</h4>
+                            {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.currently_working %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <span style="font-size: 10px; color: var(--faded-gray-color)">Notes</span>
+                <textarea class="text-input" style="border: 1px solid var(--ui-support-element-color); height: 200px; padding: 0.5rem;" disabled>{{ candidate.notes }}</textarea>
+            </div>
+            <div class="flex-display flex-end" style="width: 100%;">
+                <button class="button flex-display vertical-align space-between" id="edit-button">
+                    {% include 'red_shell_recruiting/components/svg_components.html' with type='edit' %}
+                    <span style="margin-left: 3px;">Edit Candidate</span>
+                </button>
+            </div>
+            <hr>
+            <span style="font-size: 10px; color: var(--faded-gray-color)">Resumes</span>
+            <ul>
+                {% for resume in candidate.resumes.all %}
+                    {% if not resume.archived %}
+                        <li style="margin-bottom: 0.5rem;">
+                            <a href="{{ resume.get_signed_url }}" download>{{ resume.file.name|filename }}</a>
+                            <span style="font-size: 9px; color: var(--accent-text-color)">
+                                (Uploaded {{ resume.created_at|date:"Y-m-d H:i" }})
+                            </span>
+                            <form method="post" action="{% url 'archive-resume' resume.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button class="button" type="submit" style="margin-left: 0.5rem; padding: 0;">
+                                    <div style="position: relative; top: 2px">
+                                        {% include 'red_shell_recruiting/components/svg_components.html' with type='close' %}
+                                    </div>
+                                </button>
+                            </form>
+                        </li>
+                    {% endif %}
+                {% empty %}
+                    <li>No resumes uploaded yet.</li>
+                {% endfor %}
+            </ul>
+            <div class="flex-display vertical-align" style="margin-right:3rem; margin-top: 1rem;">
+                <input required style="display: none;" type="file" id="resume" name="candidate_resume" accept=".pdf, .doc, .docx">
+                <button class="button flex-display vertical-align space-between" onclick="document.getElementById('resume').click();">
+                    {% include 'red_shell_recruiting/components/svg_components.html' with type='quick-add' %}
+                    <span style="margin-left: 3px;">Add Resume</span>
+                </button>
+                <div style="margin-left: 1rem;" id="file-name"></div>
+                <button id="add-resume-button" class="button flex-display vertical-align space-between" style="display:none; margin-left: 1rem;">
+                    {% include 'red_shell_recruiting/components/svg_components.html' with type='download' %}
+                    <span style="margin-left: 3px;">Upload</span>
+                </button>
+            </div>
+        </div>
+        <div id="candidate-edit-mode" class="section" style="display: none;">
+            <form method="post">
+                {% csrf_token %}
+                <div class="field-set flex-display" style="column-gap: 2rem; min-height: 280px;">
+                    <div style="width: 50%; position: relative">
+                        <input type="text" name="first_name" class="text-input" placeholder="First Name" value="{{ candidate.first_name }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                        <input type="text" name="last_name" class="text-input" placeholder="Last Name" value="{{ candidate.last_name }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                        {% include 'red_shell_recruiting/components/state_dropdown_component.html' %}
+                        {% include 'red_shell_recruiting/components/city_dropdown_component.html' %}
+                        <input type="text" name="job_title" class="text-input" placeholder="Job Title" value="{{ candidate.job_title }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                    </div>
+                    <div style="width: 50%; position: relative">
+                        <input type="tel" name="phone_number" class="text-input" placeholder="Phone Number" value="{{ candidate.phone_number }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                        <input type="email" name="email" class="text-input" placeholder="Email" value="{{ candidate.email }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                        <input name="compensation" class="text-input" type="number" placeholder="Compensation" value="{{ candidate.compensation }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                        <div class="align-baseline column flex-display flex-start toggle-container" style="margin-top: 1rem;">
+                            <label class="toggle flex-display vertical-align justify-center" style="margin-bottom: 1rem;">
+                                <input name="actively_looking" id="candidate-looking" class="toggle-checkbox" type="checkbox" {% if candidate.actively_looking %}checked{% endif %}>
+                                <div class="toggle-switch"></div>
+                                <span>Actively Looking</span>
+                            </label>
+                            <label class="toggle flex-display vertical-align justify-center" style="margin-bottom: 1rem;">
+                                <input name="open_to_relocation" id="candidate-relocation" class="toggle-checkbox" type="checkbox" {% if candidate.open_to_relocation %}checked{% endif %}>
+                                <div class="toggle-switch"></div>
+                                <span>Open to Relocation</span>
+                            </label>
+                            <label class="toggle flex-display vertical-align justify-center">
+                                <input name="currently_working" id="candidate-working" class="toggle-checkbox" type="checkbox" {% if candidate.currently_working %}checked{% endif %}>
+                                <div class="toggle-switch"></div>
+                                <span>Currently Working</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <textarea name="notes" class="text-input" placeholder="Notes" style="border: 1px solid var(--ui-support-element-color); height: 200px; padding: 0.5rem;">{{ candidate.notes }}</textarea>
+                <hr>
+                <div style="width: 100%" class="flex-display vertical-align justify-center space-between">
+                    <button class="button flex-display vertical-align justify-center space-between" type="button" id="cancel-button">
+                        {% include 'red_shell_recruiting/components/svg_components.html' with type='close-basic' %}
+                        <span style="margin-left: 3px;">Cancel</span>
+                    </button>
+                    <button class="button flex-display vertical-align justify-center space-between" type="submit">
+                        {% include 'red_shell_recruiting/components/svg_components.html' with type='edit' %}
+                        <span style="margin-left: 3px;">Save Changes</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function() {
+
+            $('#resume').on('change', function() {
+                const file = $(this)[0].files[0];
+                if (file) {
+                    $('#file-name').text(file.name);
+                    $('#add-resume-button').show();
+                }
+            });
+
+            $('#add-resume-button').on('click', function() {
+                const fileInput = $('#resume')[0];
+                if (fileInput.files.length === 0) {
+                    alert('Please select a file first.');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('resume', fileInput.files[0]);
+                formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+                $.ajax({
+                    url: '{% url "upload-resume" candidate.id %}',
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        location.reload();
+                    },
+                    error: function(xhr) {
+                        alert('Failed to upload resume.');
+                    }
+                });
+            });
+
+            $('#edit-button').on('click', function() {
+                $('#candidate-view-mode').hide();
+                $('#candidate-edit-mode').show();
+
+                $('#state-hidden').val('{{ candidate.state }}');
+                $('#city-hidden').val('{{ candidate.city }}');
+                $('#state-dropdown').text('{{ candidate.state }}');
+                $('#city-dropdown').text('{{ candidate.city }}');
+                $('#city-dropdown-wrapper').show();
+            });
+
+            $('#cancel-button').on('click', function() {
+                $('#candidate-edit-mode').hide();
+                $('#candidate-view-mode').show();
+            });
+        });
+    </script>
+
+{% endblock %}

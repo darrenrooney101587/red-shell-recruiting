@@ -10,87 +10,101 @@
     <div>
         <div class="flex-display justify-center" style="margin: 0 auto; width: 600px;">
             <form method="get" action="{% url 'candidate-search' %}" style="width: 100%;">
-                {% csrf_token %}
-                <div class="flex-display">
-                    <input style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" type="text" class="text-input" name="q" value="{{ query }}" placeholder="Search candidates..." />
-                    <button class="button" type="submit">Search</button>
-                </div>
-
-                <div class="flex-display vertical-align justify-center" style="margin-top: 1rem;">
-                    <label class="toggle flex-display vertical-align justify-center" style="margin-right: 1rem;">
-                        <input type="checkbox" name="candidate-looking" {% if request.GET.actively_looking %}checked{% endif %} class="toggle-checkbox">
-                        <div class="toggle-switch"></div>
-                        <span>Actively Looking</span>
-                    </label>
-
-                    <label class="toggle flex-display vertical-align justify-center" style="margin-right: 1rem;">
-                        <input type="checkbox" name="candidate-relocation" {% if request.GET.open_to_relocation %}checked{% endif %} class="toggle-checkbox">
-                        <div class="toggle-switch"></div>
-                        <span>Open to Relocation</span>
-                    </label>
-
-                    <label class="toggle flex-display vertical-align justify-center">
-                        <input type="checkbox" name="currently-working" {% if request.GET.currently_working %}checked{% endif %} class="toggle-checkbox">
-                        <div class="toggle-switch"></div>
-                        <span>Currently Working</span>
-                    </label>
+                <div class="flex-display column vertical-align">
+                    <div class="flex-display vertical-align space-between" style="width: 100%;">
+                        <input style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" type="text" class="text-input" name="q" value="{{ query }}" placeholder="Search candidates..." />
+                        <div class="flex-display space-between vertical-align">
+                            <button class="button" type="submit">Search</button>
+                            <div style="margin-left: 0.5rem;" class="flex-display vertical-align justify-center">
+                                <a href="{% url 'candidate-search' %}" class="button">Clear</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-display vertical-align justify-center" style="margin-top: 1rem;">
+                        <label class="toggle flex-display vertical-align justify-center" style="margin-right: 1rem;">
+                            <input type="checkbox" name="actively_looking" {% if request.GET.actively_looking %}checked{% endif %} class="toggle-checkbox">
+                            <div class="toggle-switch"></div>
+                            <span>Actively Looking</span>
+                        </label>
+                        <label class="toggle flex-display vertical-align justify-center" style="margin-right: 1rem;">
+                            <input type="checkbox" name="open_to_relocation" {% if request.GET.open_to_relocation %}checked{% endif %} class="toggle-checkbox">
+                            <div class="toggle-switch"></div>
+                            <span>Open to Relocation</span>
+                        </label>
+                        <label class="toggle flex-display vertical-align justify-center">
+                            <input type="checkbox" name="currently_working" {% if request.GET.currently_working %}checked{% endif %} class="toggle-checkbox">
+                            <div class="toggle-switch"></div>
+                            <span>Currently Working</span>
+                        </label>
+                    </div>
                 </div>
             </form>
         </div>
+        <hr>
         {% if candidates %}
-            <ul>
+            <div class="flex-display flex-wrap" style="gap: 2rem;">
                 {% for candidate in candidates %}
-                    <li>
-                        <div class="candidate-card section" style="width: 400px">
-                            <div class="flex-display space-between">
-                                <h2>{{ candidate.first_name }} {{ candidate.last_name }}</h2>
-                                <h2>{{ candidate.job_title }}</h2>
+                    <div class="candidate-card section" data-candidate-id="{{ candidate.id }}" style="width: 400px">
+                        <div class="flex-display space-between">
+                            <h2>{{ candidate.first_name }} {{ candidate.last_name }}</h2>
+                        </div>
+                        <hr style="margin-top: 0.5rem; margin-bottom: 0.5rem;">
+                        <div class="flex-display space-between">
+                            <div>
+                                <span style="font-size: 9px; color: var(--faded-gray-color)">Job Title</span>
+                                <h4>{{ candidate.job_title }}</h4>
                             </div>
-                            <hr>
-                            <div class="flex-display">
-                                <label class="toggle flex-display vertical-align justify-center">
-                                    <input
-                                        class="toggle-checkbox"
-                                        type="checkbox"
-                                        {% if candidate.actively_looking %}checked{% endif %}
-                                        disabled
-                                    >
-                                    <div class="toggle-switch"></div>
-                                    <span>Actively Looking</span>
-                                </label>
-                            </div>
-                            <div class="flex-display">
-                                <label class="toggle flex-display vertical-align justify-center">
-                                    <input
-                                        class="toggle-checkbox"
-                                        type="checkbox"
-                                        {% if candidate.open_to_relocation %}checked{% endif %}
-                                        disabled
-                                    >
-                                    <div class="toggle-switch"></div>
-                                    <span>Open to Relocation</span>
-                                </label>
-                            </div>
-                            <div class="flex-display">
-                                <label class="toggle flex-display vertical-align justify-center">
-                                    <input
-                                        class="toggle-checkbox"
-                                        type="checkbox"
-                                        {% if candidate.currently_working %}checked{% endif %}
-                                        disabled
-                                    >
-                                    <div class="toggle-switch"></div>
-                                    <span>Currently Working</span>
-                                </label>
+                            <div>
+                                <span style="font-size: 9px; color: var(--faded-gray-color)">Email</span>
+                                <h4>{{ candidate.email }}</h4>
                             </div>
                         </div>
-                    </li>
+                        <hr>
+                        <div class="flex-display space-between">
+                            <div class="flex-display column space-between">
+                                <div class="flex-display vertical-align space-between" style="width: 135px;">
+                                    <h5 style="margin-right: 0.5rem;">Actively Looking</h5>
+                                    {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.actively_looking %}
+                                </div>
+                                <div class="flex-display vertical-align space-between" style="width: 135px;">
+                                    <h5 style="margin-right: 0.5rem;">Open to Relocation</h5>
+                                    {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.open_to_relocation %}
+                                </div>
+                                <div class="flex-display vertical-align space-between" style="width: 135px;">
+                                    <h5 style="margin-right: 0.5rem;">Currently Working</h5>
+                                    {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.currently_working %}
+                                </div>
+                            </div>
+                            <div class="flex-display">
+                                <div style="height: 100%; border: 0; border-left: 1px solid rgba(0,0,0,.1); margin-left: 1rem; margin-right: 1rem;"></div>
+                                <div class="flex-display vertical-align justify-center">
+                                    <span style="text-align: center">{{ candidate.resumes.count }} Resume(s)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 {% endfor %}
-            </ul>
+            </div>
         {% else %}
             {% if query %}
                 <p>No results found.</p>
             {% endif %}
         {% endif %}
     </div>
+    <script>
+        $(document).ready(function() {
+
+            $('#clear-button').on('click', function() {
+                $('input[type="text"]').val('');
+                $('input[type="checkbox"]').prop('checked', false);
+            });
+
+            $('.candidate-card').on('click', function() {
+                var candidateId = $(this).data('candidate-id');
+                if (candidateId) {
+                    window.location.href = '/candidate/' + candidateId + '/';
+                }
+            });
+        });
+    </script>
 {% endblock %}

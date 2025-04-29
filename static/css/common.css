@@ -1,67 +1,3 @@
-/*
-  Boilerplate
- */
-
-/*!* Box-sizing reset *!*/
-/**, *::before, *::after {*/
-/*  box-sizing: border-box;*/
-/*}*/
-
-/*!* Remove default margin and padding *!*/
-/*body, h1, h2, h3, h4, h5, h6, p, ul, ol, figure, blockquote, dl, dd {*/
-/*  margin: 0;*/
-/*  padding: 0;*/
-/*}*/
-
-/*!* Remove list styles on ul, ol elements *!*/
-/*ul, ol {*/
-/*  list-style: none;*/
-/*}*/
-
-/*!* Set default font stack and smoothing *!*/
-/*body {*/
-/*  font-family: system-ui, -apple-system, sans-serif;*/
-/*  line-height: 1.5;*/
-/*  -webkit-font-smoothing: antialiased;*/
-/*  background-color: #f9f9f9;*/
-/*  color: #333;*/
-/*}*/
-
-/*!* Tables: collapse borders and spacing *!*/
-/*table {*/
-/*  border-collapse: collapse;*/
-/*  width: 100%;*/
-/*}*/
-
-/*!* Reset images *!*/
-/*img {*/
-/*  max-width: 100%;*/
-/*  display: block;*/
-/*}*/
-
-/*!* Links: reset color, remove underline by default *!*/
-/*a {*/
-/*  color: inherit;*/
-/*  text-decoration: none;*/
-/*}*/
-
-/*!* Buttons: remove native styling *!*/
-/*button {*/
-/*  background: none;*/
-/*  border: none;*/
-/*  padding: 0;*/
-/*  font: inherit;*/
-/*  cursor: pointer;*/
-/*}*/
-
-/*!* Inputs: inherit font and colors *!*/
-/*input, button, textarea, select {*/
-/*  font: inherit;*/
-/*  color: inherit;*/
-/*}*/
-
-
-/* Defaults */
 :root {
   --hover-background: #f5f5f5;
   --std-border-radius: 6px;
@@ -418,6 +354,7 @@ h6 {
 .button:hover {
   background: var(--full-blue-color);
   transition-duration: .35s;
+  cursor: pointer;
 }
 .button:active {
   box-shadow: rgba(0, 0, 0, .1) 0 3px 6px 0, rgba(0, 0, 0, .1) 0 0 10px 0, rgba(0, 0, 0, .1) 0 1px 4px -1px;
@@ -729,4 +666,98 @@ li.nav-item.sub {
 
 .footer__separator {
   margin-right: 0.5rem;
+}
+
+.alert {
+  color: #fff;
+  font-weight: bold;
+  border-radius:var(--std-border-radius);
+  min-width: calc(var(--std-item-height) * 0.75);
+  height: calc(var(--std-item-height) * 0.75);
+  text-align: center;
+  line-height: 1.8em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.small-alert {
+  border-radius: 50%;
+  height: 12px;
+  width: 12px;
+  position: relative;
+}
+
+.alerts {
+  padding:  5px;
+  border-radius: 6px;
+}
+
+.general-failed-bg {
+  background: var(--faded-red-color);
+  color: var(--accent-red-color)
+}
+.general-failed {
+  color: var(--accent-red-color)
+}
+.general-success-bg {
+  background: var(--faded-green-color);
+  color: var(--accent-green-color);
+}
+.general-success {
+  color: var(--accent-green-color);
+}
+.general-caution-bg  {
+  background: var(--faded-light-orange-color);
+  color: var(--accent-light-orange-color)
+}
+.general-caution {
+  color: var(--accent-light-orange-color)
+}
+.general-warning-bg {
+  background-color: var(--full-warning-color);
+}
+.general-warning {
+  color: var(--full-warning-color)
+}
+.general-unknown-bg {
+  background-color: var( --faded-gray-color);
+}
+.general-caution-bg-purple  {
+  background: var(--faded-purple-color);
+  color: var(--accent-purple-color);
+}
+.general-caution-purple {
+  color: var(--accent-purple-color);
+}
+.alert.caution-purple:hover {
+  background: var(--faded-purple-color-hover);
+}
+.general-warning-purple {
+  color: var(--full-purple-color);
+}
+.general-caution-bg-teal  {
+  background: var(--faded-teal-color);
+  color: var(--accent-teal-color);
+}
+.general-caution-teal {
+  color: var(--accent-teal-color);
+}
+.alert.caution-teal:hover {
+  background: var(--faded-teal-color-hover);
+}
+.general-warning-teal {
+  color: var(--full-teal-color);
+}
+.general-caution-bg-cyan {
+  background: var(--faded-cyan-color);
+  color: var(--accent-cyan-color);
+}
+.general-caution-cyan {
+  color: var(--accent-cyan-color);
+}
+.alert.caution-cyan:hover {
+  background: var(--faded-cyan-color-hover);
 }

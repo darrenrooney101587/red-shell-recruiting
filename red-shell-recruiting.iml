@@ -27,6 +27,7 @@
         <option value="$MODULE_DIR$/templates/admin" />
         <option value="$MODULE_DIR$/templates/two_factor" />
         <option value="$MODULE_DIR$/red_shell_recruiting/templates" />
+        <option value="$MODULE_DIR$/account/templates" />
       </list>
     </option>
   </component>

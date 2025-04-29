@@ -89,6 +89,10 @@ ENABLE_OTP = os_env_boolean("ENABLE_OTP", "True")
 ENABLE_SSO = os_env_boolean("ENABLE_SSO", "True")
 CELERY_BROKER_URL = "redis://redis:6379/0"
 CELERY_RESULT_BACKEND = "redis://redis:6379/0"
+INTERNAL_IPS = [
+    "127.0.0.1",
+    "localhost",
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -121,13 +125,14 @@ DATABASES = {
         "USER": os.getenv("POSTGRES_USER"),
         "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
         # use localhost reference to "db" which is our docker-compose service id
-        "HOST": 'db' if os_env_boolean('LOCAL_DOCKER', False) else os.getenv("POSTGRES_HOST"),
+        "HOST": 'db' if is_running_in_docker() else os.getenv("POSTGRES_HOST"),
         "PORT": 5432 if is_running_in_docker() else os.getenv("POSTGRES_PORT"),
     }
 }
 
 MIDDLEWARE = [
     'app_admin.middleware.CaptureSAMLResponseMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'app_admin.middleware.ForceCustomLoginMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

@@ -1,0 +1,70 @@
+<div class="flex-display" style="margin-bottom: 1rem; position: relative">
+    <div tabindex="3" class="custom-dropdown" style="border-bottom: 1px solid var(--ui-support-element-color)">
+        <div class="flex-display space-between">
+            <div class="selected-option" id="state-dropdown">Select a State</div>
+            <span class="chevron-down">
+                {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}
+            </span>
+            <span class="chevron-up" style="display: none;">
+                {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}
+            </span>
+        </div>
+        <ul class="dropdown-list" id="state-list">
+            <li class="option placeholder" data-value="" data-fullname="">Select a State</li>
+            <li class="option" data-value="AL" data-fullname="Alabama">Alabama</li>
+            <li class="option" data-value="AK" data-fullname="Alaska">Alaska</li>
+            <li class="option" data-value="AZ" data-fullname="Arizona">Arizona</li>
+            <li class="option" data-value="AR" data-fullname="Arkansas">Arkansas</li>
+            <li class="option" data-value="CA" data-fullname="California">California</li>
+            <li class="option" data-value="CO" data-fullname="Colorado">Colorado</li>
+            <li class="option" data-value="CT" data-fullname="Connecticut">Connecticut</li>
+            <li class="option" data-value="DE" data-fullname="Delaware">Delaware</li>
+            <li class="option" data-value="FL" data-fullname="Florida">Florida</li>
+            <li class="option" data-value="GA" data-fullname="Georgia">Georgia</li>
+            <li class="option" data-value="HI" data-fullname="Hawaii">Hawaii</li>
+            <li class="option" data-value="ID" data-fullname="Idaho">Idaho</li>
+            <li class="option" data-value="IL" data-fullname="Illinois">Illinois</li>
+            <li class="option" data-value="IN" data-fullname="Indiana">Indiana</li>
+            <li class="option" data-value="IA" data-fullname="Iowa">Iowa</li>
+            <li class="option" data-value="KS" data-fullname="Kansas">Kansas</li>
+            <li class="option" data-value="KY" data-fullname="Kentucky">Kentucky</li>
+            <li class="option" data-value="LA" data-fullname="Louisiana">Louisiana</li>
+            <li class="option" data-value="ME" data-fullname="Maine">Maine</li>
+            <li class="option" data-value="MD" data-fullname="Maryland">Maryland</li>
+            <li class="option" data-value="MA" data-fullname="Massachusetts">Massachusetts</li>
+            <li class="option" data-value="MI" data-fullname="Michigan">Michigan</li>
+            <li class="option" data-value="MN" data-fullname="Minnesota">Minnesota</li>
+            <li class="option" data-value="MS" data-fullname="Mississippi">Mississippi</li>
+            <li class="option" data-value="MO" data-fullname="Missouri">Missouri</li>
+            <li class="option" data-value="MT" data-fullname="Montana">Montana</li>
+            <li class="option" data-value="NE" data-fullname="Nebraska">Nebraska</li>
+            <li class="option" data-value="NV" data-fullname="Nevada">Nevada</li>
+            <li class="option" data-value="NH" data-fullname="New Hampshire">New Hampshire</li>
+            <li class="option" data-value="NJ" data-fullname="New Jersey">New Jersey</li>
+            <li class="option" data-value="NM" data-fullname="New Mexico">New Mexico</li>
+            <li class="option" data-value="NY" data-fullname="New York">New York</li>
+            <li class="option" data-value="NC" data-fullname="North Carolina">North Carolina</li>
+            <li class="option" data-value="ND" data-fullname="North Dakota">North Dakota</li>
+            <li class="option" data-value="OH" data-fullname="Ohio">Ohio</li>
+            <li class="option" data-value="OK" data-fullname="Oklahoma">Oklahoma</li>
+            <li class="option" data-value="OR" data-fullname="Oregon">Oregon</li>
+            <li class="option" data-value="PA" data-fullname="Pennsylvania">Pennsylvania</li>
+            <li class="option" data-value="RI" data-fullname="Rhode Island">Rhode Island</li>
+            <li class="option" data-value="SC" data-fullname="South Carolina">South Carolina</li>
+            <li class="option" data-value="SD" data-fullname="South Dakota">South Dakota</li>
+            <li class="option" data-value="TN" data-fullname="Tennessee">Tennessee</li>
+            <li class="option" data-value="TX" data-fullname="Texas">Texas</li>
+            <li class="option" data-value="UT" data-fullname="Utah">Utah</li>
+            <li class="option" data-value="VT" data-fullname="Vermont">Vermont</li>
+            <li class="option" data-value="VA" data-fullname="Virginia">Virginia</li>
+            <li class="option" data-value="WA" data-fullname="Washington">Washington</li>
+            <li class="option" data-value="WV" data-fullname="West Virginia">West Virginia</li>
+            <li class="option" data-value="WI" data-fullname="Wisconsin">Wisconsin</li>
+            <li class="option" data-value="WY" data-fullname="Wyoming">Wyoming</li>
+        </ul>
+    </div>
+    <input required type="hidden" name="candidate-state" id="state-hidden">
+    <div class="spinner-wrapper" style="top:12px; left: calc(100% - 14%)">
+        <div class="simple-spinner"></div>
+    </div>
+</div>
