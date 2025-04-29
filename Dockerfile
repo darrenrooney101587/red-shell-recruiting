@@ -1,5 +1,7 @@
 FROM python:3.10-slim
+
 WORKDIR /app
+
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
@@ -22,9 +24,13 @@ RUN apt-get update && \
 RUN xmlsec1 --version
 RUN pip install --upgrade pip setuptools wheel poetry
 
+RUN poetry config virtualenvs.create false
+COPY pyproject.toml poetry.lock ./
+
+RUN poetry install --no-root --only main
 COPY . .
-RUN poetry install --no-root
 
 COPY ./config/docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
+
 ENTRYPOINT ["/docker-entrypoint.sh"]
