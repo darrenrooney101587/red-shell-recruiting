@@ -37,7 +37,6 @@ services:
     networks:
       - red-shell-recruiting_red-shell-recruiting
 
-
   redis:
     image: redis:7
     ports:
