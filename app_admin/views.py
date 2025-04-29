@@ -1,6 +1,10 @@
+import traceback
+import uuid
+
 from django.http import JsonResponse, Http404
 from django.shortcuts import render
 from django.contrib import messages
+
 
 def privacy_policy(request):
     return render(request, "privacy_policy.html")
@@ -12,6 +16,7 @@ def terms_of_service(request):
 
 def healthcheck(request):
     return JsonResponse({"status": "ok"})
+
 
 def custom_403_view(request, exception=None):
     """
@@ -34,6 +39,11 @@ def force_404(request):
     """Force a 404 error manually."""
     raise Http404("This page does not exist.")
 
+
 def force_500(request):
     """Render 500 error template manually for testing."""
-    return render(request, "500.html", status=500)
+    try:
+        raise Exception("This is a test 500 error.")
+    except Exception:
+        context = {"stacktrace": traceback.format_exc()}
+        return render(request, "500.html", context=context, status=500)

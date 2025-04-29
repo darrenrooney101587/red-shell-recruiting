@@ -10,7 +10,7 @@ def get_client_ip_address(request):
 
     if not ip:
         raise ValueError("Could not determine client IP address")
-    return ip
+    return None
 
 
 def get_saml_metadata_from_db():
