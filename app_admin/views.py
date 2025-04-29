@@ -1,9 +1,10 @@
 import traceback
-import uuid
 
 from django.http import JsonResponse, Http404
 from django.shortcuts import render
 from django.contrib import messages
+from django.contrib.sitemaps import Sitemap
+from django.urls import reverse
 
 
 def privacy_policy(request):
@@ -47,3 +48,14 @@ def force_500(request):
     except Exception:
         context = {"stacktrace": traceback.format_exc()}
         return render(request, "500.html", context=context, status=500)
+
+
+class StaticViewSitemap(Sitemap):
+    priority = 0.5
+    changefreq = "monthly"
+
+    def items(self):
+        return ["home", "privacy-policy", "terms-of-service"]
+
+    def location(self, item):
+        return reverse(item)
