@@ -1,5 +1,7 @@
 import boto3
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 from django.http import JsonResponse
 from django.views.generic import TemplateView
@@ -12,13 +14,12 @@ from django.db import IntegrityError, transaction
 
 from red_shell_recruiting.models import CandidateProfile, Resume
 
-
+@login_required
 def index(request):
     context = {}
     return render(request, 'red_shell_recruiting/index.html', context)
 
-
-class CandidateEnter(View):
+class CandidateEnter(LoginRequiredMixin, View):
     template_name = 'red_shell_recruiting/candidate_input.html'
 
     def get(self, request, *args, **kwargs):
@@ -74,7 +75,7 @@ class CandidateEnter(View):
         return redirect('candidate-submit')
 
 
-class CandidateSearch(TemplateView):
+class CandidateSearch(LoginRequiredMixin, TemplateView):
     template_name = 'red_shell_recruiting/candidate_search.html'
 
     def get_context_data(self, **kwargs):
@@ -115,7 +116,7 @@ class CandidateSearch(TemplateView):
 
 
 
-class CandidateDetail(TemplateView):
+class CandidateDetail(LoginRequiredMixin, TemplateView):
     template_name = 'red_shell_recruiting/candidate_detail.html'
 
     def get_context_data(self, **kwargs):
@@ -151,7 +152,7 @@ class CandidateDetail(TemplateView):
 
         return redirect('candidate-detail', candidate_id=candidate.id)
 
-class ArchiveResume(View):
+class ArchiveResume(LoginRequiredMixin, View):
     def post(self, request, resume_id):
         resume = get_object_or_404(Resume, id=resume_id)
 
@@ -181,7 +182,7 @@ class ArchiveResume(View):
 
         return redirect('candidate-detail', candidate_id=resume.candidate.id)
 
-class UploadResume(View):
+class UploadResume(LoginRequiredMixin, View):
     def post(self, request, candidate_id):
         candidate = get_object_or_404(CandidateProfile, id=candidate_id)
         uploaded_file = request.FILES.get('resume')
