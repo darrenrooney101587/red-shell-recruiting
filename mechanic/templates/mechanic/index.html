@@ -92,6 +92,24 @@
                     </div>
                 </div>
             </div>
+            <div class="accordion root">
+                <div class="flex-display vertical-align" style="padding-left: 5px; padding-right: 10px;">
+                    <i class="fa fa-angle-down" style="margin-right: 10px"></i>
+                    <div class="flex-display vertical-align">
+                        <div style="">
+                            <h3 class="ellipsis" style="font-weight: bold">Redis/Celery Tester</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-content" style="border: 1px solid #dee2e6">
+                    <div id="buttons-container" class="flex-display column align-baseline" style="padding: 20px; gap: 1rem;">
+                        <button class="button test-redis-btn">Test Redis/Celery Connection</button>
+                        <span id="status-redis"></span>
+                    </div>
+                </div>
+            </div>
         </div>
   </div>
 </div>
@@ -115,6 +133,20 @@
             });
         });
 
+        $(".test-redis-btn").click(function() {
+            let statusSpan = $("#status-redis");
+            statusSpan.text("Testing...");
+
+            $.ajax({
+                url: "{% url 'test-redis-celery-connection' %}",
+                success: function(response) {
+                    statusSpan.text(response.message).css("color", "green");
+                },
+                error: function(xhr) {
+                    statusSpan.text(xhr.responseJSON.message).css("color", "red");
+                }
+            });
+        });
 
     });
 
