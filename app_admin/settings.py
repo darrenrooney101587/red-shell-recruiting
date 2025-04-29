@@ -8,17 +8,6 @@ from django.contrib.messages import constants as messages
 load_dotenv()
 
 
-def is_running_in_docker():
-    """Check if running inside a Docker or Kubernetes container."""
-    if os.path.exists("/.dockerenv"):
-        return True
-    try:
-        with open("/proc/1/cgroup", "rt") as f:
-            return "docker" in f.read() or "kubepods" in f.read()
-    except FileNotFoundError:
-        return False
-
-
 def os_env_boolean(name, default):
     """Checks to see of the environment variable maps to true or false"""
     return os.getenv(name, default) in ["true", "True", "TRUE", "1", "t", "y", "yes"]
@@ -37,9 +26,6 @@ def get_hostname_from_allowed_hosts():
     # all entries are local, return "localhost", otherwise return the first valid hostname
     return "localhost" if is_local else (valid_hosts[0] if valid_hosts else "localhost")
 
-
-if is_running_in_docker():
-    print("Running on Docker")
 
 DEBUG = os_env_boolean("DEBUG", default="false")
 if DEBUG:
@@ -134,8 +120,10 @@ DATABASES = {
         "USER": os.getenv("POSTGRES_USER"),
         "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
         # use localhost reference to "db" which is our docker-compose service id
-        "HOST": "db" if is_running_in_docker() else os.getenv("POSTGRES_HOST"),
-        "PORT": 5432 if is_running_in_docker() else os.getenv("POSTGRES_PORT"),
+        "HOST": "db"
+        if os_env_boolean("LOCAL_DOCKER", False)
+        else os.getenv("POSTGRES_HOST"),
+        "PORT": os.getenv("POSTGRES_PORT", 5432),
     }
 }
 
