@@ -1,16 +1,21 @@
-
-
 def get_client_ip_address(request):
     """
     Retrieve client IP address while handling cases where the app is behind a proxy.
     """
     x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
     if x_forwarded_for:
-        return x_forwarded_for.split(",")[0]
-    return request.META.get("REMOTE_ADDR")
+        ip = x_forwarded_for.split(",")[0].strip()
+    else:
+        ip = request.META.get("REMOTE_ADDR")
+
+    if not ip:
+        raise ValueError("Could not determine client IP address")
+    return ip
+
 
 def get_saml_metadata_from_db():
     import tempfile
+
     # from bms_security.models import AgencyConfiguration
     #
     # config = AgencyConfiguration.objects.get(
