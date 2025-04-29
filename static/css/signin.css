@@ -1,11 +1,4 @@
-html,
-body {
-  height: 100%;
-}
-body {
-  display: flex;
-  align-items: center;
-}
+
 .form-signin.center-frame {
   max-width: 330px;
 }
