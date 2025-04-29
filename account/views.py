@@ -33,18 +33,18 @@ logger = logging.getLogger(__name__)
 
 
 def change_password_view(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = PasswordChangeForm(request.user, request.POST)
         if form.is_valid():
             user = form.save()
             update_session_auth_hash(request, user)  # Important!
-            messages.success(request, 'Your password was successfully updated!')
-            return redirect('password-change')
+            messages.success(request, "Your password was successfully updated!")
+            return redirect("password-change")
         else:
-            messages.error(request, 'Please correct the error below.')
+            messages.error(request, "Please correct the error below.")
     else:
         form = PasswordChangeForm(request.user)
-    return render(request, 'account/change_password.html', {'form': form})
+    return render(request, "account/change_password.html", {"form": form})
 
 
 def custom_login_view(request):
@@ -52,13 +52,13 @@ def custom_login_view(request):
     username = request.POST.get("username", "")
 
     failure_limit = 3
-    lockout_time = 3
+    lockout_time = 1
 
     last_attempt = (
         LoginAttempt.objects.filter(
             username=username, ip_address=client_ip, success=False
         )
-        .order_by('-attempt_time')
+        .order_by("-attempt_time")
         .first()
     )
 
@@ -217,14 +217,14 @@ def verify_backup_token(request):
 
 
 class Disable2FAConfirmation(LoginRequiredMixin, TemplateView):
-    template_name = 'account/disable_2fa_confirmation.html'
+    template_name = "account/disable_2fa_confirmation.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
         user = self.request.user
         device = TOTPDevice.objects.filter(user=user, confirmed=True)
         if not device:
-            context['has_no_device'] = True
+            context["has_no_device"] = True
 
         return context
 
@@ -232,7 +232,7 @@ class Disable2FAConfirmation(LoginRequiredMixin, TemplateView):
 @login_required
 def custom_disable_two_factor(request):
     """Custom view to disable 2FA and remove backup tokens."""
-    if request.method == 'POST':
+    if request.method == "POST":
 
         user = request.user
         device = TOTPDevice.objects.filter(user=user, confirmed=True).first()
@@ -261,7 +261,7 @@ class BackupTokensView(LoginRequiredMixin, TemplateView):
         user = self.request.user
         device_exists = TOTPDevice.objects.filter(user=user, confirmed=True).exists()
         if not device_exists:
-            context['has_no_device'] = True
+            context["has_no_device"] = True
             return context
 
         backup_codes = StaticDevice.objects.filter(user=user, confirmed=True).first()
@@ -317,7 +317,7 @@ class Setup2FAView(LoginRequiredMixin, TemplateView):
         user = self.request.user
         confirmed_device = TOTPDevice.objects.filter(user=user, confirmed=True)
         if confirmed_device:
-            context['already_setup'] = True
+            context["already_setup"] = True
 
         device, created = TOTPDevice.objects.get_or_create(user=user, confirmed=False)
         otp_uri = device.config_url
@@ -366,7 +366,7 @@ class CustomSAMLBackend(Saml2Backend):
     """Custom SAML authentication backend to enforce MFA."""
 
     def authenticate(
-            self, request, session_info=None, attribute_mapping=None, *args, **kwargs
+        self, request, session_info=None, attribute_mapping=None, *args, **kwargs
     ):
         if session_info is None:
             return None
@@ -378,7 +378,7 @@ class CustomSAMLBackend(Saml2Backend):
         # method or if MFA is present, possibly due to a mismatch in expected
         # format.  So we take a first pass at authn_info to check for <AuthnStatement>
         # to contain the MFA info before parsing saml response xml
-        '''
+        """
             <AuthnStatement
                 AuthnInstant="2024-12-27T15:31:57.857Z"
                 SessionIndex="_da242938-a4d6-4da6-9b37-abeb99002900"
@@ -387,7 +387,7 @@ class CustomSAMLBackend(Saml2Backend):
                     <AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</AuthnContextClassRef>
                 </AuthnContext>
             </AuthnStatement>
-        '''
+        """
         authn_methods = attributes.get("authn_methods", [])
         if isinstance(authn_methods, str):
             authn_methods = [authn_methods]
@@ -398,12 +398,12 @@ class CustomSAMLBackend(Saml2Backend):
         # djangosaml2 does not parse out the <authnmethodsreferences> tag natively so
         # we need to use the middleware CaptureSAMLResponseMiddleware to capture the response
         # set it in the reqeust and parse it out ourselves.
-        '''
+        """
             <Attribute Name="http://schemas.microsoft.com/claims/authnmethodsreferences">
                 <AttributeValue>http://schemas.microsoft.com/ws/2008/06/identity/authenticationmethod/password</AttributeValue>
                 <AttributeValue>http://schemas.microsoft.com/claims/multipleauthn</AttributeValue>
             </Attribute>
-        '''
+        """
         if "http://schemas.microsoft.com/claims/multipleauthn" not in authn_methods:
             from bs4 import BeautifulSoup
 

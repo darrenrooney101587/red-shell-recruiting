@@ -87,6 +87,10 @@ a:hover {
   color: inherit !important;
   text-decoration: none !important;
 }
+.a-suppressed:hover, .a-suppressed:visited, .a-suppressed:link, .a-suppressed:active {
+  text-decoration: none;
+  color: inherit;
+}
 ul {
   margin: 0;
   padding: 0;

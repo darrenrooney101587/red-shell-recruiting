@@ -19,10 +19,12 @@
     {% block body %}
         <body style="min-height: 100vh; display: flex; flex-direction: column; padding-left: 60px">
             <header class="page-header bg-light d-flex align-items-center justify-content-between px-3" style="height: 60px; border-bottom: 1px solid #dee2e6;">
-                <div class="d-flex align-items-center">
-                    <img class="" src="{% static 'img.png' %}" alt="" width="30" height="30">
-                    <span class="h5 mb-0">Red Shell Recruiting</span>
-                </div>
+                <a class="a-suppressed" href="{% url 'home' %}">
+                    <div class="d-flex align-items-center">
+                        <img class="" src="{% static 'img.png' %}" alt="" width="30" height="30">
+                        <span class="h5 mb-0">Red Shell Recruiting</span>
+                    </div>
+                </a>
                 <div>
                     <a href="{% url 'privacy-policy' %}" class="btn btn-link" style="font-size: 0.9rem;">Privacy Policy</a>
                     <a href="{% url 'terms-of-service' %}" class="btn btn-link" style="font-size: 0.9rem;">Terms of Service</a>
