@@ -20,6 +20,7 @@
         <body style="min-height: 100vh; display: flex; flex-direction: column; padding-left: 60px">
             <header class="page-header bg-light d-flex align-items-center justify-content-between px-3" style="height: 60px; border-bottom: 1px solid #dee2e6;">
                 <div class="d-flex align-items-center">
+                    <img class="" src="{% static 'img.png' %}" alt="" width="30" height="30">
                     <span class="h5 mb-0">Red Shell Recruiting</span>
                 </div>
                 <div>
@@ -140,21 +141,20 @@
                 {% block content %}
                 {% endblock %}
             </main>
-            <hr>
             <footer class="flex-display column justify-center" style="width: 100%; padding: 20px 0; font-size: 0.9rem; color: #666;">
-            <div class="flex-display justify-center" style="width: 100%;">
-                <div class="footer__separator">© 2025 Red Shell Recruiting. All rights reserved.</div>
-                <div class="footer__separator">Owned and operated by Red Shell Recruiting.</div>
-            </div>
-            <div class="flex-display justify-center" style="width: 100%;">
-                <div class="footer__separator">
-                    <a href="{% url 'privacy-policy' %}">Privacy Policy</a>
+                <div class="flex-display justify-center" style="width: 100%;">
+                    <div class="footer__separator">© 2025 Red Shell Recruiting. All rights reserved.</div>
+                    <div class="footer__separator">Owned and operated by Red Shell Recruiting.</div>
                 </div>
-                <div>
-                    <a href="{% url 'terms-of-service' %}">Terms of Service</a>
+                <div class="flex-display justify-center" style="width: 100%;">
+                    <div class="footer__separator">
+                        <a href="{% url 'privacy-policy' %}">Privacy Policy</a>
+                    </div>
+                    <div>
+                        <a href="{% url 'terms-of-service' %}">Terms of Service</a>
+                    </div>
                 </div>
-            </div>
-        </footer>
+            </footer>
         </body>
     {% endblock %}
     {% block script %}
