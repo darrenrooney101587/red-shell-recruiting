@@ -2,7 +2,7 @@ import base64
 import os
 import time
 from urllib.parse import urlparse
-
+from user_agents import parse
 import psutil
 from django.conf import settings
 from django.shortcuts import redirect
@@ -12,7 +12,7 @@ from django.utils.deprecation import MiddlewareMixin
 from two_factor.utils import default_device
 from django_otp import user_has_device
 from django_otp.plugins.otp_totp.models import TOTPDevice
-from django_otp import devices_for_user
+
 
 class RestrictSSOAccessMiddleware:
     """Middleware to allow SSO users but with no permissions until assigned."""
@@ -25,13 +25,13 @@ class RestrictSSOAccessMiddleware:
             return self.get_response(request)
 
         if request.path.startswith(
-                "/account/auth/otp-entry/"
+            "/account/auth/otp-entry/"
         ) or request.path.startswith("/account/auth/login/"):
             return self.get_response(request)
 
         is_sso_user = (
-                request.session.get("_auth_user_backend")
-                == "accounts.views.CustomSAMLBackend"
+            request.session.get("_auth_user_backend")
+            == "accounts.views.CustomSAMLBackend"
         )
         if is_sso_user and not request.user.groups.exists():
             messages.warning(
@@ -41,6 +41,7 @@ class RestrictSSOAccessMiddleware:
             return redirect("home")
 
         return self.get_response(request)
+
 
 class CaptureSAMLResponseMiddleware:
     """Middleware to capture the raw SAMLResponse XML before processing."""
@@ -101,8 +102,8 @@ class EnforceAdminOTP:
             # print(f"Has device: {has_device}")
 
             is_sso_user = (
-                    request.session.get("_auth_user_backend")
-                    == "accounts.views.CustomSAMLBackend"
+                request.session.get("_auth_user_backend")
+                == "accounts.views.CustomSAMLBackend"
             )
             if is_sso_user:
                 return self.get_response(request)
@@ -148,17 +149,17 @@ class OTPRequiredMiddleware(MiddlewareMixin):
 
         view_class = getattr(view_func, "view_class", None)
         otp_required = (
-                view_class
-                and hasattr(view_class, "otp_required")
-                and view_class.otp_required
+            view_class
+            and hasattr(view_class, "otp_required")
+            and view_class.otp_required
         )
 
         if not otp_required:
             return None
 
         is_sso_user = (
-                request.session.get("_auth_user_backend")
-                == "accounts.views.CustomSAMLBackend"
+            request.session.get("_auth_user_backend")
+            == "accounts.views.CustomSAMLBackend"
         )
         if is_sso_user:
             return None
@@ -189,7 +190,7 @@ class ProfilingMiddleware:
 
     def __call__(self, request):
         # Check if profiling is enabled via the `?profile_page=true` query parameter
-        if request.GET.get('profile_page') == 'true':
+        if request.GET.get("profile_page") == "true":
             process = psutil.Process(os.getpid())
 
             mem_before = process.memory_info().rss / 1024 / 1024
@@ -220,18 +221,28 @@ class ProfilingMiddleware:
                     f"WARNING: Request took longer than 90 seconds! Path={request.path}, Duration={elapsed_time:.2f}s"
                 )
 
-            response['X-Request-Start-Time'] = time.strftime(
-                '%Y-%m-%d %H:%M:%S', time.localtime(start_time)
+            response["X-Request-Start-Time"] = time.strftime(
+                "%Y-%m-%d %H:%M:%S", time.localtime(start_time)
             )
-            response['X-Request-End-Time'] = time.strftime(
-                '%Y-%m-%d %H:%M:%S', time.localtime(end_time)
+            response["X-Request-End-Time"] = time.strftime(
+                "%Y-%m-%d %H:%M:%S", time.localtime(end_time)
             )
-            response['X-Request-Duration'] = f"{elapsed_time:.2f} seconds"
-            response['X-Request-Memory-Before'] = f"{mem_before:.2f} MB"
-            response['X-Request-Memory-After'] = f"{mem_after:.2f} MB"
-            response['X-Request-CPU-Before'] = f"{cpu_before:.1f} %"
-            response['X-Request-CPU-After'] = f"{cpu_after:.1f} %"
+            response["X-Request-Duration"] = f"{elapsed_time:.2f} seconds"
+            response["X-Request-Memory-Before"] = f"{mem_before:.2f} MB"
+            response["X-Request-Memory-After"] = f"{mem_after:.2f} MB"
+            response["X-Request-CPU-Before"] = f"{cpu_before:.1f} %"
+            response["X-Request-CPU-After"] = f"{cpu_after:.1f} %"
 
             return response
 
+        return self.get_response(request)
+
+
+class DeviceDetectionMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        user_agent = request.META.get("HTTP_USER_AGENT", "")
+        request.is_mobile = parse(user_agent).is_mobile
         return self.get_response(request)

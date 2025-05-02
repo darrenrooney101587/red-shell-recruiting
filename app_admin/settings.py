@@ -139,8 +139,9 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware"
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
     # "djangosaml2.middleware.SamlSessionMiddleware",  # sml SSO Middleware
+    "app_admin.middleware.DeviceDetectionMiddleware",
 ]
 
 if ENABLE_SSO:
