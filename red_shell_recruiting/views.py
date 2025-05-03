@@ -2,7 +2,7 @@ import boto3
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
+from user_agents import parse
 from django.db.models import F, Count, Q
 from django.db.models.expressions import RawSQL
 from django.http import JsonResponse
@@ -24,10 +24,17 @@ def index(request):
 
 
 class CandidateEnter(LoginRequiredMixin, View):
-    template_name = "red_shell_recruiting/candidate_input.html"
+    template_name_desktop = "red_shell_recruiting/candidate_input_desktop.html"
+    template_name_mobile = "red_shell_recruiting/candidate_input_mobile.html"
+
+    def get_template_name(self, request):
+        user_agent = request.META.get("HTTP_USER_AGENT", "")
+        if parse(user_agent).is_mobile:
+            return self.template_name_mobile
+        return self.template_name_desktop
 
     def get(self, request, *args, **kwargs):
-        return render(request, self.template_name)
+        return render(request, self.get_template_name(request))
 
     def post(self, request, *args, **kwargs):
         first_name = request.POST.get("candidate-first-name")
@@ -67,8 +74,7 @@ class CandidateEnter(LoginRequiredMixin, View):
                     resume = Resume.objects.create(
                         candidate=candidate, file=candidate_resume
                     )
-
-                    update_resume_search_vector.delay(resume.id)  # async
+                    update_resume_search_vector.delay(resume.id)
                 else:
                     raise IntegrityError("Resume upload failed.")
 
@@ -81,7 +87,14 @@ class CandidateEnter(LoginRequiredMixin, View):
 
 
 class CandidateSearch(LoginRequiredMixin, TemplateView):
-    template_name = "red_shell_recruiting/candidate_search.html"
+    template_name_desktop = "red_shell_recruiting/candidate_search_desktop.html"
+    template_name_mobile = "red_shell_recruiting/candidate_search_mobile.html"
+
+    def get_template_names(self):
+        user_agent = self.request.META.get("HTTP_USER_AGENT", "")
+        if parse(user_agent).is_mobile:
+            return [self.template_name_mobile]
+        return [self.template_name_desktop]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -133,7 +146,6 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
                 .order_by("-rank")
                 .distinct()
             )
-
         elif toggles_active:
             candidates = CandidateProfile.objects.all()
 
@@ -157,7 +169,14 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
 
 
 class CandidateDetail(LoginRequiredMixin, TemplateView):
-    template_name = "red_shell_recruiting/candidate_detail.html"
+    template_name_desktop = "red_shell_recruiting/candidate_detail_desktop.html"
+    template_name_mobile = "red_shell_recruiting/candidate_detail_mobile.html"
+
+    def get_template_names(self):
+        user_agent = self.request.META.get("HTTP_USER_AGENT", "")
+        if parse(user_agent).is_mobile:
+            return [self.template_name_mobile]
+        return [self.template_name_desktop]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

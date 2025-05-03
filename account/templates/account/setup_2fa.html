@@ -1,9 +1,11 @@
 {% extends "_base.html" %}
 {% load static %}
+{% load tags %}
 {% block css-extra %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/common.css' %}">
     <link rel="stylesheet" href="{% static 'css/signin.css' %}">
 {% endblock %}
+{% is_mobile_device as is_mobile %}
 {% block content %}
     <div class="theme">
         <div class="qr-codes center-frame section">
@@ -20,29 +22,56 @@
 
             {% else %}
                 <p>Scan this QR code with your authenticator app:</p>
-                <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code">
+                {% if is_mobile %}
+                    <img height="100%" width="100%" src="data:image/png;base64,{{ qr_code }}" alt="QR Code">
+                {% else %}
+                    <img height="200px" width="200px" src="data:image/png;base64,{{ qr_code }}" alt="QR Code">
+                {% endif %}
                 <hr>
                 <p>After scanning, enter the verification code below:</p>
-
-                <form id="otp-form" class="flex-display justify-center space-between">
-                    {% csrf_token %}
-                    <div class="input-container flex-display vertical-align" style="width: 80%; margin-right: 1rem;">
-                        <label for="otp-token"></label>
-                        <input
-                                id="otp-token"
-                                name="otp_token"
-                                required
-                                style="border-bottom: 1px solid var(--ui-support-element-color)"
-                                class="text-input"
-                                type="text"
-                                placeholder="Enter OTP Code"
-                                autocomplete="off"
-                        >
-                    </div>
-                    <div style="position: relative; width: 20%">
-                        <button class="button" type="submit">Verify</button>
-                    </div>
-                </form>
+                {% if is_mobile %}
+                    <form id="otp-form" style="width: 100%">
+                        {% csrf_token %}
+                        <div class="input-container flex-display vertical-align" style="width: 100%; margin-bottom: 1rem;">
+                            <label for="otp-token"></label>
+                            <input
+                                    id="otp-token"
+                                    name="otp_token"
+                                    required
+                                    style="border-bottom: 1px solid var(--ui-support-element-color)"
+                                    class="text-input"
+                                    type="text"
+                                    placeholder="Enter OTP Code"
+                                    autocomplete="off"
+                            >
+                        </div>
+                        <div style="position: relative;">
+                            {% if user %}
+                                <button class="button large" type="submit">Verify</button>
+                            {% endif %}
+                        </div>
+                    </form>
+                {% else %}
+                    <form id="otp-form" class="flex-display justify-center space-between">
+                        {% csrf_token %}
+                        <div class="input-container flex-display vertical-align" style="width: 80%; margin-right: 1rem;">
+                            <label for="otp-token"></label>
+                            <input
+                                    id="otp-token"
+                                    name="otp_token"
+                                    required
+                                    style="border-bottom: 1px solid var(--ui-support-element-color)"
+                                    class="text-input"
+                                    type="text"
+                                    placeholder="Enter OTP Code"
+                                    autocomplete="off"
+                            >
+                        </div>
+                        <div style="position: relative; width: 20%">
+                            <button class="button" type="submit">Verify</button>
+                        </div>
+                    </form>
+                {% endif %}
                 <div id="opt-response-container" style="display: none">
                     <br>
                     <div id="otp-response" class="error-message" style="width: 100%; text-align: center"></div>

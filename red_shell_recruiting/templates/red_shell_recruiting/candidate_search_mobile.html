@@ -1,0 +1,126 @@
+{% extends '_base.html' %}
+{% load static %}
+{% block title %}
+    Candidate Search
+{% endblock %}
+{% block css-extra %}
+    <link rel="stylesheet" href="{% static 'css/candidate.css' %}">
+{% endblock %}
+{% block content %}
+    <div>
+        <div class="" style="margin: 0 auto; width: 100%; padding: 1rem;">
+            <form method="get" action="{% url 'candidate-search' %}" style="width: 100%;">
+                <div class="section  vertical-align">
+                    <div class="" style="width: 100%;">
+                        <div class="flex-display space-between" style="border-right: 1px solid rgba(0,0,0,.1);">
+                            <span style="margin-right: 1rem;">Total Candidates: {{ total_count_profile }}</span>
+                            <span style="margin-right: 1rem;">Total Resumes: {{ total_count_resume }}</span>
+                        </div>
+                        <hr>
+                        <div>
+                            <div class="" style="width: 100%;">
+                                <input style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" type="text" class="text-input" name="q" value="{{ query }}" placeholder="Search candidates..." />
+                                <br>
+                                <br>
+                                <div class="flex-display space-between vertical-align">
+                                    <a href="{% url 'candidate-search' %}">
+                                        <button class="button large">Clear</button>
+                                    </a>
+                                    <button class="button large" type="submit">Search</button>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="" style="margin-top: 1rem;">
+                                <label class="toggle" style="margin-right: 1rem; margin-bottom: 1rem">
+                                    <input type="checkbox" name="actively_looking" {% if request.GET.actively_looking %}checked{% endif %} class="toggle-checkbox">
+                                    <div class="toggle-switch"></div>
+                                    <span>Actively Looking</span>
+                                </label>
+                                <label class="toggle " style="margin-right: 1rem; margin-bottom: 1rem">
+                                    <input type="checkbox" name="open_to_relocation" {% if request.GET.open_to_relocation %}checked{% endif %} class="toggle-checkbox">
+                                    <div class="toggle-switch"></div>
+                                    <span>Open to Relocation</span>
+                                </label>
+                                <label class="toggle ">
+                                    <input type="checkbox" name="currently_working" {% if request.GET.currently_working %}checked{% endif %} class="toggle-checkbox">
+                                    <div class="toggle-switch"></div>
+                                    <span>Currently Working</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <hr>
+        {% if candidates %}
+            <div class="flex-display justify-center vertical-align" style="margin-left: 1rem; margin-right: 1rem; margin-bottom: 1rem; height: 39px; background-color: lightgreen; border-radius: 6px">
+                <span style="margin-right: 1rem; font-size: 16px;">Total Results: {{ selected_count }}</span>
+            </div>
+            <div class="flex-display col flex-wrap" style="gap: 2rem;">
+                {% for candidate in candidates %}
+                    <div class="candidate-card section" data-candidate-id="{{ candidate.id }}" style="width: 100%">
+                        <div class="">
+                            <h2>{{ candidate.first_name }} {{ candidate.last_name }}</h2>
+                        </div>
+                        <hr style="margin-top: 0.5rem; margin-bottom: 0.5rem;">
+                        <div class="">
+                            <div>
+                                <span style="font-size: 9px; color: var(--faded-gray-color)">Job Title</span>
+                                <h4>{{ candidate.job_title }}</h4>
+                            </div>
+                            <div>
+                                <span style="font-size: 9px; color: var(--faded-gray-color)">Email</span>
+                                <h4>{{ candidate.email }}</h4>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="">
+                            <div class="">
+                                <div class="flex-display vertical-align space-between" style="margin-bottom: 1rem; width: 150px;">
+                                    <h5 style="margin-right: 0.5rem;">Actively Looking</h5>
+                                    {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.actively_looking %}
+                                </div>
+                                <div class="flex-display vertical-align space-between" style="margin-bottom: 1rem; width: 150px;">
+                                    <h5 style="margin-right: 0.5rem;">Open to Relocation</h5>
+                                    {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.open_to_relocation %}
+                                </div>
+                                <div class="flex-display vertical-align space-between" style="margin-bottom: 1rem; width: 150px;">
+                                    <h5 style="margin-right: 0.5rem;">Currently Working</h5>
+                                    {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.currently_working %}
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="">
+                                <div style="height: 100%; border: 0; border-left: 1px solid rgba(0,0,0,.1); margin-left: 1rem; margin-right: 1rem;"></div>
+                                <div class="">
+                                    <span style="text-align: center">{{ candidate.resumes.count }} Resume(s)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            {% if query %}
+                <p>No results found.</p>
+            {% endif %}
+        {% endif %}
+    </div>
+    <script>
+        $(document).ready(function() {
+
+            $('#clear-button').on('click', function() {
+                $('input[type="text"]').val('');
+                $('input[type="checkbox"]').prop('checked', false);
+            });
+
+            $('.candidate-card').on('click', function() {
+                var candidateId = $(this).data('candidate-id');
+                if (candidateId) {
+                    window.location.href = '/candidate/' + candidateId + '/';
+                }
+            });
+        });
+    </script>
+{% endblock %}

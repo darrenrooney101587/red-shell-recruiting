@@ -1,6 +1,8 @@
 {% extends '_base.html' %}
 {% block title %}Mechanic{% endblock %}
 {% load static %}
+{% load tags %}
+{% is_mobile_device as is_mobile %}
 {% block css-extra %}
     <link rel="stylesheet" href="{% static 'css/common.css' %}">
     <style>
@@ -28,18 +30,30 @@
             </div>
             <div class="panel">
                 <div class="panel-content">
-                    <table class="table table-bordered">
-                        <tr>
-                            <th>Name</th>
-                            <th>Value</th>
-                        </tr>
+                    {% is_mobile_device as is_mobile %}
+                    {% if is_mobile %}
                         {% for variable in django_env_list %}
-                            <tr>
-                                <td>{{ variable.name }}</td>
-                                <td>{{ variable.value }}</td>
-                            </tr>
+                            <div class="flex-display column" style="margin-bottom: 1rem;">
+                                <span>{{ variable.name }}</span>
+                                <span style="padding-top: 5px; padding-bottom: 5px">--</span>
+                                <span style="word-break: break-all">{{ variable.value }}</span>
+                            </div>
+                            <hr>
                         {% endfor %}
-                    </table>
+                    {% else %}
+                        <table class="table table-bordered">
+                            <tr>
+                                <th>Name</th>
+                                <th>Value</th>
+                            </tr>
+                            {% for variable in django_env_list %}
+                                <tr>
+                                    <td>{{ variable.name }}</td>
+                                    <td>{{ variable.value }}</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    {% endif %}
                 </div>
             </div>
             {% if user.is_superuser %}
@@ -55,18 +69,30 @@
                 </div>
                 <div class="panel">
                     <div class="panel-content">
-                        <table class="table table-bordered">
-                            <tr>
-                                <th>Name</th>
-                                <th>Value</th>
-                            </tr>
-                            {% for variable in env_list %}
+                        {% is_mobile_device as is_mobile %}
+                        {% for variable in env_list %}
+                            <div class="flex-display column" style="margin-bottom: 1rem;">
+                                <span>{{ variable.name }}</span>
+                                <span style="padding-top: 5px; padding-bottom: 5px">--</span>
+                                <span style="word-break: break-all">{{ variable.value }}</span>
+                            </div>
+                            <hr>
+                        {% endfor %}
+                        {% if is_mobile %}
+                        {% else %}
+                            <table class="table table-bordered">
                                 <tr>
-                                    <td>{{ variable.name }}</td>
-                                    <td>{{ variable.value }}</td>
+                                    <th>Name</th>
+                                    <th>Value</th>
                                 </tr>
-                            {% endfor %}
-                        </table>
+                                {% for variable in env_list %}
+                                    <tr>
+                                        <td>{{ variable.name }}</td>
+                                        <td>{{ variable.value }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        {% endif %}
                     </div>
                 </div>
             {% endif %}

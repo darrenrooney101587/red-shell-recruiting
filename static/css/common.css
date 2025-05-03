@@ -1,3 +1,46 @@
+@font-face {
+  font-family: 'Spectral';
+  src: url('/static/fonts/Spectral-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Spectral';
+  src: url('/static/fonts/Spectral-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Spectral';
+  src: url('/static/fonts/Spectral-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Spectral';
+  src: url('/static/fonts/Spectral-BoldItalic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+}
+
+/* Add as many as needed */
+@font-face {
+  font-family: 'Spectral';
+  src: url('/static/fonts/Spectral-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Spectral';
+  src: url('/static/fonts/Spectral-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+}
+
 :root {
   --hover-background: #f5f5f5;
   --std-border-radius: 6px;
@@ -42,15 +85,22 @@
   --font-size-button: 12px;
   --homepage-matrix-cell-width: 150px;
   --theme-base-color: #333;
-  --chart-lines: rgba(0,0,0,.1)
+  --chart-lines: rgba(0,0,0,.1);
+  --font-famiy: 'Spectral', serif;;
+}
+
+.body {
+  font-family: var(--font-famiy);
 }
 /* Theme */
 .h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
   margin-bottom: 0;
+  font-family: var(--font-famiy);
 }
 input {
   -webkit-font-smoothing: antialiased;
   color: var(--theme-base-color);
+  font-family: var(--font-famiy);
 }
 .text-input,
 .form-select {
@@ -82,6 +132,7 @@ span,
 pre,
 label {
   font-size: 14px;
+  font-family: var(--font-famiy);
 }
 a:hover {
   color: inherit !important;
@@ -354,6 +405,10 @@ h6 {
   cursor: pointer;
   transition: all .3s cubic-bezier(.4,0,.2,1);
   font-size: var(--font-size-button);
+  font-family: var(--font-famiy);
+}
+.btn {
+  font-family: var(--font-famiy);
 }
 .button:hover {
   background: var(--full-blue-color);
@@ -365,7 +420,9 @@ h6 {
   transform: translateY(2px);
   transition-duration: .35s;
 }
-
+.button.large {
+  padding: 10px 20px;
+}
 
 
 /*
@@ -630,6 +687,7 @@ li.nav-item.sub {
   font-size: 16px;
   font-weight: 300;
   opacity: 0.7;
+  font-family: var(--font-famiy);
 }
 
 .dropdown-list {
@@ -865,6 +923,7 @@ li.nav-item.sub {
 
 .footer__separator {
   margin-right: 0.5rem;
+  font-family: var(--font-famiy);
 }
 
 @media (max-width: 768px) {
@@ -877,4 +936,12 @@ li.nav-item.sub {
   .footer__separator {
     margin-right: 0;
   }
+}
+@media (max-width: 768px) {
+  width: 100%
+}
+
+#change-password {
+  width: 400px;
+  margin: 0 auto;
 }
