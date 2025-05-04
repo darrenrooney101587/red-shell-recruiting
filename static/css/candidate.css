@@ -13,3 +13,6 @@
 .candidate-card {
     cursor: pointer;
 }
+.small-title {
+    font-size: 12px;
+}

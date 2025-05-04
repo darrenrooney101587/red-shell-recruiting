@@ -18,6 +18,8 @@ RUN apt-get update && \
         python3-dev \
         gcc \
         make \
+        nano \
+        antiword \
         build-essential && \
     rm -rf /var/lib/apt/lists/*
 

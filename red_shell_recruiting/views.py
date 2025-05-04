@@ -1,4 +1,7 @@
+import traceback
+
 import boto3
+from botocore.exceptions import ClientError
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -8,13 +11,16 @@ from django.db.models.expressions import RawSQL
 from django.http import JsonResponse
 from django.views.generic import TemplateView
 
-from red_shell_recruiting.tasks import update_resume_search_vector
+from red_shell_recruiting.tasks import (
+    update_resume_search_vector,
+    update_document_search_vector,
+)
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.views import View
 from django.db import IntegrityError, transaction
 
-from red_shell_recruiting.models import CandidateProfile, Resume
+from red_shell_recruiting.models import CandidateProfile, Resume, CandidateDocument
 
 
 @login_required
@@ -227,18 +233,102 @@ class ArchiveResume(LoginRequiredMixin, View):
         original_key = resume.file.name
         archive_key = original_key.replace("resumes/", "resumes/archive/")
 
-        s3.copy_object(
-            Bucket=bucket,
-            CopySource={"Bucket": bucket, "Key": original_key},
-            Key=archive_key,
-        )
-
+        try:
+            s3.copy_object(
+                Bucket=bucket,
+                CopySource={"Bucket": bucket, "Key": original_key},
+                Key=archive_key,
+            )
+            s3.delete_object(Bucket=bucket, Key=original_key)
+        except ClientError as e:
+            if e.response["Error"]["Code"] == "NoSuchKey":
+                return render(
+                    request,
+                    "500.html",
+                    {
+                        "message": f"The resume could not be found in S3 at: {original_key}"
+                    },
+                    status=500,
+                )
+            return render(
+                request,
+                "500.html",
+                {
+                    "message": "An unexpected AWS error occurred while archiving the resume."
+                },
+                status=500,
+            )
+        except Exception:
+            return render(
+                request,
+                "500.html",
+                {"message": "An unexpected error occurred while archiving the resume."},
+                status=500,
+            )
         s3.delete_object(Bucket=bucket, Key=original_key)
 
         resume.archived = True
         resume.save(update_fields=["archived"])
 
         return redirect("candidate-detail", candidate_id=resume.candidate.id)
+
+
+class ArchiveDocument(LoginRequiredMixin, View):
+    def post(self, request, document_id):
+        document = get_object_or_404(CandidateDocument, id=document_id)
+
+        s3 = boto3.client(
+            "s3",
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            region_name=settings.AWS_S3_REGION_NAME,
+        )
+        bucket = settings.AWS_STORAGE_BUCKET_NAME
+        original_key = document.file.name
+        archive_key = original_key.replace("documents/", "documents/archive/")
+
+        try:
+            s3.copy_object(
+                Bucket=bucket,
+                CopySource={"Bucket": bucket, "Key": original_key},
+                Key=archive_key,
+            )
+            s3.delete_object(Bucket=bucket, Key=original_key)
+        except ClientError as e:
+            if e.response["Error"]["Code"] == "NoSuchKey":
+                return render(
+                    request,
+                    "500.html",
+                    {
+                        "message": f"The document could not be found in S3 at: {original_key}"
+                    },
+                    status=500,
+                )
+            else:
+                return render(
+                    request,
+                    "500.html",
+                    {
+                        "message": "An unexpected error occurred while archiving the document."
+                    },
+                    status=500,
+                )
+        except Exception:
+            return render(
+                request,
+                "500.html",
+                {
+                    "message": "An unexpected error occurred while archiving the document."
+                },
+                status=500,
+            )
+
+        s3.delete_object(Bucket=bucket, Key=original_key)
+
+        document.archived = True
+        document.save(update_fields=["archived"])
+
+        return redirect("candidate-detail", candidate_id=document.candidate.id)
 
 
 class UploadResume(LoginRequiredMixin, View):
@@ -252,6 +342,21 @@ class UploadResume(LoginRequiredMixin, View):
             )
             update_resume_search_vector.delay(resume.id)
 
+            return JsonResponse({"success": True})
+
+        return JsonResponse({"success": False, "error": "No file uploaded"}, status=400)
+
+
+class UploadDocument(LoginRequiredMixin, View):
+    def post(self, request, candidate_id):
+        candidate = get_object_or_404(CandidateProfile, id=candidate_id)
+        uploaded_file = request.FILES.get("candidate_document")
+
+        if uploaded_file:
+            doc = CandidateDocument.objects.create(
+                candidate=candidate, file=uploaded_file
+            )
+            update_document_search_vector.delay(doc.id)
             return JsonResponse({"success": True})
 
         return JsonResponse({"success": False, "error": "No file uploaded"}, status=400)

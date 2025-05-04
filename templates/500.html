@@ -7,9 +7,9 @@
     <div class="flex-display vertical-align justify-center" style="min-height: 60vh; flex-direction: column; text-align: center;">
         <h1 style="font-size: 4rem; margin-bottom: 1rem;">500</h1>
         <h2 style="margin-bottom: 2rem;">Oops! Something went wrong on our end.</h2>
+        {% if message %}
+            <p style="color: var(--accent-text-color); margin-bottom: 2rem;">{{ message }}</p>
+        {% endif %}
         <a href="/" class="button" style="text-decoration: none;">Home</a>
-        <br>
-        <br>
-        <pre>{{ stacktrace }}</pre>
     </div>
 {% endblock %}

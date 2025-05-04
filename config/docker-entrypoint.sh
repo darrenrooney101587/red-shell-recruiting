@@ -7,6 +7,9 @@ echo 'Collecting static files...(this may start the application be default)'
 poetry run python manage.py collectstatic --noinput --clear || { echo 'Failed to clear static files!'; }
 echo 'Done collecting static files....'
 
+chmod -R a+rX /app/staticfiles || { echo 'Failed to set static file permissions!'; }
+
+
 BIND_ADDRESS=${BIND_ADDRESS:-0.0.0.0:5000}
 
 echo "Starting Gunicorn..."

@@ -1,11 +1,12 @@
 {% extends '_base.html' %}
 {% load static %}
 {% load filters %}
+{% load tags %}
 {% block title %}
     Candidate Search
 {% endblock %}
 {% block css-extra %}
-    <link rel="stylesheet" href="{% static 'css/candidate.css' %}">
+    <link rel="stylesheet" href="{% static 'css/candidate.css' %}?n={% css_invalidate_int %}">
 {% endblock %}
 {% block content %}
     <div style="">
@@ -13,35 +14,35 @@
             <div class="field-set flex-display" style="column-gap: 2rem">
                 <div style="width: 100%; position: relative">
                     <div>
-                        <span style="font-size: 10px; color: var(--faded-gray-color)">First Name</span>
+                        <span style="color: var(--faded-gray-color)" class="small-title">First Name</span>
                         <input type="text" value="{{ candidate.first_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
                     </div>
                     <div>
-                        <span style="font-size: 10px; color: var(--faded-gray-color)">Last Name</span>
+                        <span style="color: var(--faded-gray-color)" class="small-title">Last Name</span>
                         <input type="text" value="{{ candidate.last_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
                     </div>
                     <div>
-                        <span style="font-size: 10px; color: var(--faded-gray-color)">State</span>
+                        <span style="color: var(--faded-gray-color)" class="small-title">State</span>
                         <input type="text" value="{{ candidate.state }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
                     </div>
                     <div>
-                        <span style="font-size: 10px; color: var(--faded-gray-color)">City</span>
+                        <span style="color: var(--faded-gray-color)" class="small-title">City</span>
                         <input type="text" value="{{ candidate.city }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
                     </div>
                     <div>
-                        <span style="font-size: 10px; color: var(--faded-gray-color)">Job Title</span>
+                        <span style="color: var(--faded-gray-color)" class="small-title">Job Title</span>
                         <input type="text" value="{{ candidate.job_title }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
                     </div>
                     <div>
-                        <span style="font-size: 10px; color: var(--faded-gray-color)">Phone Number</span>
+                        <span style="color: var(--faded-gray-color)" class="small-title">Phone Number</span>
                         <input type="tel" value="{{ candidate.phone_number }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
                     </div>
                     <div>
-                        <span style="font-size: 10px; color: var(--faded-gray-color)">Email</span>
+                        <span style="color: var(--faded-gray-color)" class="small-title">Email</span>
                         <input type="email" value="{{ candidate.email }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
                     </div>
                     <div>
-                        <span style="font-size: 10px; color: var(--faded-gray-color)">Compensation</span>
+                        <span style="color: var(--faded-gray-color)" class="small-title">Compensation</span>
                         <input type="text" value="{{ candidate.compensation }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
                     </div>
                     <div class="align-baseline column flex-display flex-start toggle-container" style="margin-top: 1rem; margin-bottom: 1rem">
@@ -62,7 +63,7 @@
             </div>
             <hr>
             <div style="margin-bottom: 1rem;">
-                <span style="font-size: 10px; color: var(--faded-gray-color)">Notes</span>
+                <span style="color: var(--faded-gray-color)" class="small-title">Notes</span>
                 <textarea class="text-input" style="border: 1px solid var(--ui-support-element-color); height: 200px; padding: 0.5rem;" disabled>{{ candidate.notes }}</textarea>
             </div>
             <div class="flex-display flex-end" style="width: 100%;">
@@ -72,7 +73,7 @@
                 </button>
             </div>
             <hr>
-            <span style="font-size: 10px; color: var(--faded-gray-color)">Resumes</span>
+            <span style="color: var(--faded-gray-color)" class="small-title">Resumes</span>
             <ul>
                 {% for resume in candidate.resumes.all %}
                     {% if not resume.archived %}

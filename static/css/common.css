@@ -1,27 +1,27 @@
 @font-face {
   font-family: 'Spectral';
-  src: url('/static/fonts/Spectral-Regular.ttf') format('truetype');
+  src: url('../font/Spectral/Spectral-Regular.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Spectral';
-  src: url('/static/fonts/Spectral-Italic.ttf') format('truetype');
+  src: url('../font/Spectral/Spectral-Italic.ttf') format('truetype');
   font-weight: 400;
   font-style: italic;
 }
 
 @font-face {
   font-family: 'Spectral';
-  src: url('/static/fonts/Spectral-Bold.ttf') format('truetype');
+  src: url('../font/Spectral/Spectral-Bold.ttf') format('truetype');
   font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Spectral';
-  src: url('/static/fonts/Spectral-BoldItalic.ttf') format('truetype');
+  src: url('../font/Spectral/Spectral-BoldItalic.ttf') format('truetype');
   font-weight: 700;
   font-style: italic;
 }
@@ -29,14 +29,14 @@
 /* Add as many as needed */
 @font-face {
   font-family: 'Spectral';
-  src: url('/static/fonts/Spectral-Light.ttf') format('truetype');
+  src: url('../font/Spectral/Spectral-Light.ttf') format('truetype');
   font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'Spectral';
-  src: url('/static/fonts/Spectral-ExtraBold.ttf') format('truetype');
+  src: url('../font/Spectral/Spectral-ExtraBold.ttf') format('truetype');
   font-weight: 800;
   font-style: normal;
 }
