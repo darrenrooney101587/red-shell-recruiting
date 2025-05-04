@@ -119,21 +119,18 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
         if query:
             candidates = (
                 CandidateProfile.objects.extra(
-                    tables=["candidate_resume", "candidate_document"],
                     where=[
                         """
-                        (
-                            candidate_profile.search_document @@ plainto_tsquery(%s)
-                            OR
-                            (
-                                candidate_resume.candidate_id = candidate_profile.id
-                                AND candidate_resume.search_document @@ plainto_tsquery(%s)
-                            )
-                            OR
-                            (
-                                candidate_document.candidate_id = candidate_profile.id
-                                AND candidate_document.search_document @@ plainto_tsquery(%s)
-                            )
+                        candidate_profile.search_document @@ plainto_tsquery(%s)
+                        OR EXISTS (
+                            SELECT 1 FROM candidate_resume
+                            WHERE candidate_resume.candidate_id = candidate_profile.id
+                            AND candidate_resume.search_document @@ plainto_tsquery(%s)
+                        )
+                        OR EXISTS (
+                            SELECT 1 FROM candidate_document
+                            WHERE candidate_document.candidate_id = candidate_profile.id
+                            AND candidate_document.search_document @@ plainto_tsquery(%s)
                         )
                         """
                     ],
