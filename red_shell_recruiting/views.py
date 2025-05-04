@@ -119,7 +119,7 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
         if query:
             candidates = (
                 CandidateProfile.objects.extra(
-                    tables=["candidate_resume"],
+                    tables=["candidate_resume", "candidate_document"],
                     where=[
                         """
                         (
@@ -129,10 +129,15 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
                                 candidate_resume.candidate_id = candidate_profile.id
                                 AND candidate_resume.search_document @@ plainto_tsquery(%s)
                             )
+                            OR
+                            (
+                                candidate_document.candidate_id = candidate_profile.id
+                                AND candidate_document.search_document @@ plainto_tsquery(%s)
+                            )
                         )
                         """
                     ],
-                    params=[query, query],
+                    params=[query, query, query],
                 )
                 .annotate(
                     rank=RawSQL(
@@ -143,15 +148,21 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
                                 SELECT MAX(ts_rank(candidate_resume.search_document, plainto_tsquery(%s)))
                                 FROM candidate_resume
                                 WHERE candidate_resume.candidate_id = candidate_profile.id
+                            ), 0),
+                            COALESCE((
+                                SELECT MAX(ts_rank(candidate_document.search_document, plainto_tsquery(%s)))
+                                FROM candidate_document
+                                WHERE candidate_document.candidate_id = candidate_profile.id
                             ), 0)
                         )
                         """,
-                        (query, query),
+                        (query, query, query),
                     )
                 )
                 .order_by("-rank")
                 .distinct()
             )
+
         elif toggles_active:
             candidates = CandidateProfile.objects.all()
 
