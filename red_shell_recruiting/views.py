@@ -348,6 +348,7 @@ class UploadResume(LoginRequiredMixin, View):
             resume = Resume.objects.create(
                 candidate=candidate, file=uploaded_file, archived=False
             )
+            # TODO may want to remove vectoring for resumes
             update_resume_search_vector.delay(resume.id)
 
             return JsonResponse({"success": True})
@@ -364,6 +365,7 @@ class UploadDocument(LoginRequiredMixin, View):
             doc = CandidateDocument.objects.create(
                 candidate=candidate, file=uploaded_file
             )
+            # TODO may want to remove vectoring for documents
             update_document_search_vector.delay(doc.id)
             return JsonResponse({"success": True})
 

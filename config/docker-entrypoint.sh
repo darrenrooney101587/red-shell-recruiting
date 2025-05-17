@@ -9,14 +9,11 @@ echo 'Done collecting static files....'
 
 chmod -R a+rX /app/staticfiles || { echo 'Failed to set static file permissions!'; }
 
-
-BIND_ADDRESS=${BIND_ADDRESS:-0.0.0.0:5000}
-
 echo "Starting Gunicorn..."
 exec poetry run gunicorn app_admin.wsgi \
-    --name reporting-sync-server \
-    --bind ${BIND_ADDRESS} \
-    --bind unix:/app/reporting-sync-server.sock \
+    --name admin \
+    --bind 0.0.0.0:5000 \
+    --bind unix:/app/admin.sock \
     --timeout 300 \
     --access-logfile - \
     --error-logfile - \

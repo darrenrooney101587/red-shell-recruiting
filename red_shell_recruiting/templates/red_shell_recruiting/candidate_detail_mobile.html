@@ -96,7 +96,6 @@
                     <li>No resumes uploaded yet.</li>
                 {% endfor %}
             </ul>
-            <br>
             <div class="flex-display vertical-align" style="margin-right:3rem; margin-top: 1rem;">
                 <input required style="display: none;" type="file" id="resume" name="candidate_resume" accept=".pdf, .doc, .docx">
                 <button class="button flex-display vertical-align space-between" onclick="document.getElementById('resume').click();">
@@ -105,6 +104,45 @@
                 </button>
                 <div style="margin-left: 1rem;" id="file-name"></div>
                 <button id="add-resume-button" class="button flex-display vertical-align space-between" style="display:none; margin-left: 1rem;">
+                    {% include 'red_shell_recruiting/components/svg_components.html' with type='download' %}
+                    <span style="margin-left: 3px;">Upload</span>
+                </button>
+            </div>
+            <hr>
+            <span style="color: var(--faded-gray-color)" class="small-title">Documents</span>
+            <ul>
+                {% for document in candidate.documents.all %}
+                    {% if not document.archived %}
+                        <li style="margin-bottom: 0.5rem;">
+                            <a href="{{ resume.get_signed_url }}" download>{{ document.file.name|filename }}</a>
+                            <span style="font-size: 9px; color: var(--accent-text-color)">
+                                (Uploaded {{ document.created_at|date:"Y-m-d H:i" }})
+                            </span>
+                            <form method="post" action="{% url 'archive-document' document.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button class="button" type="submit" style="margin-left: 0.5rem; padding: 0;">
+                                    <div style="position: relative; top: 2px">
+                                        {% include 'red_shell_recruiting/components/svg_components.html' with type='close' %}
+                                    </div>
+                                </button>
+                            </form>
+                        </li>
+                    {% endif %}
+                {% empty %}
+                    <li>No dcouments uploaded yet.</li>
+                {% endfor %}
+            </ul>
+            <div class="flex-display vertical-align" style="margin-top: 1rem;">
+                <input type="file" id="candidate-document" name="candidate_document" style="display: none;" accept=".pdf,.doc,.docx">
+
+                <button type="button" id="trigger-document-upload" class="button flex-display vertical-align space-between">
+                    {% include 'red_shell_recruiting/components/svg_components.html' with type='quick-add' %}
+                    <span style="margin-left: 3px;">Add Document</span>
+                </button>
+
+                <div id="document-file-name" style="margin-left: 1rem;"></div>
+
+                <button id="add-document-button" class="button flex-display vertical-align space-between" style="display: none; margin-left: 1rem;">
                     {% include 'red_shell_recruiting/components/svg_components.html' with type='download' %}
                     <span style="margin-left: 3px;">Upload</span>
                 </button>
@@ -193,6 +231,48 @@
                     },
                     error: function(xhr) {
                         alert('Failed to upload resume.');
+                    }
+                });
+            });
+
+            $('#trigger-document-upload').on('click', function () {
+                $('#candidate-document').click();
+            });
+
+            // Document logic
+            $('#candidate-document').on('change', function () {
+                const file = this.files[0];
+                if (file) {
+                    $('#document-file-name').text(file.name);
+                    $('#add-document-button').show();
+                } else {
+                    $('#document-file-name').text('');
+                    $('#add-document-button').hide();
+                }
+            });
+
+            $('#add-document-button').on('click', function () {
+                const fileInput = $('#candidate-document')[0];
+                if (fileInput.files.length === 0) {
+                    alert('Please select a document first.');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('candidate_document', fileInput.files[0]);
+                formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+                $.ajax({
+                    url: '{% url "upload-document" candidate.id %}',
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        location.reload();
+                    },
+                    error: function(xhr) {
+                        alert('Failed to upload document.');
                     }
                 });
             });
