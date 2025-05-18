@@ -9,7 +9,7 @@
 {% endblock %}
 {% block content %}
     <div>
-        <div class="flex-display justify-center" style="margin: 0 auto; width: 1100px;">
+        <div class="flex-display justify-center" style="margin: 0 auto; width: 1150px;">
             <form method="get" action="{% url 'candidate-search' %}" style="width: 100%;">
                 <div class="section flex-display column vertical-align">
                     <div class="flex-display vertical-align space-between" style="width: 100%;">
@@ -28,32 +28,50 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="flex-display vertical-align justify-center" style="margin-top: 1rem;">
-                                <label class="toggle flex-display vertical-align justify-center" style="margin-right: 1rem;">
+                            <div class="flex-display vertical-align" style="margin-top: 1rem;">
+                                <label class="search-toggle toggle flex-display vertical-align justify-center" style="margin-right: 1rem;">
                                     <input type="checkbox" name="actively_looking" {% if request.GET.actively_looking %}checked{% endif %} class="toggle-checkbox">
                                     <div class="toggle-switch"></div>
                                     <span>Actively Looking</span>
                                 </label>
-                                <label class="toggle flex-display vertical-align justify-center" style="margin-right: 1rem;">
+                                <label class="search-toggle toggle flex-display vertical-align justify-center" style="margin-right: 1rem;">
                                     <input type="checkbox" name="open_to_relocation" {% if request.GET.open_to_relocation %}checked{% endif %} class="toggle-checkbox">
                                     <div class="toggle-switch"></div>
                                     <span>Open to Relocation</span>
                                 </label>
-                                <label class="toggle flex-display vertical-align justify-center" style="margin-right: 1rem;">
+                                <label class="search-toggle toggle flex-display vertical-align justify-center" style="margin-right: 1rem;">
                                     <input type="checkbox" name="currently_working" {% if request.GET.currently_working %}checked{% endif %} class="toggle-checkbox">
                                     <div class="toggle-switch"></div>
                                     <span>Currently Working</span>
                                 </label>
-                                <label class="toggle flex-display vertical-align justify-center" style="margin-right: 1rem;">
+                                <label class="search-toggle toggle flex-display vertical-align justify-center" style="margin-right: 1rem;">
                                     <input  type="checkbox" name="previously_placed" {% if request.GET.previously_placed %}checked{% endif %} class="toggle-checkbox">
                                     <div class="toggle-switch"></div>
                                     <span>Previously Placed</span>
                                 </label>
-                                <label class="toggle flex-display vertical-align justify-center">
-                                    <input name="title_only" id="title-only-toggle" class="toggle-checkbox" type="checkbox" {% if request.GET.title_only %}checked{% endif %}>
-                                    <div class="toggle-switch"></div>
-                                    <span>Search by Title Only</span>
-                                </label>
+                                <div style="height: 25px; border-right: 1px solid rgba(0,0,0,.1); margin-right: 1rem;"></div>
+                                <div style="width: 250px; height: 25px" class="custom-dropdown" id="title-search-dropdown-wrapper">
+                                    <div class="flex-display space-between">
+                                        <div class="selected-option" id="title-search-dropdown">
+                                            {% with selected=request.GET.title_id|default:'' %}
+                                                {% for t in all_titles %}
+                                                    {% if t.id|stringformat:"s" == selected %}
+                                                        {{ t.display_name }}
+                                                    {% endif %}
+                                                {% endfor %}
+                                                {% if not selected %}Select a Title{% endif %}
+                                            {% endwith %}
+                                        </div>
+                                        <span class="chevron-down">{% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}</span>
+                                        <span class="chevron-up" style="display: none;">{% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}</span>
+                                    </div>
+                                    <ul class="dropdown-list" id="title-search-list">
+                                        {% for title in all_titles %}
+                                            <li class="option" data-value="{{ title.id }}">{{ title.display_name }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                    <input type="hidden" name="title_id" id="title-search-hidden" value="{{ request.GET.title_id }}">
+                                </div>
                             </div>
                         </div>
                     </div>

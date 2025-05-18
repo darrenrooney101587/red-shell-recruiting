@@ -105,7 +105,6 @@ class CandidateInput(LoginRequiredMixin, View):
                 )
 
                 if placement_id and placement_month and placement_year:
-                    print("Hitting placement history")
                     CandidateClientPlacementHistory.objects.create(
                         candidate=candidate,
                         placement_id=placement_id,
@@ -144,6 +143,9 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
         request = self.request
         query = request.GET.get("q", "").strip()
 
+        title_id = request.GET.get("title_id")
+        all_titles = CandidateProfileTitle.objects.all().order_by("display_name")
+
         toggle_filters = {
             "actively_looking": request.GET.get("actively_looking"),
             "open_to_relocation": request.GET.get("open_to_relocation"),
@@ -152,60 +154,60 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
         }
         toggles_active = any(toggle_filters.values())
 
-        title_only = request.GET.get("title_only")
-        candidates = CandidateProfile.objects.none()
+        title_id = request.GET.get("title_id")
+        query = request.GET.get("q", "").strip()
+
+        candidates = CandidateProfile.objects.all()
+
+        if title_id:
+            candidates = candidates.filter(title_id=title_id)
 
         if query:
-            if title_only:
-                candidates = CandidateProfile.objects.filter(
-                    title__display_name__icontains=query
-                ).distinct()
-            else:
-                candidates = (
-                    CandidateProfile.objects.extra(
-                        where=[
-                            """
-                            candidate_profile.search_document @@ plainto_tsquery(%s)
-                            OR EXISTS (
-                                SELECT 1 FROM candidate_resume
-                                WHERE candidate_resume.candidate_id = candidate_profile.id
-                                AND candidate_resume.search_document @@ plainto_tsquery(%s)
-                            )
-                            OR EXISTS (
-                                SELECT 1 FROM candidate_document
-                                WHERE candidate_document.candidate_id = candidate_profile.id
-                                AND candidate_document.search_document @@ plainto_tsquery(%s)
-                            )
-                            """
-                        ],
-                        params=[query, query, query],
-                    )
-                    .annotate(
-                        rank=RawSQL(
-                            """
-                            GREATEST(
-                                ts_rank(candidate_profile.search_document, plainto_tsquery(%s)),
-                                COALESCE((
-                                    SELECT MAX(ts_rank(candidate_resume.search_document, plainto_tsquery(%s)))
-                                    FROM candidate_resume
-                                    WHERE candidate_resume.candidate_id = candidate_profile.id
-                                ), 0),
-                                COALESCE((
-                                    SELECT MAX(ts_rank(candidate_document.search_document, plainto_tsquery(%s)))
-                                    FROM candidate_document
-                                    WHERE candidate_document.candidate_id = candidate_profile.id
-                                ), 0)
-                            )
-                            """,
-                            (query, query, query),
+            candidates = (
+                CandidateProfile.objects.extra(
+                    where=[
+                        """
+                        candidate_profile.search_document @@ plainto_tsquery(%s)
+                        OR EXISTS (
+                            SELECT 1 FROM candidate_resume
+                            WHERE candidate_resume.candidate_id = candidate_profile.id
+                            AND candidate_resume.search_document @@ plainto_tsquery(%s)
                         )
-                    )
-                    .order_by("-rank")
-                    .distinct()
+                        OR EXISTS (
+                            SELECT 1 FROM candidate_document
+                            WHERE candidate_document.candidate_id = candidate_profile.id
+                            AND candidate_document.search_document @@ plainto_tsquery(%s)
+                        )
+                        """
+                    ],
+                    params=[query, query, query],
                 )
+                .annotate(
+                    rank=RawSQL(
+                        """
+                        GREATEST(
+                            ts_rank(candidate_profile.search_document, plainto_tsquery(%s)),
+                            COALESCE((
+                                SELECT MAX(ts_rank(candidate_resume.search_document, plainto_tsquery(%s)))
+                                FROM candidate_resume
+                                WHERE candidate_resume.candidate_id = candidate_profile.id
+                            ), 0),
+                            COALESCE((
+                                SELECT MAX(ts_rank(candidate_document.search_document, plainto_tsquery(%s)))
+                                FROM candidate_document
+                                WHERE candidate_document.candidate_id = candidate_profile.id
+                            ), 0)
+                        )
+                        """,
+                        (query, query, query),
+                    )
+                )
+                .order_by("-rank")
+                .distinct()
+            )
 
-        elif toggles_active:
-            candidates = CandidateProfile.objects.all()
+        elif not (toggles_active or title_id):
+            candidates = CandidateProfile.objects.none()
 
         if toggle_filters["actively_looking"]:
             candidates = candidates.filter(actively_looking=True)
@@ -218,12 +220,13 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
 
         candidates = candidates.annotate(resume_count=Count("resumes"))
 
-        context["title_only"] = title_only
         context["candidates"] = candidates
         context["query"] = query
         context["selected_count"] = candidates.count()
         context["total_count_profile"] = CandidateProfile.objects.count()
         context["total_count_resume"] = CandidateResume.objects.count()
+        context["all_titles"] = all_titles
+        context["selected_title_id"] = title_id
 
         return context
 

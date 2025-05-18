@@ -133,6 +133,19 @@
             populateClientPlacements();
             populateCandidateTitles();
 
+            $('#title-search-list').on('click', '.option', function (event) {
+                event.stopPropagation();
+                const titleId = $(this).data('value');
+                const titleText = $(this).text();
+
+                $('#title-search-dropdown').text(titleText);
+                $('#title-search-hidden').val(titleId);
+
+                $(this).closest('.dropdown-list').hide();
+                $(this).closest('.custom-dropdown').find('.chevron-down').show();
+                $(this).closest('.custom-dropdown').find('.chevron-up').hide();
+            });
+
             $('#candidate-title-list').on('click', '.option', function (event) {
                 event.stopPropagation();
                 const titleId = $(this).data('value');
