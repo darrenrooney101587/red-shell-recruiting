@@ -9,7 +9,7 @@
 {% endblock %}
 {% block content %}
     <div>
-        <div class="flex-display justify-center" style="margin: 0 auto; width: 700px;">
+        <div class="flex-display justify-center" style="margin: 0 auto; width: 1100px;">
             <form method="get" action="{% url 'candidate-search' %}" style="width: 100%;">
                 <div class="section flex-display column vertical-align">
                     <div class="flex-display vertical-align space-between" style="width: 100%;">
@@ -39,10 +39,20 @@
                                     <div class="toggle-switch"></div>
                                     <span>Open to Relocation</span>
                                 </label>
-                                <label class="toggle flex-display vertical-align justify-center">
+                                <label class="toggle flex-display vertical-align justify-center" style="margin-right: 1rem;">
                                     <input type="checkbox" name="currently_working" {% if request.GET.currently_working %}checked{% endif %} class="toggle-checkbox">
                                     <div class="toggle-switch"></div>
                                     <span>Currently Working</span>
+                                </label>
+                                <label class="toggle flex-display vertical-align justify-center" style="margin-right: 1rem;">
+                                    <input  type="checkbox" name="previously_placed" {% if request.GET.previously_placed %}checked{% endif %} class="toggle-checkbox">
+                                    <div class="toggle-switch"></div>
+                                    <span>Previously Placed</span>
+                                </label>
+                                <label class="toggle flex-display vertical-align justify-center">
+                                    <input name="title_only" id="title-only-toggle" class="toggle-checkbox" type="checkbox" {% if request.GET.title_only %}checked{% endif %}>
+                                    <div class="toggle-switch"></div>
+                                    <span>Search by Title Only</span>
                                 </label>
                             </div>
                         </div>
@@ -62,7 +72,7 @@
                         <div class="flex-display space-between">
                             <div>
                                 <span style="font-size: 9px; color: var(--faded-gray-color)">Job Title</span>
-                                <h4>{{ candidate.job_title }}</h4>
+                                <h4>{{ candidate.title.display_name }}</h4>
                             </div>
                             <div>
                                 <span style="font-size: 9px; color: var(--faded-gray-color)">Email</span>
@@ -83,6 +93,10 @@
                                 <div class="flex-display vertical-align space-between" style="width: 135px;">
                                     <h5 style="margin-right: 0.5rem;">Currently Working</h5>
                                     {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.currently_working %}
+                                </div>
+                                <div class="flex-display vertical-align space-between" style="width: 135px;">
+                                    <h5 style="margin-right: 0.5rem;">Previously Placed</h5>
+                                    {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.placement_record.exists %}
                                 </div>
                             </div>
                             <div class="flex-display">

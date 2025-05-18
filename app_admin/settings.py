@@ -13,6 +13,11 @@ def os_env_boolean(name, default):
     return os.getenv(name, default) in ["true", "True", "TRUE", "1", "t", "y", "yes"]
 
 
+def is_running_in_docker():
+    """Check if running inside a Docker container."""
+    return os.path.exists("/.dockerenv")
+
+
 def get_hostname_from_allowed_hosts():
     """Retrieve the first valid hostname from ALLOWED_HOSTS, ignoring localhost and 0.0.0.0."""
     raw_allowed_hosts = os.getenv("ALLOWED_HOSTS", "127.0.0.1 localhost")
@@ -83,8 +88,12 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 ENABLE_OTP = os_env_boolean("ENABLE_OTP", "True")
 ENABLE_SSO = os_env_boolean("ENABLE_SSO", "True")
-CELERY_BROKER_URL = "redis://redis:6379/0"
-CELERY_RESULT_BACKEND = "redis://redis:6379/0"
+CELERY_BROKER_URL = (
+    "redis://redis:6379/0" if is_running_in_docker() else "redis://localhost:6379/0"
+)
+CELERY_RESULT_BACKEND = (
+    "redis://redis:6379/0" if is_running_in_docker() else "redis://localhost:6379/0"
+)
 INTERNAL_IPS = [
     "127.0.0.1",
     "localhost",

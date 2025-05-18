@@ -3,6 +3,7 @@ import os
 import boto3
 from django.conf import settings
 from django.db import models
+from django.db.models import ForeignKey
 from django.utils.timezone import now
 from django.contrib.postgres.search import SearchVectorField, SearchVector
 from django.contrib.postgres.indexes import GinIndex
@@ -20,12 +21,38 @@ def document_upload_path(instance, filename):
     return f"documents/{instance.candidate.id}/{base}_{timestamp}{ext}"
 
 
+class CandidateProfileTitle(models.Model):
+    display_name = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "candidate_profile_title"
+        managed = True
+
+
+class CandidateClientPlacement(models.Model):
+    display_name = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "candidate_client_placement"
+        managed = True
+
+
 class CandidateProfile(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     state = models.CharField(max_length=20)
     city = models.CharField(max_length=255)
-    job_title = models.CharField(max_length=255)
+    title = models.ForeignKey(
+        "CandidateProfileTitle",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="candidates",
+    )
     phone_number = models.CharField(max_length=15)
     email = models.EmailField(unique=True)
     compensation = models.DecimalField(max_digits=10, decimal_places=2)
@@ -36,9 +63,20 @@ class CandidateProfile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     search_document = SearchVectorField(null=True)
+    candidate_placement = ForeignKey(
+        CandidateClientPlacement,
+        on_delete=models.CASCADE,
+        related_name="client_placement",
+        null=True,  # allows no placement (DB level)
+        blank=True,  # allows empty in Django forms/admin
+    )
+
+    @property
+    def previously_placed(self):
+        return self.placement_record.exists()
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name} - {self.job_title}"
+        return f"{self.first_name} {self.last_name} - {self.title.display_name}"
 
     def update_search_document(self):
         self.search_document = (
@@ -46,9 +84,9 @@ class CandidateProfile(models.Model):
             + SearchVector("last_name", weight="A")
             + SearchVector("city", weight="B")
             + SearchVector("state", weight="B")
-            + SearchVector("job_title", weight="B")
             + SearchVector("email", weight="C")
             + SearchVector("notes", weight="D")
+            + SearchVector("title__display_name", weight="B")
         )
         self.save(update_fields=["search_document"])
 
@@ -58,6 +96,22 @@ class CandidateProfile(models.Model):
         indexes = [
             GinIndex(fields=["search_document"]),
         ]
+
+
+class CandidateClientPlacementHistory(models.Model):
+    candidate = models.ForeignKey(
+        CandidateProfile, on_delete=models.CASCADE, related_name="placement_record"
+    )
+    placement = models.ForeignKey(
+        CandidateClientPlacement, on_delete=models.PROTECT, related_name="placements"
+    )
+    month = models.IntegerField()
+    year = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "candidate_client_placement_history"
+        managed = True
 
 
 class CandidateDocument(models.Model):
@@ -80,7 +134,7 @@ class CandidateDocument(models.Model):
         return f"Document for {self.candidate}"
 
 
-class Resume(models.Model):
+class CandidateResume(models.Model):
     candidate = models.ForeignKey(
         CandidateProfile, on_delete=models.CASCADE, related_name="resumes"
     )
@@ -128,7 +182,10 @@ class SearchVectorProcessingLog(models.Model):
     ]
 
     resume = models.ForeignKey(
-        "red_shell_recruiting.Resume", on_delete=models.CASCADE, null=True, blank=True
+        "red_shell_recruiting.CandidateResume",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
     document = models.ForeignKey(
         "red_shell_recruiting.CandidateDocument",
@@ -137,7 +194,7 @@ class SearchVectorProcessingLog(models.Model):
         on_delete=models.SET_NULL,
     )
     document_type = models.CharField(max_length=50, choices=DOCUMENT_TYPE_CHOICES)
-    status = models.CharField(max_length=50)  # 'success', 'ignored', 'failed'
+    status = models.CharField(max_length=50)
     message = models.TextField(null=True, blank=True)
     attempts = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)

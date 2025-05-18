@@ -1,5 +1,17 @@
 from django.contrib import admin
-from .models import CandidateProfile, Resume, SearchVectorProcessingLog
+from .models import (
+    CandidateProfile,
+    CandidateResume,
+    SearchVectorProcessingLog,
+    CandidateClientPlacement,
+    CandidateProfileTitle,
+)
+
+
+@admin.register(CandidateProfileTitle)
+class CandidateProfileTitleAdmin(admin.ModelAdmin):
+    list_display = ("display_name",)
+    search_fields = ("display_name",)
 
 
 @admin.register(CandidateProfile)
@@ -7,7 +19,7 @@ class CandidateProfileAdmin(admin.ModelAdmin):
     list_display = (
         "first_name",
         "last_name",
-        "job_title",
+        "get_title",
         "email",
         "city",
         "state",
@@ -16,8 +28,14 @@ class CandidateProfileAdmin(admin.ModelAdmin):
     )
     search_fields = ("last_name", "email", "city", "state")
 
+    def get_title(self, obj):
+        return obj.title.display_name if obj.title else "-"
 
-@admin.register(Resume)
+    get_title.short_description = "Title"
+    get_title.admin_order_field = "title__display_name"
+
+
+@admin.register(CandidateResume)
 class ResumeAdmin(admin.ModelAdmin):
     list_display = ("candidate", "file", "created_at", "updated_at")
     search_fields = ("candidate__last_name",)
@@ -58,3 +76,10 @@ class SearchVectorProcessingLogAdmin(admin.ModelAdmin):
         )
 
     short_message.short_description = "Message"
+
+
+@admin.register(CandidateClientPlacement)
+class CandidateClientPlacementAdmin(admin.ModelAdmin):
+    list_display = ("display_name", "created_at", "updated_at")
+    search_fields = ("display_name",)
+    ordering = ("display_name",)

@@ -8,7 +8,7 @@ import textract
 from django.conf import settings
 from django.contrib.postgres.search import SearchVector
 from red_shell_recruiting.models import (
-    Resume,
+    CandidateResume,
     CandidateProfile,
     SearchVectorProcessingLog,
     CandidateDocument,
@@ -92,7 +92,7 @@ def update_document_search_vector(self, document_id):
 @shared_task(bind=True)
 def update_resume_search_vector(self, resume_id):
     try:
-        resume = Resume.objects.get(id=resume_id)
+        resume = CandidateResume.objects.get(id=resume_id)
         s3 = boto3.client("s3")
         obj = s3.get_object(
             Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=resume.file.name
@@ -114,7 +114,7 @@ def update_resume_search_vector(self, resume_id):
             resume.extracted_text = extracted_text
             resume.save(update_fields=["extracted_text"])
 
-            Resume.objects.filter(id=resume.id).update(
+            CandidateResume.objects.filter(id=resume.id).update(
                 search_document=SearchVector("extracted_text", weight="D")
             )
 
@@ -156,7 +156,7 @@ def update_resume_search_vector(self, resume_id):
             )
             raise Ignore()
 
-    except Resume.DoesNotExist:
+    except CandidateResume.DoesNotExist:
         SearchVectorProcessingLog.objects.create(
             resume_id=resume_id,
             document_type="resume",

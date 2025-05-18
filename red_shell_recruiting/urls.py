@@ -7,12 +7,13 @@ from red_shell_recruiting.views import (
     UploadResume,
     UploadDocument,
     ArchiveDocument,
+    client_placement_list,
 )
 
 urlpatterns = [
     path(
         "",
-        views.CandidateEnter.as_view(),
+        views.CandidateInput.as_view(),
         name="candidate-submit",
     ),
     path("candidate-search/", CandidateSearch.as_view(), name="candidate-search"),
@@ -36,5 +37,9 @@ urlpatterns = [
         "candidate/<int:candidate_id>/upload-document/",
         UploadDocument.as_view(),
         name="upload-document",
+    ),
+    path("api/client-placements/", client_placement_list, name="client-placement-list"),
+    path(
+        "api/candidate-titles/", views.candidate_title_list, name="candidate-title-list"
     ),
 ]

@@ -20,7 +20,14 @@ from django.contrib import messages
 from django.views import View
 from django.db import IntegrityError, transaction
 
-from red_shell_recruiting.models import CandidateProfile, Resume, CandidateDocument
+from red_shell_recruiting.models import (
+    CandidateProfile,
+    CandidateResume,
+    CandidateDocument,
+    CandidateClientPlacement,
+    CandidateClientPlacementHistory,
+    CandidateProfileTitle,
+)
 
 
 @login_required
@@ -29,7 +36,19 @@ def index(request):
     return render(request, "red_shell_recruiting/index.html", context)
 
 
-class CandidateEnter(LoginRequiredMixin, View):
+def client_placement_list(request):
+    placements = CandidateClientPlacement.objects.all().order_by("display_name")
+    data = [{"id": p.id, "name": p.display_name} for p in placements]
+    return JsonResponse(data, safe=False)
+
+
+def candidate_title_list(request):
+    titles = CandidateProfileTitle.objects.all().order_by("display_name")
+    data = [{"id": t.id, "name": t.display_name} for t in titles]
+    return JsonResponse(data, safe=False)
+
+
+class CandidateInput(LoginRequiredMixin, View):
     template_name_desktop = "red_shell_recruiting/candidate_input_desktop.html"
     template_name_mobile = "red_shell_recruiting/candidate_input_mobile.html"
 
@@ -45,7 +64,12 @@ class CandidateEnter(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         first_name = request.POST.get("candidate-first-name")
         last_name = request.POST.get("candidate-last-name")
-        job_title = request.POST.get("candidate-job-title")
+        title_id = request.POST.get("candidate_title_id")
+        title_obj = (
+            CandidateProfileTitle.objects.filter(id=title_id).first()
+            if title_id
+            else Non
+        )
         phone_number = request.POST.get("candidate-phone-number")
         email = request.POST.get("candidate-email")
         compensation = (
@@ -59,14 +83,18 @@ class CandidateEnter(LoginRequiredMixin, View):
         currently_working = bool(request.POST.get("candidate-working"))
         candidate_resume = request.FILES.get("candidate_resume")
 
+        placement_id = request.POST.get("client-placement")
+        placement_month = request.POST.get("client-placement-month")
+        placement_year = request.POST.get("client-placement-year")
+
         try:
             with transaction.atomic():
                 candidate = CandidateProfile.objects.create(
                     first_name=first_name,
                     last_name=last_name,
+                    title=title_obj,
                     state=candidate_state,
                     city=candidate_city,
-                    job_title=job_title,
                     phone_number=phone_number,
                     email=email,
                     compensation=compensation,
@@ -76,8 +104,17 @@ class CandidateEnter(LoginRequiredMixin, View):
                     actively_looking=actively_looking,
                 )
 
+                if placement_id and placement_month and placement_year:
+                    print("Hitting placement history")
+                    CandidateClientPlacementHistory.objects.create(
+                        candidate=candidate,
+                        placement_id=placement_id,
+                        month=placement_month,
+                        year=placement_year,
+                    )
+
                 if candidate_resume:
-                    resume = Resume.objects.create(
+                    resume = CandidateResume.objects.create(
                         candidate=candidate, file=candidate_resume
                     )
                     update_resume_search_vector.delay(resume.id)
@@ -111,74 +148,83 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
             "actively_looking": request.GET.get("actively_looking"),
             "open_to_relocation": request.GET.get("open_to_relocation"),
             "currently_working": request.GET.get("currently_working"),
+            "previously_placed": request.GET.get("previously_placed"),
         }
         toggles_active = any(toggle_filters.values())
 
+        title_only = request.GET.get("title_only")
         candidates = CandidateProfile.objects.none()
 
         if query:
-            candidates = (
-                CandidateProfile.objects.extra(
-                    where=[
-                        """
-                        candidate_profile.search_document @@ plainto_tsquery(%s)
-                        OR EXISTS (
-                            SELECT 1 FROM candidate_resume
-                            WHERE candidate_resume.candidate_id = candidate_profile.id
-                            AND candidate_resume.search_document @@ plainto_tsquery(%s)
-                        )
-                        OR EXISTS (
-                            SELECT 1 FROM candidate_document
-                            WHERE candidate_document.candidate_id = candidate_profile.id
-                            AND candidate_document.search_document @@ plainto_tsquery(%s)
-                        )
-                        """
-                    ],
-                    params=[query, query, query],
-                )
-                .annotate(
-                    rank=RawSQL(
-                        """
-                        GREATEST(
-                            ts_rank(candidate_profile.search_document, plainto_tsquery(%s)),
-                            COALESCE((
-                                SELECT MAX(ts_rank(candidate_resume.search_document, plainto_tsquery(%s)))
-                                FROM candidate_resume
+            if title_only:
+                candidates = CandidateProfile.objects.filter(
+                    title__display_name__icontains=query
+                ).distinct()
+            else:
+                candidates = (
+                    CandidateProfile.objects.extra(
+                        where=[
+                            """
+                            candidate_profile.search_document @@ plainto_tsquery(%s)
+                            OR EXISTS (
+                                SELECT 1 FROM candidate_resume
                                 WHERE candidate_resume.candidate_id = candidate_profile.id
-                            ), 0),
-                            COALESCE((
-                                SELECT MAX(ts_rank(candidate_document.search_document, plainto_tsquery(%s)))
-                                FROM candidate_document
+                                AND candidate_resume.search_document @@ plainto_tsquery(%s)
+                            )
+                            OR EXISTS (
+                                SELECT 1 FROM candidate_document
                                 WHERE candidate_document.candidate_id = candidate_profile.id
-                            ), 0)
-                        )
-                        """,
-                        (query, query, query),
+                                AND candidate_document.search_document @@ plainto_tsquery(%s)
+                            )
+                            """
+                        ],
+                        params=[query, query, query],
                     )
+                    .annotate(
+                        rank=RawSQL(
+                            """
+                            GREATEST(
+                                ts_rank(candidate_profile.search_document, plainto_tsquery(%s)),
+                                COALESCE((
+                                    SELECT MAX(ts_rank(candidate_resume.search_document, plainto_tsquery(%s)))
+                                    FROM candidate_resume
+                                    WHERE candidate_resume.candidate_id = candidate_profile.id
+                                ), 0),
+                                COALESCE((
+                                    SELECT MAX(ts_rank(candidate_document.search_document, plainto_tsquery(%s)))
+                                    FROM candidate_document
+                                    WHERE candidate_document.candidate_id = candidate_profile.id
+                                ), 0)
+                            )
+                            """,
+                            (query, query, query),
+                        )
+                    )
+                    .order_by("-rank")
+                    .distinct()
                 )
-                .order_by("-rank")
-                .distinct()
-            )
 
         elif toggles_active:
             candidates = CandidateProfile.objects.all()
 
         if toggle_filters["actively_looking"]:
             candidates = candidates.filter(actively_looking=True)
-
         if toggle_filters["open_to_relocation"]:
             candidates = candidates.filter(open_to_relocation=True)
-
         if toggle_filters["currently_working"]:
             candidates = candidates.filter(currently_working=True)
+        if toggle_filters["previously_placed"]:
+            candidates = candidates.filter(placement_record__isnull=False)
 
         candidates = candidates.annotate(resume_count=Count("resumes"))
 
+        context["title_only"] = title_only
         context["candidates"] = candidates
         context["query"] = query
         context["selected_count"] = candidates.count()
         context["total_count_profile"] = CandidateProfile.objects.count()
-        context["total_count_resume"] = Resume.objects.count()
+        context["total_count_resume"] = CandidateResume.objects.count()
+
         return context
 
 
@@ -222,14 +268,14 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
 
         uploaded_file = request.FILES.get("resume-file")
         if uploaded_file:
-            Resume.objects.create(candidate=candidate, file=uploaded_file)
+            CandidateResume.objects.create(candidate=candidate, file=uploaded_file)
 
         return redirect("candidate-detail", candidate_id=candidate.id)
 
 
 class ArchiveResume(LoginRequiredMixin, View):
     def post(self, request, resume_id):
-        resume = get_object_or_404(Resume, id=resume_id)
+        resume = get_object_or_404(CandidateResume, id=resume_id)
 
         s3 = boto3.client(
             "s3",
@@ -345,7 +391,7 @@ class UploadResume(LoginRequiredMixin, View):
         uploaded_file = request.FILES.get("resume")
 
         if uploaded_file:
-            resume = Resume.objects.create(
+            resume = CandidateResume.objects.create(
                 candidate=candidate, file=uploaded_file, archived=False
             )
             # TODO may want to remove vectoring for resumes

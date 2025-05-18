@@ -30,13 +30,15 @@
                     <input required name="candidate-last-name" tabindex="2" style="border-bottom: 1px solid var(--ui-support-element-color)" id="candidate-last-name" type="text" class="text-input" placeholder="Last Name" autocomplete="off">
                     {% include 'red_shell_recruiting/components/state_dropdown_component.html' %}
                     {% include 'red_shell_recruiting/components/city_dropdown_component.html' %}
-                    <input tabindex="4" required name="candidate-job-title" style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-job-title" type="text" placeholder="Job Title" autocomplete="off">
+                    <div tabindex="4">
+                        {% include 'red_shell_recruiting/components/title_dropdown_component.html' %}
+                    </div>
                 </div>
                 <div style="width: 100%; margin-bottom: 1rem">
                     <input required tabindex="5" name="candidate-phone-number" style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-phone-number" type="tel" placeholder="Phone Number" autocomplete="off">
                     <input required tabindex="6" name="candidate-email" style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-email" type="email" placeholder="Email" autocomplete="off">
                     <input tabindex="7" name="candidate-compensation" style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-compensation" type="number" placeholder="Compensation" autocomplete="off">
-                    <div class="align-baseline column  flex-start toggle-container">
+                    <div class="flex-display align-baseline column  flex-start toggle-container">
                         <label class="toggle  vertical-align justify-center">
                             <input name="candidate-looking" id="candidate-looking" class="toggle-checkbox" type="checkbox">
                             <div class="toggle-switch"></div>
@@ -52,6 +54,19 @@
                             <div class="toggle-switch"></div>
                             <span>Currently working</span>
                         </label>
+                        <label class="toggle flex-display vertical-align justify-center">
+                            <input name="client-placement" id="client-placement" class="toggle-checkbox" type="checkbox">
+                            <div class="toggle-switch"></div>
+                            <span>Previously Placed</span>
+                        </label>
+                        <br>
+                        <div id="client-placement-toggle-wrapper" style="display: none;" class="flex-display column w-100">
+                            {% include 'red_shell_recruiting/components/candidate_placement_dropdown_component.html' %}
+                            <div class="flex-display vertical-align justify-center">
+                                <input required name="client-placement-month" tabindex="8" style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" id="client-placement-month" type="number" class="text-input" placeholder="Month" autocomplete="off" min="1" max="12">
+                                <input required name="client-placement-year" tabindex="9" style="border-bottom: 1px solid var(--ui-support-element-color)" id="client-placement-year" type="number" class="text-input" placeholder="Year" autocomplete="off" min="1900" max="2100">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -72,58 +87,7 @@
     <script>
 
         $(document).ready(function() {
-
-            $('#submit-btn').click(function(event) {
-
-
-                const state = $('#state-hidden').val();
-                const city = $('#city-hidden').val();
-
-                if (!state || !city) {
-                    event.preventDefault();
-                    console.log('Submitting...');
-                    addClientMessage('Please select both a State and a City.');
-                    return false;
-                }
-
-                const phone = $('#candidate-phone-number').val().trim();
-                const email = $('#candidate-email').val().trim();
-
-                const phoneDigits = phone.replace(/\D/g, '');
-                if (phoneDigits.length < 10 || phoneDigits.length > 15) {
-                    event.preventDefault();
-                    addClientMessage('Please enter a valid phone number.');
-                    return false;
-                }
-
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(email)) {
-                    event.preventDefault();
-                    addClientMessage('Please enter a valid email address.');
-                    return false;
-                }
-
-                const resume = $('#resume').val();
-
-                if (!resume) {
-                    event.preventDefault();
-                    $('#file-name').css('color', 'red').text('Please upload a resume before submitting.');
-                    return false;
-                }
-
-            });
-
-            $('#resume').change(function() {
-                const fileName = $(this).val().split('\\').pop();
-                if (fileName) {
-                    $('#file-name').css('color', 'black').text(fileName);
-                }
-            });
-
-            $(document).on('click', '.custom-close', function() {
-                $(this).closest('.alert').fadeOut('slow');
-            });
-
+            SubmitCandidate();
         });
 
     </script>

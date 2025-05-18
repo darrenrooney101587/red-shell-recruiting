@@ -1,0 +1,14 @@
+<div class="custom-dropdown" style="border-bottom: 1px solid var(--ui-support-element-color); margin-bottom: 1rem;" id="candidate-title-dropdown-wrapper">
+    <div class="flex-display space-between">
+        <div class="selected-option" id="candidate-title-dropdown">Select a Title</div>
+        <span class="chevron-down">
+            {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}
+        </span>
+        <span class="chevron-up" style="display: none;">
+            {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}
+        </span>
+    </div>
+    <ul class="dropdown-list" id="candidate-title-list">
+    </ul>
+    <input type="hidden" name="candidate_title_id" id="candidate-title-hidden">
+</div>
