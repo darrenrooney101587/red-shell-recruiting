@@ -24,9 +24,9 @@
                                 <br>
                                 <br>
                                 <div class="flex-display space-between vertical-align">
-                                    <a href="{% url 'candidate-search' %}">
-                                        <button class="button large">Clear</button>
-                                    </a>
+                                    <div class="flex-display vertical-align justify-center">
+                                        <a href="{% url 'candidate-search' %}" class="button large">Clear</a>
+                                    </div>
                                     <button class="button large" type="submit">Search</button>
                                 </div>
                             </div>
@@ -47,6 +47,29 @@
                                     <div class="toggle-switch"></div>
                                     <span>Currently Working</span>
                                 </label>
+                            </div>
+                            <hr>
+                            <div style="height: 25px" class="custom-dropdown" id="title-search-dropdown-wrapper">
+                                <div class="flex-display space-between">
+                                    <div class="selected-option" id="title-search-dropdown">
+                                        {% with selected=request.GET.title_id|default:'' %}
+                                            {% for t in all_titles %}
+                                                {% if t.id|stringformat:"s" == selected %}
+                                                    {{ t.display_name }}
+                                                {% endif %}
+                                            {% endfor %}
+                                            {% if not selected %}Select a Title{% endif %}
+                                        {% endwith %}
+                                    </div>
+                                    <span class="chevron-down">{% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}</span>
+                                    <span class="chevron-up" style="display: none;">{% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}</span>
+                                </div>
+                                <ul class="dropdown-list" id="title-search-list">
+                                    {% for title in all_titles %}
+                                        <li class="option" data-value="{{ title.id }}">{{ title.display_name }}</li>
+                                    {% endfor %}
+                                </ul>
+                                <input type="hidden" name="title_id" id="title-search-hidden" value="{{ request.GET.title_id }}">
                             </div>
                         </div>
                     </div>

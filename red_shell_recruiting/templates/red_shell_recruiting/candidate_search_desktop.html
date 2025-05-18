@@ -136,11 +136,6 @@
     <script>
         $(document).ready(function() {
 
-            $('#clear-button').on('click', function() {
-                $('input[type="text"]').val('');
-                $('input[type="checkbox"]').prop('checked', false);
-            });
-
             $('.candidate-card').on('click', function() {
                 var candidateId = $(this).data('candidate-id');
                 if (candidateId) {
