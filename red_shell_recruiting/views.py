@@ -267,6 +267,13 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
         candidate.open_to_relocation = request.POST.get("open_to_relocation") == "on"
         candidate.currently_working = request.POST.get("currently_working") == "on"
         candidate.actively_looking = request.POST.get("actively_looking") == "on"
+
+        title_id = request.POST.get("candidate_title_id")
+        if title_id:
+            title_obj = CandidateProfileTitle.objects.filter(id=title_id).first()
+            if title_obj:
+                candidate.title = title_obj
+
         candidate.save()
 
         uploaded_file = request.FILES.get("resume-file")
