@@ -133,19 +133,6 @@
             populateClientPlacements();
             populateCandidateTitles();
 
-            $('#title-search-list').on('click', '.option', function (event) {
-                event.stopPropagation();
-                const titleId = $(this).data('value');
-                const titleText = $(this).text();
-
-                $('#title-search-dropdown').text(titleText);
-                $('#title-search-hidden').val(titleId);
-
-                $(this).closest('.dropdown-list').hide();
-                $(this).closest('.custom-dropdown').find('.chevron-down').show();
-                $(this).closest('.custom-dropdown').find('.chevron-up').hide();
-            });
-
             $('#candidate-title-list').on('click', '.option', function (event) {
                 event.stopPropagation();
                 const titleId = $(this).data('value');
@@ -159,17 +146,50 @@
                 $(this).closest('.custom-dropdown').find('.chevron-up').hide();
             });
 
-            $('#client-placement-list').on('click', '.option', function(event) {
+            $('.client-placement-list').on('click', '.option', function (event) {
                 event.stopPropagation();
+
                 const clientId = $(this).data('value');
                 const clientName = $(this).text();
 
-                $('#client-placement-dropdown').text(clientName);
-                $('#client-placement-hidden').val(clientId);
+                $('.client-placement-dropdown').text(clientName);
+                $('.client-placement-hidden').val(clientId);
 
                 $(this).closest('.dropdown-list').hide();
                 $(this).closest('.custom-dropdown').find('.chevron-down').show();
                 $(this).closest('.custom-dropdown').find('.chevron-up').hide();
+            });
+
+            // Toggle wrapper for candidate input checkbox
+            $('.placement-toggle').change(function () {
+                const isChecked = $(this).is(':checked');
+                const $wrapper = $(this).closest('.toggle-container').find('.placement-toggle-wrapper');
+
+                if (isChecked) {
+                    $wrapper.slideDown(200);
+                } else {
+                    $wrapper.slideUp(200);
+                    $wrapper.find('.selected-option').text('Select a Client');
+                    $wrapper.find('input[type="hidden"]').val('');
+                }
+            });
+
+            $('.custom-dropdown').click(function(event) {
+                const dropdownList = $(this).find('.dropdown-list');
+                const chevronDown = $(this).find('.chevron-down');
+                const chevronUp = $(this).find('.chevron-up');
+
+                event.stopPropagation();
+
+                if (dropdownList.is(':visible')) {
+                    dropdownList.hide();
+                    chevronDown.show();
+                    chevronUp.hide();
+                } else {
+                    dropdownList.show();
+                    chevronDown.hide();
+                    chevronUp.show();
+                }
             });
 
             $('#client-placement').change(function () {
@@ -194,25 +214,6 @@
                 }
 
                 $(this).val(input);
-            });
-
-
-            $('.custom-dropdown').click(function(event) {
-                const dropdownList = $(this).find('.dropdown-list');
-                const chevronDown = $(this).find('.chevron-down');
-                const chevronUp = $(this).find('.chevron-up');
-
-                event.stopPropagation();
-
-                if (dropdownList.is(':visible')) {
-                    dropdownList.hide();
-                    chevronDown.show();
-                    chevronUp.hide();
-                } else {
-                    dropdownList.show();
-                    chevronDown.hide();
-                    chevronUp.show();
-                }
             });
 
             $(document).click(function(event) {
@@ -291,8 +292,6 @@
             $('.simple-spinner').show();
 
             $('#city-list').empty();
-            {#$('#city-list').append('<li class="option placeholder" data-value="">Select a City</li>');#}
-
             const apiKey = 'darren101587';
             const geocodeUrl = `https://secure.geonames.org/searchJSON?formatted=true&lang=en&country=US&adminCode1=${state}&maxRows=500&username=${apiKey}`;
 
@@ -315,18 +314,22 @@
         }
 
         function populateClientPlacements() {
-            const list = $('#client-placement-list');
-            list.empty();
-
             $.get("{% url 'client-placement-list' %}", function(data) {
-                data.forEach(function(item) {
-                    list.append(`<li class="option" data-value="${item.id}">${item.name}</li>`);
+                $('.client-placement-list').each(function() {
+                    const list = $(this);
+                    list.empty();
+
+                    data.forEach(function(item) {
+                        list.append(`<li class="option" data-value="${item.id}">${item.name}</li>`);
+                    });
                 });
-                $('#client-placement-dropdown-wrapper').show();
+
+                $('.custom-dropdown').show();
             }).fail(function() {
                 addClientMessage('Error fetching clients.');
             });
         }
+
 
         function addClientMessage(messageText, messageType = 'error') {
             const alertClass = messageType === 'success' ? 'alert-success' : 'alert-danger';

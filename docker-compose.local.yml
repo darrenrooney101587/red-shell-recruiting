@@ -20,6 +20,8 @@ services:
       - "${CONTAINER_PORT:-5000}"
     networks:
       - red-shell-recruiting_red-shell-recruiting
+    ports:
+      - "${HOST_PORT:-5011}:${CONTAINER_PORT:-5010}"
 
   db:
     image: postgres:15

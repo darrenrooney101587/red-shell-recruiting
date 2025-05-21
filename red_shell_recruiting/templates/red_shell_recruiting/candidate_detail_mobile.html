@@ -31,7 +31,7 @@
                     </div>
                     <div>
                         <span style="color: var(--faded-gray-color)" class="small-title">Job Title</span>
-                        <input type="text" value="{{ candidate.job_title }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                        <input type="text" value="{{ candidate.title.display_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
                     </div>
                     <div>
                         <span style="color: var(--faded-gray-color)" class="small-title">Phone Number</span>
@@ -54,9 +54,13 @@
                             <h4 style="margin-right: 0.5rem; color: var(--theme-base-color); opacity: 0.7;">Open to Relocation</h4>
                             {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.open_to_relocation %}
                         </div>
-                        <div class="flex-display vertical-align space-between" style="width: 150px;">
+                        <div class="flex-display vertical-align space-between" style="width: 150px; margin-bottom: 1rem">
                             <h4 style="margin-right: 0.5rem; color: var(--theme-base-color); opacity: 0.7;">Currently Working</h4>
                             {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.currently_working %}
+                        </div>
+                        <div class="flex-display vertical-align space-between" style="width: 150px;">
+                            <h4 style="margin-right: 0.5rem; color: var(--theme-base-color); opacity: 0.7;">Previously Placed</h4>
+                            {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.previously_placed %}
                         </div>
                     </div>
                 </div>
@@ -157,7 +161,7 @@
                         <input type="text" name="last_name" class="text-input" placeholder="Last Name" value="{{ candidate.last_name }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
                         {% include 'red_shell_recruiting/components/state_dropdown_component.html' %}
                         {% include 'red_shell_recruiting/components/city_dropdown_component.html' %}
-                        <input type="text" name="job_title" class="text-input" placeholder="Job Title" value="{{ candidate.job_title }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                        {% include 'red_shell_recruiting/components/title_dropdown_component.html' with selected_title=candidate.title %}
 {#                    </div>#}
 {#                    <div style="width: 50%; position: relative">#}
                         <input type="tel" name="phone_number" class="text-input" placeholder="Phone Number" value="{{ candidate.phone_number }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
@@ -174,11 +178,24 @@
                                 <div class="toggle-switch"></div>
                                 <span>Open to Relocation</span>
                             </label>
-                            <label class="toggle flex-display vertical-align justify-center">
+                            <label class="toggle flex-display vertical-align justify-center"style="margin-bottom: 1rem;">
                                 <input name="currently_working" id="candidate-working" class="toggle-checkbox" type="checkbox" {% if candidate.currently_working %}checked{% endif %}>
                                 <div class="toggle-switch"></div>
                                 <span>Currently Working</span>
                             </label>
+                            <label class="toggle flex-display vertical-align justify-center">
+                                <input name="client-placement" id="client-placement" class="toggle-checkbox" type="checkbox">
+                                <div class="toggle-switch"></div>
+                                <span>Previously Placed</span>
+                            </label>
+                            <br>
+                            <div id="client-placement-toggle-wrapper" style="display: none;" class="flex-display column w-100">
+                                {% include 'red_shell_recruiting/components/candidate_placement_dropdown_component.html' %}
+                                <div class="flex-display vertical-align justify-center">
+                                    <input name="client-placement-month" style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" id="client-placement-month" type="number" class="text-input" placeholder="Month" autocomplete="off" min="1" max="12">
+                                    <input name="client-placement-year" style="border-bottom: 1px solid var(--ui-support-element-color)" id="client-placement-year" type="number" class="text-input" placeholder="Year" autocomplete="off" min="1900" max="2100">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

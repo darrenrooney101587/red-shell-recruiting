@@ -59,16 +59,17 @@ class CandidateInput(LoginRequiredMixin, View):
         return self.template_name_desktop
 
     def get(self, request, *args, **kwargs):
-        return render(request, self.get_template_name(request))
+        context = {"all_placements": CandidateClientPlacement.objects.all()}
+        return render(request, self.get_template_name(request), context)
 
     def post(self, request, *args, **kwargs):
         first_name = request.POST.get("candidate-first-name")
         last_name = request.POST.get("candidate-last-name")
-        title_id = request.POST.get("candidate_title_id")
+        title_id = request.POST.get("candidate-title-id")
         title_obj = (
             CandidateProfileTitle.objects.filter(id=title_id).first()
             if title_id
-            else Non
+            else None
         )
         phone_number = request.POST.get("candidate-phone-number")
         email = request.POST.get("candidate-email")
@@ -83,7 +84,7 @@ class CandidateInput(LoginRequiredMixin, View):
         currently_working = bool(request.POST.get("candidate-working"))
         candidate_resume = request.FILES.get("candidate_resume")
 
-        placement_id = request.POST.get("client-placement")
+        placement_id = request.POST.get("client-placement-id")
         placement_month = request.POST.get("client-placement-month")
         placement_year = request.POST.get("client-placement-year")
 
@@ -251,24 +252,65 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         candidate_id = self.kwargs.get("candidate_id")
         candidate = get_object_or_404(CandidateProfile, id=candidate_id)
-        candidate.first_name = request.POST.get("first_name", candidate.first_name)
-        candidate.last_name = request.POST.get("last_name", candidate.last_name)
+        candidate.first_name = request.POST.get("first-name", candidate.first_name)
+        candidate.last_name = request.POST.get("last-name", candidate.last_name)
         candidate.state = request.POST.get("candidate-state", candidate.state)
         candidate.city = request.POST.get("candidate-city", candidate.city)
-        candidate.job_title = request.POST.get("job_title", candidate.job_title)
         candidate.phone_number = request.POST.get(
-            "phone_number", candidate.phone_number
+            "phone-number", candidate.phone_number
         )
         candidate.email = request.POST.get("email", candidate.email)
         candidate.compensation = str(
             request.POST.get("compensation", candidate.compensation)
         ).replace(",", "")
         candidate.notes = request.POST.get("notes", candidate.notes)
-        candidate.open_to_relocation = request.POST.get("open_to_relocation") == "on"
-        candidate.currently_working = request.POST.get("currently_working") == "on"
-        candidate.actively_looking = request.POST.get("actively_looking") == "on"
+        candidate.open_to_relocation = request.POST.get("open-to-relocation") == "on"
+        candidate.currently_working = request.POST.get("currently-working") == "on"
+        candidate.actively_looking = request.POST.get("actively-looking") == "on"
+        placement_total = int(request.POST.get("placement_total_count", 0))
+        for i in range(1, placement_total + 1):
+            placement_id = request.POST.get(f"placement_id_{i}")
+            month = request.POST.get(f"placement_month_{i}")
+            year = request.POST.get(f"placement_year_{i}")
+            record_id = request.POST.get(f"placement_record_id_{i}")
 
-        title_id = request.POST.get("candidate_title_id")
+            if placement_id and month and year and record_id:
+                try:
+                    record = CandidateClientPlacementHistory.objects.get(
+                        id=record_id, candidate=candidate
+                    )
+                    record.placement_id = placement_id
+                    record.month = int(month)
+                    record.year = int(year)
+                    record.save()
+                except CandidateClientPlacementHistory.DoesNotExist:
+                    continue
+
+        new_placement_id = request.POST.get("placement_id_new")
+        new_month = request.POST.get("placement_month_new")
+        new_year = request.POST.get("placement_year_new")
+
+        if new_placement_id and new_month and new_year:
+            try:
+                exists = CandidateClientPlacementHistory.objects.filter(
+                    candidate=candidate,
+                    placement_id=new_placement_id,
+                    month=new_month,
+                    year=new_year,
+                ).exists()
+
+                if not exists:
+                    CandidateClientPlacementHistory.objects.create(
+                        candidate=candidate,
+                        placement_id=new_placement_id,
+                        month=int(new_month),
+                        year=int(new_year),
+                    )
+            except Exception as e:
+                print(f"Failed to save new placement record: {e}")
+                messages.error(request, "Failed to save new placement.")
+
+        title_id = request.POST.get("candidate-title-id")
         if title_id:
             title_obj = CandidateProfileTitle.objects.filter(id=title_id).first()
             if title_obj:

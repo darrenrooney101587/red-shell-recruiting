@@ -7,6 +7,8 @@ import boto3
 import textract
 from django.conf import settings
 from django.contrib.postgres.search import SearchVector
+from django.db.models import Value
+
 from red_shell_recruiting.models import (
     CandidateResume,
     CandidateProfile,
@@ -126,17 +128,24 @@ def update_resume_search_vector(self, resume_id):
                 attempts=self.request.retries,
             )
 
-            candidate = resume.candidate
-            CandidateProfile.objects.filter(id=candidate.id).update(
-                search_document=(
-                    SearchVector("first_name", weight="A")
-                    + SearchVector("last_name", weight="A")
-                    + SearchVector("job_title", weight="B")
-                    + SearchVector("city", weight="C")
-                    + SearchVector("state", weight="C")
-                    + SearchVector("notes", weight="D")
-                    + SearchVector("email", weight="A")
+            candidate = CandidateProfile.objects.select_related("title").get(
+                id=resume.candidate_id
+            )
+            combined_vector = (
+                SearchVector(Value(candidate.first_name), weight="A")
+                + SearchVector(Value(candidate.last_name), weight="A")
+                + SearchVector(
+                    Value(candidate.title.display_name if candidate.title else ""),
+                    weight="B",
                 )
+                + SearchVector(Value(candidate.city), weight="C")
+                + SearchVector(Value(candidate.state), weight="C")
+                + SearchVector(Value(candidate.notes or ""), weight="D")
+                + SearchVector(Value(candidate.email), weight="A")
+            )
+
+            CandidateProfile.objects.filter(id=candidate.id).update(
+                search_document=combined_vector
             )
 
             SearchVectorProcessingLog.objects.create(

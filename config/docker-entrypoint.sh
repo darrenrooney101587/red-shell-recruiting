@@ -12,7 +12,6 @@ chmod -R a+rX /app/staticfiles || { echo 'Failed to set static file permissions!
 echo "Starting Gunicorn..."
 exec poetry run gunicorn app_admin.wsgi \
     --name admin \
-    --bind 0.0.0.0:5000 \
     --bind unix:/app/admin.sock \
     --timeout 300 \
     --access-logfile - \
