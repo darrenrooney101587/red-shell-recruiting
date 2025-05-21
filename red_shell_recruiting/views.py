@@ -282,6 +282,17 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
             except CandidateClientPlacementHistory.DoesNotExist:
                 pass
 
+        placement_delete = request.POST.get("client-placement-delete") == "true"
+
+        if placement_delete and placement_id:
+            try:
+                record = CandidateClientPlacementHistory.objects.get(
+                    id=placement_id, candidate=candidate
+                )
+                record.delete()
+            except CandidateClientPlacementHistory.DoesNotExist:
+                pass
+
         title_id = request.POST.get("candidate-title-id")
         if title_id:
             title_obj = CandidateProfileTitle.objects.filter(id=title_id).first()
