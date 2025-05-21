@@ -202,27 +202,25 @@
                                 <span>Previously Placed</span>
                             </label>
                             <br>
-                            <div class="flex-display column w-100" id="placement-records-wrapper">
-                                {% for record in candidate.placement_record.all %}
-                                    <div class="placement-record-group" data-index="{{ forloop.counter }}" style="margin-bottom: 1rem;">
-                                        <button type="button" class="button delete-placement" style="margin-bottom: 0.5rem;">Delete</button>
-
-                                        {% include 'red_shell_recruiting/components/candidate_placement_dropdown_component.html' with
-                                        selected_placement=record.placement
-                                        name="placement_id_"|add:forloop.counter
-                                        id_suffix=forloop.counter
-                                        all_placements=all_placements %}
-
-                                        <div class="flex-display vertical-align justify-center">
-                                            <input name="placement_month_{{ forloop.counter }}" value="{{ record.month }}" type="number" min="1" max="12" placeholder="Month" class="text-input" style="margin-right: 1rem;">
-                                            <input name="placement_year_{{ forloop.counter }}" value="{{ record.year }}" type="number" min="1900" max="2100" placeholder="Year" class="text-input">
-                                        </div>
-
-                                        <input type="hidden" name="placement_record_id_{{ forloop.counter }}" value="{{ record.id }}">
-                                        <input type="hidden" name="delete_placement_{{ forloop.counter }}" value="false" class="delete-marker">
-                                    </div>
-                                {% endfor %}
-                                <input type="hidden" name="placement_total_count" value="{{ candidate.placement_record.count }}">
+                            <label class="toggle flex-display vertical-align justify-center" style="margin-bottom: 1rem;">
+                                <input name="client-placement-toggle" class="toggle-checkbox placement-toggle" type="checkbox"
+                                       {% if candidate.placement_record.exists %}checked{% endif %}>
+                                <div class="toggle-switch"></div>
+                                <span>Previously Placed</span>
+                            </label>
+                            <div id="client-placement-toggle-wrapper-edit" class="flex-display column w-100 placement-toggle-wrapper" style="{% if not candidate.placement_record.exists %}display: none;{% endif %}">
+                                {% with selected_placement=candidate.placement_record.first.placement %}
+                                    {% include 'red_shell_recruiting/components/candidate_placement_dropdown_component.html' with selected_placement=selected_placement all_placements=all_placements %}
+                                {% endwith %}
+                                <div class="flex-display vertical-align justify-center">
+                                    <input name="client-placement-month" style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;"
+                                           type="number" class="text-input" placeholder="Month" min="1" max="12"
+                                           value="{{ candidate.placement_record.first.month }}">
+                                    <input name="client-placement-year" style="border-bottom: 1px solid var(--ui-support-element-color);"
+                                           type="number" class="text-input" placeholder="Year" min="1900" max="2100"
+                                           value="{{ candidate.placement_record.first.year }}">
+                                </div>
+                                <input type="hidden" name="client-placement-id" value="{{ candidate.placement_record.first.id }}">
                             </div>
                         </div>
                     </div>

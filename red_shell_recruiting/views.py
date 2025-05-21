@@ -267,48 +267,20 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
         candidate.open_to_relocation = request.POST.get("open-to-relocation") == "on"
         candidate.currently_working = request.POST.get("currently-working") == "on"
         candidate.actively_looking = request.POST.get("actively-looking") == "on"
-        placement_total = int(request.POST.get("placement_total_count", 0))
-        for i in range(1, placement_total + 1):
-            placement_id = request.POST.get(f"placement_id_{i}")
-            month = request.POST.get(f"placement_month_{i}")
-            year = request.POST.get(f"placement_year_{i}")
-            record_id = request.POST.get(f"placement_record_id_{i}")
+        placement_id = request.POST.get("client-placement-id")
+        month = request.POST.get("client-placement-month")
+        year = request.POST.get("client-placement-year")
 
-            if placement_id and month and year and record_id:
-                try:
-                    record = CandidateClientPlacementHistory.objects.get(
-                        id=record_id, candidate=candidate
-                    )
-                    record.placement_id = placement_id
-                    record.month = int(month)
-                    record.year = int(year)
-                    record.save()
-                except CandidateClientPlacementHistory.DoesNotExist:
-                    continue
-
-        new_placement_id = request.POST.get("placement_id_new")
-        new_month = request.POST.get("placement_month_new")
-        new_year = request.POST.get("placement_year_new")
-
-        if new_placement_id and new_month and new_year:
+        if placement_id and month and year:
             try:
-                exists = CandidateClientPlacementHistory.objects.filter(
-                    candidate=candidate,
-                    placement_id=new_placement_id,
-                    month=new_month,
-                    year=new_year,
-                ).exists()
-
-                if not exists:
-                    CandidateClientPlacementHistory.objects.create(
-                        candidate=candidate,
-                        placement_id=new_placement_id,
-                        month=int(new_month),
-                        year=int(new_year),
-                    )
-            except Exception as e:
-                print(f"Failed to save new placement record: {e}")
-                messages.error(request, "Failed to save new placement.")
+                record = CandidateClientPlacementHistory.objects.get(
+                    id=placement_id, candidate=candidate
+                )
+                record.month = int(month)
+                record.year = int(year)
+                record.save()
+            except CandidateClientPlacementHistory.DoesNotExist:
+                pass
 
         title_id = request.POST.get("candidate-title-id")
         if title_id:
