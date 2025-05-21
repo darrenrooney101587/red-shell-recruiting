@@ -268,21 +268,10 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
         candidate.currently_working = request.POST.get("currently-working") == "on"
         candidate.actively_looking = request.POST.get("actively-looking") == "on"
         placement_id = request.POST.get("client-placement-id")
+        placement_delete = request.POST.get("client-placement-delete") == "true"
+        placement_client_id = request.POST.get("client-placement")
         month = request.POST.get("client-placement-month")
         year = request.POST.get("client-placement-year")
-
-        if placement_id and month and year:
-            try:
-                record = CandidateClientPlacementHistory.objects.get(
-                    id=placement_id, candidate=candidate
-                )
-                record.month = int(month)
-                record.year = int(year)
-                record.save()
-            except CandidateClientPlacementHistory.DoesNotExist:
-                pass
-
-        placement_delete = request.POST.get("client-placement-delete") == "true"
 
         if placement_delete and placement_id:
             try:
@@ -290,8 +279,32 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
                     id=placement_id, candidate=candidate
                 )
                 record.delete()
+                candidate.refresh_from_db()
             except CandidateClientPlacementHistory.DoesNotExist:
                 pass
+        elif placement_id and month and year:
+            try:
+                record = CandidateClientPlacementHistory.objects.get(
+                    id=placement_id, candidate=candidate
+                )
+                record.month = int(month)
+                record.year = int(year)
+                record.placement_id = placement_client_id
+                record.save()
+            except CandidateClientPlacementHistory.DoesNotExist:
+                pass
+        elif (
+            not placement_id
+            and placement_client_id
+            and month.isdigit()
+            and year.isdigit()
+        ):
+            CandidateClientPlacementHistory.objects.create(
+                candidate=candidate,
+                placement_id=placement_client_id,
+                month=int(month),
+                year=int(year),
+            )
 
         title_id = request.POST.get("candidate-title-id")
         if title_id:
