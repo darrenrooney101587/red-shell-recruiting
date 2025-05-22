@@ -278,62 +278,53 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
 
         candidate.save()
 
-        if request.POST.get("remove_all_placements") == "true":
-            CandidateClientPlacementHistory.objects.filter(candidate=candidate).delete()
-            print("🧹 Removed all placements due to toggle OFF")
-            return redirect("candidate-detail", candidate_id=candidate.id)
-        else:
-
-            # ----- Handle placement records -----
-            placement_total = int(request.POST.get("placement_total_count", 0))
-
-            for i in range(1, placement_total + 1):
-                print("----- PLACEMENT LINE", i, "-----")
-                placement_id = request.POST.get(f"placement_id_{i}")
-                placement_month = request.POST.get(f"placement_month_{i}")
-                placement_year = request.POST.get(f"placement_year_{i}")
-                record_id = request.POST.get(f"placement_record_id_{i}")  # may be None
-                delete_flag = request.POST.get(f"delete_placement_{i}") == "true"
-
-                print("placement_id:", placement_id)
-                print("month:", placement_month)
-                print("year:", placement_year)
-                print("record_id:", record_id)
-                print("delete flag:", delete_flag)
-
-                if delete_flag and record_id:
-                    CandidateClientPlacementHistory.objects.filter(
-                        id=record_id, candidate=candidate
-                    ).delete()
-                    continue
-
-                if not placement_id or not placement_month or not placement_year:
-                    continue  # skip incomplete rows
-
-                if record_id:
-                    try:
-                        record = CandidateClientPlacementHistory.objects.get(
-                            id=record_id, candidate=candidate
-                        )
-                        record.placement_id = placement_id
-                        record.month = int(placement_month)
-                        record.year = int(placement_year)
-                        record.save()
-                    except CandidateClientPlacementHistory.DoesNotExist:
-                        continue
-                else:
-                    # New record
-                    CandidateClientPlacementHistory.objects.create(
-                        candidate=candidate,
-                        placement_id=placement_id,
-                        month=int(placement_month),
-                        year=int(placement_year),
-                    )
-
         # ----- Resume upload (if applicable) -----
         uploaded_file = request.FILES.get("resume-file")
         if uploaded_file:
             CandidateResume.objects.create(candidate=candidate, file=uploaded_file)
+
+        # ----- If toggle is OFF: delete all placements and return -----
+        if request.POST.get("remove_all_placements") == "true":
+            CandidateClientPlacementHistory.objects.filter(candidate=candidate).delete()
+            return redirect("candidate-detail", candidate_id=candidate.id)
+
+        # ----- Handle placement records -----
+        placement_total = int(request.POST.get("placement_total_count", 0))
+
+        for i in range(1, placement_total + 1):
+            placement_id = request.POST.get(f"placement_id_{i}")
+            placement_month = request.POST.get(f"placement_month_{i}")
+            placement_year = request.POST.get(f"placement_year_{i}")
+            record_id = request.POST.get(f"placement_record_id_{i}")
+            delete_flag = request.POST.get(f"delete_placement_{i}") == "true"
+
+            if delete_flag and record_id:
+                CandidateClientPlacementHistory.objects.filter(
+                    id=record_id, candidate=candidate
+                ).delete()
+                continue
+
+            if not placement_id or not placement_month or not placement_year:
+                continue  # skip incomplete rows
+
+            if record_id:
+                try:
+                    record = CandidateClientPlacementHistory.objects.get(
+                        id=record_id, candidate=candidate
+                    )
+                    record.placement_id = placement_id
+                    record.month = int(placement_month)
+                    record.year = int(placement_year)
+                    record.save()
+                except CandidateClientPlacementHistory.DoesNotExist:
+                    continue
+            else:
+                CandidateClientPlacementHistory.objects.create(
+                    candidate=candidate,
+                    placement_id=placement_id,
+                    month=int(placement_month),
+                    year=int(placement_year),
+                )
 
         return redirect("candidate-detail", candidate_id=candidate.id)
 
