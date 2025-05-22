@@ -196,30 +196,44 @@
                                 <span>Currently Working</span>
                             </label>
                             <label class="toggle flex-display vertical-align justify-center" style="margin-bottom: 1rem;">
-                                <input name="client-placement" id="client-placement" class="toggle-checkbox" type="checkbox"
+                                <input name="client-placement" id="edit-client-placement-toggle" class="toggle-checkbox" type="checkbox"
                                        {% if candidate.placement_record.exists %}checked{% endif %}>
                                 <div class="toggle-switch"></div>
                                 <span>Previously Placed</span>
                             </label>
-
-                            <div id="placement-records-wrapper" class="flex-display column w-100" style="{% if not candidate.placement_record.exists %}display: none;{% endif %}">
-                                {% for record in candidate.placement_record.all %}
-                                    <div class="placement-line-item flex-display align-center" data-index="{{ forloop.counter }}" style="margin-bottom: 1rem;">
-                                        {% include 'red_shell_recruiting/components/candidate_placement_dropdown_component.html' with selected_placement=record.placement name="placement_id_{{ forloop.counter }}" id_suffix=forloop.counter all_placements=all_placements %}
-                                        <input name="placement_month_{{ forloop.counter }}" value="{{ record.month }}" placeholder="Month" class="text-input" style="margin-left: 0.5rem; width: 80px;">
-                                        <input name="placement_year_{{ forloop.counter }}" value="{{ record.year }}" placeholder="Year" class="text-input" style="margin-left: 0.5rem; width: 100px;">
-                                        <input type="hidden" name="placement_record_id_{{ forloop.counter }}" value="{{ record.id }}">
-                                        <input type="hidden" name="delete_placement_{{ forloop.counter }}" value="false" class="delete-marker">
-                                        <button type="button" class="button remove-placement" style="margin-left: 0.5rem;">–</button>
-                                    </div>
-                                {% endfor %}
-                                <input type="hidden" name="placement_total_count" value="{{ candidate.placement_record.count }}">
-                            </div>
-
-                            <button type="button" class="button" id="add-placement-line" style="margin-top: 1rem;">+ Add Placement</button>
                         </div>
                     </div>
                 </div>
+                <div>
+                    <div id="placement-records-wrapper-edit" class="flex-display column" style="{% if not candidate.placement_record.exists %}display: none;{% endif %}">
+                        {% for record in candidate.placement_record.all %}
+                            <div class="placement-line-item flex-display align-center" data-index="{{ forloop.counter }}" style="margin-bottom: 1rem;">
+                                {% include 'red_shell_recruiting/components/candidate_placement_dropdown_component.html' with selected_placement=record.placement name="placement_id_{{ forloop.counter }}" id_suffix=forloop.counter all_placements=all_placements %}
+                                <input name="placement_month_{{ forloop.counter }}" value="{{ record.month }}" placeholder="Month" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); margin-left: 1rem; width: 80px;">
+                                <input name="placement_year_{{ forloop.counter }}" value="{{ record.year }}" placeholder="Year" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); margin-left: 1rem; width: 100px;">
+                                <input type="hidden" name="placement_record_id_{{ forloop.counter }}" value="{{ record.id }}">
+                                <input type="hidden" name="delete_placement_{{ forloop.counter }}" value="false" class="delete-marker">
+                                <button type="button" class="button remove-placement" style="margin-left: 0.5rem;">
+                                    {% include 'red_shell_recruiting/components/svg_components.html' with type='close' %}
+                                </button>
+                            </div>
+                        {% endfor %}
+                        <input type="hidden" name="placement_total_count" value="{{ candidate.placement_record.count }}">
+                    </div>
+                    <script type="text/template" id="placement-line-template">
+                        <div class="placement-line-item flex-display align-center" data-index="__INDEX__" style="margin-bottom: 1rem;">
+                            {% include 'red_shell_recruiting/components/candidate_placement_dropdown_component.html' with selected_placement=None name="placement_id___INDEX__" id_suffix="__INDEX__" all_placements=all_placements %}
+                            <input name="placement_month___INDEX__" placeholder="Month" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); margin-left: 1rem; width: 80px;">
+                            <input name="placement_year___INDEX__" placeholder="Year" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); margin-left: 1rem; width: 100px;">
+                            <input type="hidden" name="delete_placement___INDEX__" value="false" class="delete-marker">
+                            <button type="button" class="button remove-placement" style="margin-left: 0.5rem;">
+                                {% include 'red_shell_recruiting/components/svg_components.html' with type='close' %}
+                            </button>
+                        </div>
+                    </script>
+                    <button type="button" class="button" id="add-placement-line-edit">+ Add Placement</button>
+                </div>
+                <hr>
                 <textarea name="notes" class="text-input" placeholder="Notes" style="border: 1px solid var(--ui-support-element-color); height: 200px; padding: 0.5rem;">{{ candidate.notes }}</textarea>
                 <hr>
                 <div style="width: 100%" class="flex-display vertical-align justify-center space-between">
@@ -236,10 +250,8 @@
         </div>
     </div>
     <script>
-
         $(document).ready(function () {
-            let placementIndex = parseInt($('input[name="placement_total_count"]').val()) || 0;
-
+            // INPUT PAGE TOGGLE
             $('#client-placement').change(function () {
                 const isChecked = $(this).is(':checked');
                 if (isChecked) {
@@ -251,47 +263,51 @@
                 }
             });
 
-            $('#add-placement-line').click(function () {
+            // EDIT PAGE TOGGLE
+            $('#edit-client-placement-toggle').change(function () {
+                const isChecked = $(this).is(':checked');
+                const $wrapper = $('#placement-records-wrapper-edit');
+
+                if (isChecked) {
+                    $wrapper.slideDown(200);
+                    $wrapper.find('.placement-line-item').show();
+                } else {
+                    $wrapper.slideUp(200);
+                    $wrapper.find('.placement-line-item').hide();
+                }
+            });
+
+            // ADD PLACEMENT (EDIT MODE)
+            let placementIndex = parseInt($('input[name="placement_total_count"]').val()) || 0;
+
+            $('#add-placement-line-edit').click(function () {
                 placementIndex++;
 
-                const newLine = `
-        <div class="placement-line-item flex-display align-center" data-index="${placementIndex}" style="margin-bottom: 1rem;">
-            <div class="custom-dropdown" style="margin-right: 0.5rem;">
-                <div class="flex-display space-between">
-                    <div class="selected-option">Select a Client</div>
-                    <span class="chevron-down">{% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}</span>
-                    <span class="chevron-up" style="display: none;">{% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}</span>
-                </div>
-                <ul class="dropdown-list client-placement-dropdown-list"></ul>
-                <input type="hidden" class="hidden-input" name="placement_id_${placementIndex}">
-            </div>
-            <input name="placement_month_${placementIndex}" placeholder="Month" class="text-input" style="margin-left: 0.5rem; width: 80px;">
-            <input name="placement_year_${placementIndex}" placeholder="Year" class="text-input" style="margin-left: 0.5rem; width: 100px;">
-            <input type="hidden" name="delete_placement_${placementIndex}" value="false" class="delete-marker">
-            <button type="button" class="button remove-placement" style="margin-left: 0.5rem;">–</button>
-        </div>`;
+                $('#edit-client-placement-toggle').prop('checked', true).trigger('change');
 
-                $('#placement-records-wrapper').append(newLine);
-                populateClientPlacements();  // re-bind the dropdowns
+                const template = $('#placement-line-template').html();
+                const filled = template.replace(/__INDEX__/g, placementIndex);
+
+                $('#placement-records-wrapper-edit').append(filled);
+                populateClientPlacements();  // rebind dropdown logic
                 $('input[name="placement_total_count"]').val(placementIndex);
             });
 
+            // REMOVE PLACEMENT LINE (Shared)
             $(document).on('click', '.remove-placement', function () {
                 const group = $(this).closest('.placement-line-item');
                 group.find('.delete-marker').val('true');
                 group.hide();
             });
-        });
 
-
-        $(document).ready(function () {
-
+            // DELETE PLACEMENT TOGGLE (Edit Mode)
             $(document).on('click', '.delete-single-placement', function () {
                 $('#client-placement-toggle-wrapper').slideUp(200);
                 $('#client-placement-delete').val('true');
                 $('#client-placement').prop('checked', false).trigger('change');
             });
 
+            // DROPDOWN LOGIC
             $('[id^="client-placement-dropdown"]').each(function () {
                 const dropdown = $(this);
                 const idSuffix = dropdown.attr('id').replace('client-placement-dropdown-', '');
@@ -317,16 +333,8 @@
                     $('.dropdown-list').hide();
                 }
             });
-        });
 
-        $(document).on('click', '.delete-placement', function () {
-            const group = $(this).closest('.placement-record-group');
-            group.find('.delete-marker').val('true');
-            group.hide(); // Optional visual feedback
-        });
-
-        $(document).ready(function() {
-
+            // RESUME UPLOAD
             $('#trigger-resume-upload').on('click', function () {
                 $('#candidate-resume').click();
             });
@@ -342,7 +350,7 @@
                 }
             });
 
-            $('#add-resume-button').on('click', function() {
+            $('#add-resume-button').on('click', function () {
                 const fileInput = $('#candidate-resume')[0];
                 if (fileInput.files.length === 0) {
                     alert('Please select a file first.');
@@ -359,15 +367,16 @@
                     data: formData,
                     processData: false,
                     contentType: false,
-                    success: function(response) {
+                    success: function () {
                         location.reload();
                     },
-                    error: function(xhr) {
+                    error: function () {
                         alert('Failed to upload resume.');
                     }
                 });
             });
 
+            // DOCUMENT UPLOAD
             $('#trigger-document-upload').on('click', function () {
                 $('#candidate-document').click();
             });
@@ -400,16 +409,17 @@
                     data: formData,
                     processData: false,
                     contentType: false,
-                    success: function(response) {
+                    success: function () {
                         location.reload();
                     },
-                    error: function(xhr) {
+                    error: function () {
                         alert('Failed to upload document.');
                     }
                 });
             });
 
-            $('#edit-button').on('click', function() {
+            // TOGGLE TO EDIT MODE
+            $('#edit-button').on('click', function () {
                 $('#candidate-view-mode').hide();
                 $('#candidate-edit-mode').show();
 
@@ -420,11 +430,13 @@
                 $('#city-dropdown-wrapper').show();
             });
 
-            $('#cancel-button').on('click', function() {
+            // CANCEL BUTTON
+            $('#cancel-button').on('click', function () {
                 $('#candidate-edit-mode').hide();
                 $('#candidate-view-mode').show();
             });
         });
     </script>
+
 
 {% endblock %}
