@@ -195,28 +195,28 @@
                                 <div class="toggle-switch"></div>
                                 <span>Currently Working</span>
                             </label>
-                            <label class="toggle flex-display vertical-align justify-center">
+                            <label class="toggle flex-display vertical-align justify-center" style="margin-bottom: 1rem;">
                                 <input name="client-placement" id="client-placement" class="toggle-checkbox" type="checkbox"
                                        {% if candidate.placement_record.exists %}checked{% endif %}>
                                 <div class="toggle-switch"></div>
                                 <span>Previously Placed</span>
                             </label>
-                            <br>
-                            <div id="client-placement-toggle-wrapper" class="flex-display column w-100" style="{% if not candidate.placement_record.exists %}display: none;{% endif %}">
-                                {% with selected_placement=candidate.placement_record.first.placement %}
-                                    {% include 'red_shell_recruiting/components/candidate_placement_dropdown_component.html' with selected_placement=selected_placement all_placements=all_placements %}
-                                {% endwith %}
-                                <div class="flex-display vertical-align justify-center">
-                                    <input name="client-placement-month" type="number" placeholder="Month" class="text-input" style="margin-right: 1rem;"
-                                           value="{{ candidate.placement_record.first.month }}" min="1" max="12">
-                                    <input name="client-placement-year" type="number" placeholder="Year" class="text-input"
-                                           value="{{ candidate.placement_record.first.year }}" min="1900" max="2100">
-                                </div>
-                                <input type="hidden" name="client-placement-id" value="{{ candidate.placement_record.first.id }}">
-                                <input type="hidden" name="client-placement-delete" id="client-placement-delete" value="false">
 
-                                <button type="button" class="button delete-single-placement" style="margin-top: 1rem;">Delete Placement</button>
+                            <div id="placement-records-wrapper" class="flex-display column w-100" style="{% if not candidate.placement_record.exists %}display: none;{% endif %}">
+                                {% for record in candidate.placement_record.all %}
+                                    <div class="placement-line-item flex-display align-center" data-index="{{ forloop.counter }}" style="margin-bottom: 1rem;">
+                                        {% include 'red_shell_recruiting/components/candidate_placement_dropdown_component.html' with selected_placement=record.placement name="placement_id_{{ forloop.counter }}" id_suffix=forloop.counter all_placements=all_placements %}
+                                        <input name="placement_month_{{ forloop.counter }}" value="{{ record.month }}" placeholder="Month" class="text-input" style="margin-left: 0.5rem; width: 80px;">
+                                        <input name="placement_year_{{ forloop.counter }}" value="{{ record.year }}" placeholder="Year" class="text-input" style="margin-left: 0.5rem; width: 100px;">
+                                        <input type="hidden" name="placement_record_id_{{ forloop.counter }}" value="{{ record.id }}">
+                                        <input type="hidden" name="delete_placement_{{ forloop.counter }}" value="false" class="delete-marker">
+                                        <button type="button" class="button remove-placement" style="margin-left: 0.5rem;">–</button>
+                                    </div>
+                                {% endfor %}
+                                <input type="hidden" name="placement_total_count" value="{{ candidate.placement_record.count }}">
                             </div>
+
+                            <button type="button" class="button" id="add-placement-line" style="margin-top: 1rem;">+ Add Placement</button>
                         </div>
                     </div>
                 </div>
@@ -236,6 +236,53 @@
         </div>
     </div>
     <script>
+
+        $(document).ready(function () {
+            let placementIndex = parseInt($('input[name="placement_total_count"]').val()) || 0;
+
+            $('#client-placement').change(function () {
+                const isChecked = $(this).is(':checked');
+                if (isChecked) {
+                    $('#placement-records-wrapper').slideDown(200);
+                } else {
+                    $('#placement-records-wrapper').slideUp(200);
+                    $('#placement-records-wrapper').find('.placement-line-item').remove();
+                    placementIndex = 0;
+                }
+            });
+
+            $('#add-placement-line').click(function () {
+                placementIndex++;
+
+                const newLine = `
+        <div class="placement-line-item flex-display align-center" data-index="${placementIndex}" style="margin-bottom: 1rem;">
+            <div class="custom-dropdown" style="margin-right: 0.5rem;">
+                <div class="flex-display space-between">
+                    <div class="selected-option">Select a Client</div>
+                    <span class="chevron-down">{% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}</span>
+                    <span class="chevron-up" style="display: none;">{% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}</span>
+                </div>
+                <ul class="dropdown-list client-placement-dropdown-list"></ul>
+                <input type="hidden" class="hidden-input" name="placement_id_${placementIndex}">
+            </div>
+            <input name="placement_month_${placementIndex}" placeholder="Month" class="text-input" style="margin-left: 0.5rem; width: 80px;">
+            <input name="placement_year_${placementIndex}" placeholder="Year" class="text-input" style="margin-left: 0.5rem; width: 100px;">
+            <input type="hidden" name="delete_placement_${placementIndex}" value="false" class="delete-marker">
+            <button type="button" class="button remove-placement" style="margin-left: 0.5rem;">–</button>
+        </div>`;
+
+                $('#placement-records-wrapper').append(newLine);
+                populateClientPlacements();  // re-bind the dropdowns
+                $('input[name="placement_total_count"]').val(placementIndex);
+            });
+
+            $(document).on('click', '.remove-placement', function () {
+                const group = $(this).closest('.placement-line-item');
+                group.find('.delete-marker').val('true');
+                group.hide();
+            });
+        });
+
 
         $(document).ready(function () {
 

@@ -267,44 +267,30 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
         candidate.open_to_relocation = request.POST.get("open-to-relocation") == "on"
         candidate.currently_working = request.POST.get("currently-working") == "on"
         candidate.actively_looking = request.POST.get("actively-looking") == "on"
-        placement_id = request.POST.get("client-placement-id")
-        placement_delete = request.POST.get("client-placement-delete") == "true"
-        placement_client_id = request.POST.get("client-placement")
-        month = request.POST.get("client-placement-month")
-        year = request.POST.get("client-placement-year")
 
-        if placement_delete and placement_id:
-            try:
-                record = CandidateClientPlacementHistory.objects.get(
-                    id=placement_id, candidate=candidate
+        placement_total = int(request.POST.get("placement_total_count", 0))
+        for i in range(1, placement_total + 1):
+            placement_id = request.POST.get(f"placement_id_{i}")
+            month = request.POST.get(f"placement_month_{i}")
+            year = request.POST.get(f"placement_year_{i}")
+            record_id = request.POST.get(f"placement_record_id_{i}")
+            is_deleted = request.POST.get(f"delete_placement_{i}") == "true"
+
+            if is_deleted and record_id:
+                CandidateClientPlacementHistory.objects.filter(
+                    id=record_id, candidate=candidate
+                ).delete()
+            elif record_id and placement_id and month and year:
+                CandidateClientPlacementHistory.objects.filter(
+                    id=record_id, candidate=candidate
+                ).update(placement_id=placement_id, month=month, year=year)
+            elif placement_id and month and year:
+                CandidateClientPlacementHistory.objects.create(
+                    candidate=candidate,
+                    placement_id=placement_id,
+                    month=month,
+                    year=year,
                 )
-                record.delete()
-                candidate.refresh_from_db()
-            except CandidateClientPlacementHistory.DoesNotExist:
-                pass
-        elif placement_id and month and year:
-            try:
-                record = CandidateClientPlacementHistory.objects.get(
-                    id=placement_id, candidate=candidate
-                )
-                record.month = int(month)
-                record.year = int(year)
-                record.placement_id = placement_client_id
-                record.save()
-            except CandidateClientPlacementHistory.DoesNotExist:
-                pass
-        elif (
-            not placement_id
-            and placement_client_id
-            and month.isdigit()
-            and year.isdigit()
-        ):
-            CandidateClientPlacementHistory.objects.create(
-                candidate=candidate,
-                placement_id=placement_client_id,
-                month=int(month),
-                year=int(year),
-            )
 
         title_id = request.POST.get("candidate-title-id")
         if title_id:
