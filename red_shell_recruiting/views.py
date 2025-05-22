@@ -284,11 +284,18 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
         placement_total = int(request.POST.get("placement_total_count", 0))
 
         for i in range(1, placement_total + 1):
+            print("----- PLACEMENT LINE", i, "-----")
             placement_id = request.POST.get(f"placement_id_{i}")
             placement_month = request.POST.get(f"placement_month_{i}")
             placement_year = request.POST.get(f"placement_year_{i}")
             record_id = request.POST.get(f"placement_record_id_{i}")  # may be None
             delete_flag = request.POST.get(f"delete_placement_{i}") == "true"
+
+            print("placement_id:", placement_id)
+            print("month:", placement_month)
+            print("year:", placement_year)
+            print("record_id:", record_id)
+            print("delete flag:", delete_flag)
 
             if delete_flag and record_id:
                 CandidateClientPlacementHistory.objects.filter(

@@ -207,8 +207,15 @@
                 <div class="client-placement-section">
                     <div id="placement-records-wrapper-edit" class="flex-display column" style="{% if not candidate.placement_record.exists %}display: none;{% endif %}">
                         {% for record in candidate.placement_record.all %}
-                            <div class="placement-line-item flex-display align-center" data-index="{{ forloop.counter }}" style="margin-bottom: 1rem;">
-                                {% include 'red_shell_recruiting/components/candidate_placement_dropdown_component.html' with selected_placement=record.placement name="placement_id_{{ forloop.counter }}" id_suffix=forloop.counter all_placements=all_placements %}
+                            <div class="placement-line-item flex-display align-center"
+                                 data-index="{{ forloop.counter }}"
+                                 data-placement-id="{{ record.id }}"
+                                 style="margin-bottom: 1rem;">
+                                {% with forloop.counter|stringformat:"s" as counter_str %}
+                                    {% with "placement_id_"|add:counter_str as placement_input_name %}
+                                        {% include 'red_shell_recruiting/components/candidate_placement_dropdown_component.html' with selected_placement=record.placement name=placement_input_name id_suffix=forloop.counter all_placements=all_placements %}
+                                    {% endwith %}
+                                {% endwith %}
                                 <input name="placement_month_{{ forloop.counter }}" value="{{ record.month }}" placeholder="Month" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); margin-left: 1rem; width: 80px;">
                                 <input name="placement_year_{{ forloop.counter }}" value="{{ record.year }}" placeholder="Year" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); margin-left: 1rem; width: 100px;">
                                 <input type="hidden" name="placement_record_id_{{ forloop.counter }}" value="{{ record.id }}">
