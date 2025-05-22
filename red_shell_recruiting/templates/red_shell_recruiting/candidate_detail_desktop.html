@@ -201,6 +201,10 @@
                                 <div class="toggle-switch"></div>
                                 <span>Previously Placed</span>
                             </label>
+                            <input type="hidden" name="remove_all_placements" id="remove-all-placements-flag" value="false">
+                            <div id="remove-placement-warning" class="placement-warning" style="display: none; margin-top: 0.5rem; color: var(--warning-color); font-size: 0.875rem;">
+                                All placement records will be removed when saved.
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -267,9 +271,13 @@
                 if (isChecked) {
                     $wrapper.slideDown(200);
                     $wrapper.find('.placement-line-item').show();
+                    $('#remove-all-placements-flag').val('false');
+                    $('#remove-placement-warning').hide();
                 } else {
                     $wrapper.slideUp(200);
                     $wrapper.find('.placement-line-item').hide();
+                    $('#remove-all-placements-flag').val('true');
+                    $('#remove-placement-warning').fadeIn(200);
                 }
             });
 
