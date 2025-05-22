@@ -15,5 +15,5 @@
             <li class="option {% if selected_placement and selected_placement.id == p.id %}selected{% endif %}" data-value="{{ p.id }}">{{ p.name }}</li>
         {% endfor %}
     </ul>
-    <input class="client-placement-hidden" type="hidden" name="client-placement" value="{{ selected_placement.id|default:'' }}">
+    <input class="client-placement-hidden" type="hidden" name="{{ name }}" value="{{ selected_placement.id|default:'' }}">
 </div>

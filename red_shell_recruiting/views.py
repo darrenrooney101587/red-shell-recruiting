@@ -252,6 +252,8 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         candidate_id = self.kwargs.get("candidate_id")
         candidate = get_object_or_404(CandidateProfile, id=candidate_id)
+
+        # ----- Update candidate base info -----
         candidate.first_name = request.POST.get("first-name", candidate.first_name)
         candidate.last_name = request.POST.get("last-name", candidate.last_name)
         candidate.state = request.POST.get("candidate-state", candidate.state)
@@ -268,30 +270,6 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
         candidate.currently_working = request.POST.get("currently-working") == "on"
         candidate.actively_looking = request.POST.get("actively-looking") == "on"
 
-        placement_total = int(request.POST.get("placement_total_count", 0))
-        for i in range(1, placement_total + 1):
-            placement_id = request.POST.get(f"placement_id_{i}")
-            month = request.POST.get(f"placement_month_{i}")
-            year = request.POST.get(f"placement_year_{i}")
-            record_id = request.POST.get(f"placement_record_id_{i}")
-            is_deleted = request.POST.get(f"delete_placement_{i}") == "true"
-
-            if is_deleted and record_id:
-                CandidateClientPlacementHistory.objects.filter(
-                    id=record_id, candidate=candidate
-                ).delete()
-            elif record_id and placement_id and month and year:
-                CandidateClientPlacementHistory.objects.filter(
-                    id=record_id, candidate=candidate
-                ).update(placement_id=placement_id, month=month, year=year)
-            elif placement_id and month and year:
-                CandidateClientPlacementHistory.objects.create(
-                    candidate=candidate,
-                    placement_id=placement_id,
-                    month=month,
-                    year=year,
-                )
-
         title_id = request.POST.get("candidate-title-id")
         if title_id:
             title_obj = CandidateProfileTitle.objects.filter(id=title_id).first()
@@ -300,6 +278,48 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
 
         candidate.save()
 
+        print(request.POST)
+
+        # ----- Handle placement records -----
+        placement_total = int(request.POST.get("placement_total_count", 0))
+
+        for i in range(1, placement_total + 1):
+            placement_id = request.POST.get(f"placement_id_{i}")
+            placement_month = request.POST.get(f"placement_month_{i}")
+            placement_year = request.POST.get(f"placement_year_{i}")
+            record_id = request.POST.get(f"placement_record_id_{i}")  # may be None
+            delete_flag = request.POST.get(f"delete_placement_{i}") == "true"
+
+            if delete_flag and record_id:
+                CandidateClientPlacementHistory.objects.filter(
+                    id=record_id, candidate=candidate
+                ).delete()
+                continue
+
+            if not placement_id or not placement_month or not placement_year:
+                continue  # skip incomplete rows
+
+            if record_id:
+                try:
+                    record = CandidateClientPlacementHistory.objects.get(
+                        id=record_id, candidate=candidate
+                    )
+                    record.placement_id = placement_id
+                    record.month = int(placement_month)
+                    record.year = int(placement_year)
+                    record.save()
+                except CandidateClientPlacementHistory.DoesNotExist:
+                    continue
+            else:
+                # New record
+                CandidateClientPlacementHistory.objects.create(
+                    candidate=candidate,
+                    placement_id=placement_id,
+                    month=int(placement_month),
+                    year=int(placement_year),
+                )
+
+        # ----- Resume upload (if applicable) -----
         uploaded_file = request.FILES.get("resume-file")
         if uploaded_file:
             CandidateResume.objects.create(candidate=candidate, file=uploaded_file)

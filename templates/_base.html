@@ -133,6 +133,7 @@
             populateClientPlacements();
             populateCandidateTitles();
 
+            // title click handler
             $('#candidate-title-list').on('click', '.option', function (event) {
                 event.stopPropagation();
                 const titleId = $(this).data('value');
@@ -146,35 +147,28 @@
                 $(this).closest('.custom-dropdown').find('.chevron-up').hide();
             });
 
-            $('.client-placement-list').on('click', '.option', function (event) {
+            // placement click handler
+            $(document).on('click', '.client-placement-list .option', function (event) {
                 event.stopPropagation();
 
-                const clientId = $(this).data('value');
-                const clientName = $(this).text();
+                const $option = $(this);
+                const clientId = $option.data('value');
+                const clientName = $option.text();
 
-                $('.client-placement-dropdown').text(clientName);
-                $('.client-placement-hidden').val(clientId);
+                const $dropdown = $option.closest('.custom-dropdown');
+                const $display = $dropdown.find('.client-placement-dropdown');
+                const $hidden = $dropdown.find('.client-placement-hidden');
 
-                $(this).closest('.dropdown-list').hide();
-                $(this).closest('.custom-dropdown').find('.chevron-down').show();
-                $(this).closest('.custom-dropdown').find('.chevron-up').hide();
+                $display.text(clientName);
+                $hidden.val(clientId);
+
+                $dropdown.find('.dropdown-list').hide();
+                $dropdown.find('.chevron-down').show();
+                $dropdown.find('.chevron-up').hide();
             });
 
-            // Toggle wrapper for candidate input checkbox
-            $('.placement-toggle').change(function () {
-                const isChecked = $(this).is(':checked');
-                const $wrapper = $(this).closest('.toggle-container').find('.placement-toggle-wrapper');
-
-                if (isChecked) {
-                    $wrapper.slideDown(200);
-                } else {
-                    $wrapper.slideUp(200);
-                    $wrapper.find('.selected-option').text('Select a Client');
-                    $wrapper.find('input[type="hidden"]').val('');
-                }
-            });
-
-            $('.custom-dropdown').click(function(event) {
+            // general dropdown show/hide
+            $(document).on('click', '.custom-dropdown', function (event) {
                 const dropdownList = $(this).find('.dropdown-list');
                 const chevronDown = $(this).find('.chevron-down');
                 const chevronUp = $(this).find('.chevron-up');
@@ -192,6 +186,7 @@
                 }
             });
 
+            // toggle input page show placement elements
             $('#client-placement').change(function () {
                 const isChecked = $(this).is(':checked');
                 if (isChecked) {
