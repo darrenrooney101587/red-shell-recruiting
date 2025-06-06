@@ -41,6 +41,16 @@ class CandidateClientPlacement(models.Model):
         managed = True
 
 
+class CandidateOwnerShip(models.Model):
+    display_name = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        managed = True
+        db_table = "candidate_owner_ship"
+
+
 class CandidateProfile(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
@@ -53,9 +63,13 @@ class CandidateProfile(models.Model):
         blank=True,
         related_name="candidates",
     )
+    ownership = models.ForeignKey(
+        CandidateOwnerShip, on_delete=models.PROTECT, default=None
+    )
     phone_number = models.CharField(max_length=15)
     email = models.EmailField(unique=True)
-    compensation = models.DecimalField(max_digits=10, decimal_places=2)
+    compensation_from = models.DecimalField(max_digits=10, decimal_places=2)
+    compensation_to = models.DecimalField(max_digits=10, decimal_places=2)
     notes = models.TextField(null=True, blank=True)
     open_to_relocation = models.BooleanField(default=False)
     currently_working = models.BooleanField(default=True)
@@ -63,12 +77,12 @@ class CandidateProfile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     search_document = SearchVectorField(null=True)
-    candidate_placement = ForeignKey(
-        CandidateClientPlacement,
-        on_delete=models.CASCADE,
-        related_name="client_placement",
-        null=True,  # allows no placement (DB level)
-        blank=True,  # allows empty in Django forms/admin
+    candidate_placement_history = models.ForeignKey(
+        "CandidateClientPlacementHistory",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="currently_active_for",
     )
 
     @property

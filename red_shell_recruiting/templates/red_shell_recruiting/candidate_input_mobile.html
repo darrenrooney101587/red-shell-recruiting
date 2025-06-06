@@ -15,7 +15,7 @@
                 <h1>Enter Candidate</h1>
                 <hr>
             </div>
-            {% if messages %}
+{#            {% if messages %}#}
                 <div class="messages">
                     {% for message in messages %}
                         <div class="{{ message.tags }} alert-dismissible fade show" role="alert" style="position: relative;">
@@ -23,7 +23,7 @@
                         </div>
                     {% endfor %}
                 </div>
-            {% endif %}
+{#            {% endif %}#}
             <div class="field-set " >
                 <div style="width: 100%; margin-bottom: 1rem; position: relative">
                     <input tabindex="1" required name="candidate-first-name" style="border-bottom: 1px solid var(--ui-support-element-color)" id="candidate-first-name" type="text" class="text-input" placeholder="First Name" autocomplete="off">
@@ -32,6 +32,9 @@
                     {% include 'red_shell_recruiting/components/city_dropdown_component.html' %}
                     <div tabindex="4">
                         {% include 'red_shell_recruiting/components/title_dropdown_component.html' %}
+                    </div>
+                    <div tabindex="5">
+                        {% include 'red_shell_recruiting/components/ownership_dropdown_component.html' %}
                     </div>
                 </div>
                 <div style="width: 100%; margin-bottom: 1rem">

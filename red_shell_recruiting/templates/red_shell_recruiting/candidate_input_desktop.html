@@ -15,29 +15,42 @@
                 <h1>Enter Candidate</h1>
                 <hr>
             </div>
-            {% if messages %}
+{#            {% if messages %}#}
                 <div class="messages">
                     {% for message in messages %}
-                        <div class="{{ message.tags }} alert-dismissible fade show" role="alert" style="position: relative;">
-                            {{ message }}
+                        <div class="alert {{ message.tags }} alert-dismissible fade show flex-display space-between vertical-align" role="alert" style="width: 100%;">
+                            <span class="message-text">{{ message }}</span>
+                            <span class="custom-close" style="cursor: pointer;">
+                                {% include 'red_shell_recruiting/components/svg_components.html' with type='close' %}
+                            </span>
                         </div>
                     {% endfor %}
                 </div>
-            {% endif %}
+            <br>
+{#            {% endif %}#}
             <div class="field-set flex-display" style="column-gap: 2rem">
                 <div style="width: 50%; margin-bottom: 1rem; position: relative">
                     <input tabindex="1" required name="candidate-first-name" style="border-bottom: 1px solid var(--ui-support-element-color)" id="candidate-first-name" type="text" class="text-input" placeholder="First Name" autocomplete="off">
                     <input required name="candidate-last-name" tabindex="2" style="border-bottom: 1px solid var(--ui-support-element-color)" id="candidate-last-name" type="text" class="text-input" placeholder="Last Name" autocomplete="off">
                     {% include 'red_shell_recruiting/components/state_dropdown_component.html' %}
                     {% include 'red_shell_recruiting/components/city_dropdown_component.html' %}
-                    <div tabindex="4">
-                        {% include 'red_shell_recruiting/components/title_dropdown_component.html' %}
+                    <div>
+                        <span>Compensation range</span>
+                        <div class="flex-display">
+                            <input tabindex="8" name="candidate-compensation-from" style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" class="text-input" id="candidate-compensation-from" type="number" placeholder="From" autocomplete="off">
+                            <input tabindex="8" name="candidate-compensation-to" style="border-bottom: 1px solid var(--ui-support-element-color)" class="text-input" id="candidate-compensation-to" type="number" placeholder="To" autocomplete="off">
+                        </div>
                     </div>
                 </div>
                 <div style="width: 50%; margin-bottom: 1rem">
-                    <input required tabindex="5" name="candidate-phone-number" style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-phone-number" type="tel" placeholder="Phone Number" autocomplete="off">
-                    <input required tabindex="6" name="candidate-email" style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-email" type="email" placeholder="Email" autocomplete="off">
-                    <input tabindex="7" name="candidate-compensation" style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-compensation" type="number" placeholder="Compensation" autocomplete="off">
+                    <input required tabindex="6" name="candidate-phone-number" style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-phone-number" type="tel" placeholder="Phone Number" autocomplete="off">
+                    <input required tabindex="7" name="candidate-email" style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-email" type="email" placeholder="Email" autocomplete="off">
+                    <div tabindex="5">
+                        {% include 'red_shell_recruiting/components/ownership_dropdown_component.html' %}
+                    </div>
+                    <div tabindex="4">
+                        {% include 'red_shell_recruiting/components/title_dropdown_component.html' %}
+                    </div>
                     <div class="align-baseline column flex-display flex-start toggle-container">
                         <label class="toggle flex-display vertical-align justify-center">
                             <input name="candidate-looking" id="candidate-looking" class="toggle-checkbox" type="checkbox">
@@ -61,7 +74,7 @@
                         </label>
                         <br>
                         <div id="client-placement-toggle-wrapper" style="display: none;" class="flex-display column w-100">
-                            {% include 'red_shell_recruiting/components/candidate_placement_dropdown_component.html' with all_placements=all_placements %}
+                            {% include 'red_shell_recruiting/components/candidate_placement_dropdown_component.html' with all_placements=all_placements name='client-placement-id' %}
                             <div class="flex-display vertical-align justify-center">
                                 <input name="client-placement-month" tabindex="8" style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" id="client-placement-month" type="number" class="text-input" placeholder="Month" autocomplete="off" min="1" max="12">
                                 <input name="client-placement-year" tabindex="9" style="border-bottom: 1px solid var(--ui-support-element-color)" id="client-placement-year" type="number" class="text-input" placeholder="Year" autocomplete="off" min="1900" max="2100">
@@ -70,7 +83,7 @@
                     </div>
                 </div>
             </div>
-            <textarea tabindex="10" name="candidate-notes" style="border: 1px solid var(--ui-support-element-color); height: 200px; padding: 0.5rem;" class="text-input" id="candidate-notes" type="text" placeholder="Notes" autocomplete="off"></textarea>
+            <textarea tabindex="9" name="candidate-notes" style="border: 1px solid var(--ui-support-element-color); height: 200px; padding: 0.5rem;" class="text-input" id="candidate-notes" type="text" placeholder="Notes" autocomplete="off"></textarea>
             <hr>
             <div class="flex-display space-between">
                 <div class="flex-display vertical-align" style="margin-right:3rem;">
@@ -84,6 +97,7 @@
             </div>
         </form>
     </div>
+    <script src="{% static 'js/candidate_edit_save.js' %}" crossorigin="anonymous"></script>
     <script>
 
         $(document).ready(function() {

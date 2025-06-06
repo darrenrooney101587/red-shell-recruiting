@@ -42,4 +42,9 @@ urlpatterns = [
     path(
         "api/candidate-titles/", views.candidate_title_list, name="candidate-title-list"
     ),
+    path(
+        "api/candidate-ownership/",
+        views.candidate_ownership_list,
+        name="candidate-ownership-list",
+    ),
 ]

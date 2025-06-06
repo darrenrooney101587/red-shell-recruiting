@@ -27,6 +27,7 @@ from red_shell_recruiting.models import (
     CandidateClientPlacement,
     CandidateClientPlacementHistory,
     CandidateProfileTitle,
+    CandidateOwnerShip,
 )
 
 
@@ -44,6 +45,12 @@ def client_placement_list(request):
 
 def candidate_title_list(request):
     titles = CandidateProfileTitle.objects.all().order_by("display_name")
+    data = [{"id": t.id, "name": t.display_name} for t in titles]
+    return JsonResponse(data, safe=False)
+
+
+def candidate_ownership_list(request):
+    titles = CandidateOwnerShip.objects.all().order_by("display_name")
     data = [{"id": t.id, "name": t.display_name} for t in titles]
     return JsonResponse(data, safe=False)
 
@@ -73,8 +80,11 @@ class CandidateInput(LoginRequiredMixin, View):
         )
         phone_number = request.POST.get("candidate-phone-number")
         email = request.POST.get("candidate-email")
-        compensation = (
-            str(request.POST.get("candidate-compensation")).replace(",", "") or 0
+        compensation_from = (
+            str(request.POST.get("candidate-compensation-from")).replace(",", "") or 0
+        )
+        compensation_to = (
+            str(request.POST.get("candidate-compensation-to")).replace(",", "") or 0
         )
         notes = request.POST.get("candidate-notes")
         candidate_state = request.POST.get("candidate-state")
@@ -88,17 +98,26 @@ class CandidateInput(LoginRequiredMixin, View):
         placement_month = request.POST.get("client-placement-month")
         placement_year = request.POST.get("client-placement-year")
 
+        ownership_id = request.POST.get("candidate-ownership-id")
+        ownership_obj = (
+            CandidateOwnerShip.objects.filter(id=title_id).first()
+            if ownership_id
+            else None
+        )
+
         try:
             with transaction.atomic():
                 candidate = CandidateProfile.objects.create(
                     first_name=first_name,
                     last_name=last_name,
                     title=title_obj,
+                    ownership=ownership_obj,
                     state=candidate_state,
                     city=candidate_city,
                     phone_number=phone_number,
                     email=email,
-                    compensation=compensation,
+                    compensation_from=compensation_from,
+                    compensation_to=compensation_to,
                     notes=notes,
                     open_to_relocation=open_to_relocation,
                     currently_working=currently_working,
@@ -106,12 +125,15 @@ class CandidateInput(LoginRequiredMixin, View):
                 )
 
                 if placement_id and placement_month and placement_year:
-                    CandidateClientPlacementHistory.objects.create(
+                    placement_history = CandidateClientPlacementHistory.objects.create(
                         candidate=candidate,
                         placement_id=placement_id,
                         month=placement_month,
                         year=placement_year,
                     )
+
+                    candidate.candidate_placement_history = placement_history
+                    candidate.save(update_fields=["candidate_placement_history"])
 
                 if candidate_resume:
                     resume = CandidateResume.objects.create(
@@ -122,8 +144,15 @@ class CandidateInput(LoginRequiredMixin, View):
                     raise IntegrityError("Resume upload failed.")
 
         except IntegrityError as e:
-            messages.error(request, f"Error saving candidate: {str(e)}")
-            return redirect("candidate-submit")
+            if str(e).startswith("duplicate key"):
+                messages.error(
+                    request,
+                    f"Looks like a candidate with that email already exists for {email}",
+                )
+                return redirect("candidate-submit")
+            else:
+                messages.error(request, f"Error saving candidate: {str(e)}")
+                return redirect("candidate-submit")
 
         messages.success(request, f"{first_name} {last_name} has been added.")
         return redirect("candidate-submit")

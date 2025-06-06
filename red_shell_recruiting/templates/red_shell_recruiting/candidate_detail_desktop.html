@@ -3,7 +3,7 @@
 {% load filters %}
 {% load tags %}
 {% block title %}
-    Candidate Search
+    Edit Candidate
 {% endblock %}
 {% block css-extra %}
     <link rel="stylesheet" href="{% static 'css/candidate.css' %}?n={% css_invalidate_int %}">
@@ -63,11 +63,11 @@
                     </div>
                     <hr>
                     <div class="flex-display column" style="margin-bottom: 1rem;">
-                        <h4 style="color: var(--theme-base-color); opacity: 0.7;">Placement History</h4>
+                        <h4 class="small-title" style="color: var(--theme-base-color); opacity: 0.7; font-size: 12px">Placement History</h4>
                         {% if candidate.placement_record.all %}
-                            <ul style="padding-left: 1rem; margin-top: 0.5rem;">
+                            <ul style="margin-top: 0.5rem;">
                                 {% for record in candidate.placement_record.all %}
-                                    <li style="margin-bottom: 0.25rem;">
+                                    <li style="margin-bottom: 0.25rem; font-size: 14px;">
                                         {{ record.placement.display_name }} — {{ record.month }}/{{ record.year }}
                                     </li>
                                 {% endfor %}
@@ -91,6 +91,7 @@
             <hr>
             <span style="color: var(--faded-gray-color)" class="small-title">Resumes</span>
             <ul>
+                #TODO address no resumes for text
                 {% for resume in candidate.resumes.all %}
                     {% if not resume.archived %}
                         <li style="margin-bottom: 0.5rem;">
@@ -145,7 +146,7 @@
                         </li>
                     {% endif %}
                 {% empty %}
-                    <li>No dcouments uploaded yet.</li>
+                    <li style="opacity: 0.6">No document uploaded yet.</li>
                 {% endfor %}
             </ul>
             <div class="flex-display vertical-align" style="margin-top: 1rem;">
@@ -249,94 +250,14 @@
             </form>
         </div>
     </div>
+    <script src="{% static 'js/candidate_edit_save.js' %}" crossorigin="anonymous"></script>
     <script>
         $(document).ready(function () {
 
-            PlacementActions();
-
-            // RESUME UPLOAD
-            $('#trigger-resume-upload').on('click', function () {
-                $('#candidate-resume').click();
-            });
-
-            $('#candidate-resume').on('change', function () {
-                const file = this.files[0];
-                if (file) {
-                    $('#file-name').text(file.name);
-                    $('#add-resume-button').show();
-                } else {
-                    $('#file-name').text('');
-                    $('#add-resume-button').hide();
-                }
-            });
-
-            $('#add-resume-button').on('click', function () {
-                const fileInput = $('#candidate-resume')[0];
-                if (fileInput.files.length === 0) {
-                    alert('Please select a file first.');
-                    return;
-                }
-
-                const formData = new FormData();
-                formData.append('resume', fileInput.files[0]);
-                formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
-
-                $.ajax({
-                    url: '{% url "upload-resume" candidate.id %}',
-                    method: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function () {
-                        location.reload();
-                    },
-                    error: function () {
-                        alert('Failed to upload resume.');
-                    }
-                });
-            });
-
-            // DOCUMENT UPLOAD
-            $('#trigger-document-upload').on('click', function () {
-                $('#candidate-document').click();
-            });
-
-            $('#candidate-document').on('change', function () {
-                const file = this.files[0];
-                if (file) {
-                    $('#document-file-name').text(file.name);
-                    $('#add-document-button').show();
-                } else {
-                    $('#document-file-name').text('');
-                    $('#add-document-button').hide();
-                }
-            });
-
-            $('#add-document-button').on('click', function () {
-                const fileInput = $('#candidate-document')[0];
-                if (fileInput.files.length === 0) {
-                    alert('Please select a document first.');
-                    return;
-                }
-
-                const formData = new FormData();
-                formData.append('candidate_document', fileInput.files[0]);
-                formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
-
-                $.ajax({
-                    url: '{% url "upload-document" candidate.id %}',
-                    method: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function () {
-                        location.reload();
-                    },
-                    error: function () {
-                        alert('Failed to upload document.');
-                    }
-                });
-            });
+            PlacementEditSaveActions();
+            CandidateEditSaveActions();
+            AddDocumentAction();
+            AddResumeAction();
 
             // TOGGLE TO EDIT MODE
             $('#edit-button').on('click', function () {
@@ -350,11 +271,6 @@
                 $('#city-dropdown-wrapper').show();
             });
 
-            // CANCEL BUTTON
-            $('#cancel-button').on('click', function () {
-                $('#candidate-edit-mode').hide();
-                $('#candidate-view-mode').show();
-            });
         });
     </script>
 

@@ -731,18 +731,16 @@ li.nav-item.sub {
 }
 
 .alert {
-  color: #fff;
   font-weight: bold;
   border-radius:var(--std-border-radius);
   min-width: calc(var(--std-item-height) * 0.75);
-  height: calc(var(--std-item-height) * 0.75);
   text-align: center;
-  line-height: 1.8em;
   display: flex;
   justify-content: center;
   align-items: center;
   padding-left: 5px;
   padding-right: 5px;
+  min-height: 3rem;
 }
 
 .small-alert {
@@ -944,4 +942,9 @@ li.nav-item.sub {
 #change-password {
   width: 400px;
   margin: 0 auto;
+}
+
+.message-text {
+  padding: 1rem;
+  height: 100%;
 }
