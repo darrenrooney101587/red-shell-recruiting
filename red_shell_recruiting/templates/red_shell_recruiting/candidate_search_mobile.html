@@ -42,20 +42,25 @@
                                     <div class="toggle-switch"></div>
                                     <span>Open to Relocation</span>
                                 </label>
-                                <label class="toggle ">
+                                <label class="toggle " style="margin-right: 1rem; margin-bottom: 1rem">
                                     <input type="checkbox" name="currently_working" {% if request.GET.currently_working %}checked{% endif %} class="toggle-checkbox">
                                     <div class="toggle-switch"></div>
                                     <span>Currently Working</span>
                                 </label>
+                                <label class="toggle">
+                                    <input  type="checkbox" name="previously_placed" {% if request.GET.previously_placed %}checked{% endif %} class="toggle-checkbox">
+                                    <div class="toggle-switch"></div>
+                                    <span>Previously Placed</span>
+                                </label>
                             </div>
                             <hr>
-                            <div style="height: 25px" class="custom-dropdown" id="title-search-dropdown-wrapper">
+                            <div style=" height: 25px; margin-bottom: 1rem;" class="custom-dropdown" id="title-search-dropdown-wrapper">
                                 <div class="flex-display space-between">
-                                    <div class="selected-option" id="title-search-dropdown">
+                                    <div class="selected-option" id="candidate-title-dropdown">
                                         {% with selected=request.GET.title_id|default:'' %}
-                                            {% for t in all_titles %}
-                                                {% if t.id|stringformat:"s" == selected %}
-                                                    {{ t.display_name }}
+                                            {% for title in all_titles %}
+                                                {% if title.id|stringformat:"s" == selected %}
+                                                    {{ title.display_name }}
                                                 {% endif %}
                                             {% endfor %}
                                             {% if not selected %}Select a Title{% endif %}
@@ -64,12 +69,34 @@
                                     <span class="chevron-down">{% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}</span>
                                     <span class="chevron-up" style="display: none;">{% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}</span>
                                 </div>
-                                <ul class="dropdown-list" id="title-search-list">
+                                <ul class="dropdown-list" id="candidate-title-list">
                                     {% for title in all_titles %}
                                         <li class="option" data-value="{{ title.id }}">{{ title.display_name }}</li>
                                     {% endfor %}
                                 </ul>
-                                <input type="hidden" name="title_id" id="title-search-hidden" value="{{ request.GET.title_id }}">
+                                <input type="hidden" name="title_id" id="candidate-title-hidden" value="{{ request.GET.title_id }}">
+                            </div>
+                            <div style=" height: 25px" class="custom-dropdown" id="ownership-search-dropdown-wrapper">
+                                <div class="flex-display space-between">
+                                    <div class="selected-option" id="candidate-ownership-dropdown">
+                                        {% with selected=request.GET.ownership_id|default:'' %}
+                                            {% for owner in all_ownerships %}
+                                                {% if owner.id|stringformat:"s" == selected %}
+                                                    {{ owner.display_name }}
+                                                {% endif %}
+                                            {% endfor %}
+                                            {% if not selected %}Select an Ownership{% endif %}
+                                        {% endwith %}
+                                    </div>
+                                    <span class="chevron-down">{% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}</span>
+                                    <span class="chevron-up" style="display: none;">{% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}</span>
+                                </div>
+                                <ul class="dropdown-list" id="candidate-ownership-list">
+                                    {% for owner in all_ownerships %}
+                                        <li class="option" data-value="{{ owner.id }}">{{ owner.display_name }}</li>
+                                    {% endfor %}
+                                </ul>
+                                <input type="hidden" name="ownership_id" id="candidate-ownership-hidden" value="{{ request.GET.ownership_id }}">
                             </div>
                         </div>
                     </div>
