@@ -1,0 +1,19 @@
+<div class="custom-dropdown client-placement-dropdown-wrapper" style="border-bottom: 1px solid var(--ui-support-element-color);">
+    <div class="flex-display space-between">
+        <div class="selected-option client-placement-dropdown">
+            {% if selected_placement %}{{ selected_placement.display_name }}{% else %}Select a Client{% endif %}
+        </div>
+        <span class="chevron-down">
+            {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}
+        </span>
+        <span class="chevron-up" style="display: none;">
+            {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}
+        </span>
+    </div>
+    <ul class="dropdown-list client-placement-list">
+        {% for p in all_placements %}
+            <li class="option {% if selected_placement and selected_placement.id == p.id %}selected{% endif %}" data-value="{{ p.id }}">{{ p.name }}</li>
+        {% endfor %}
+    </ul>
+    <input class="client-placement-hidden" type="hidden" name="{{ name }}" value="{{ selected_placement.id|default:'' }}">
+</div>

@@ -1,0 +1,38 @@
+<input required tabindex="6" name="candidate-phone-number" style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-phone-number" type="tel" placeholder="Phone Number" autocomplete="off">
+<input required tabindex="7" name="candidate-email" style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-email" type="email" placeholder="Email" autocomplete="off">
+<div tabindex="5">
+    {% include 'red_shell_recruiting/components/ownership_dropdown_component.html' %}
+</div>
+<div tabindex="4">
+    {% include 'red_shell_recruiting/components/title_dropdown_component.html' %}
+</div>
+<div class="align-baseline column flex-display flex-start toggle-container">
+    <label class="toggle flex-display vertical-align justify-center">
+        <input name="candidate-looking" id="candidate-looking" class="toggle-checkbox" type="checkbox">
+        <div class="toggle-switch"></div>
+        <span>Actively Looking</span>
+    </label>
+    <label class="toggle flex-display vertical-align justify-center">
+        <input name="candidate-relocation" id="candidate-relocation" class="toggle-checkbox" type="checkbox">
+        <div class="toggle-switch"></div>
+        <span>Open to relocation</span>
+    </label>
+    <label class="toggle flex-display vertical-align justify-center">
+        <input name="candidate-working" id="candidate-working" class="toggle-checkbox" type="checkbox">
+        <div class="toggle-switch"></div>
+        <span>Currently working</span>
+    </label>
+    <label class="toggle flex-display vertical-align justify-center">
+        <input name="client-placement" id="client-placement" class="toggle-checkbox" type="checkbox">
+        <div class="toggle-switch"></div>
+        <span>Previously Placed</span>
+    </label>
+    <br>
+    <div id="client-placement-toggle-wrapper" style="display: none;" class="flex-display column w-100">
+        {% include 'red_shell_recruiting/components/candidate_placement_dropdown_component.html' with all_placements=all_placements name='client-placement-id' %}
+        <div class="flex-display vertical-align justify-center">
+            <input name="client-placement-month" tabindex="8" style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" id="client-placement-month" type="number" class="text-input" placeholder="Month" autocomplete="off" min="1" max="12">
+            <input name="client-placement-year" tabindex="9" style="border-bottom: 1px solid var(--ui-support-element-color)" id="client-placement-year" type="number" class="text-input" placeholder="Year" autocomplete="off" min="1900" max="2100">
+        </div>
+    </div>
+</div>
