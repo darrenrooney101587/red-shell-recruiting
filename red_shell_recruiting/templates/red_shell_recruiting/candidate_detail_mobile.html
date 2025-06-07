@@ -34,6 +34,10 @@
                         <input type="text" value="{{ candidate.title.display_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
                     </div>
                     <div>
+                        <span style="color: var(--faded-gray-color)" class="small-title">Ownership</span>
+                        <input type="text" value="{{ candidate.ownership.display_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                    </div>
+                    <div>
                         <span style="color: var(--faded-gray-color)" class="small-title">Phone Number</span>
                         <input type="tel" value="{{ candidate.phone_number }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
                     </div>
@@ -42,8 +46,11 @@
                         <input type="email" value="{{ candidate.email }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
                     </div>
                     <div>
-                        <span style="color: var(--faded-gray-color)" class="small-title">Compensation</span>
-                        <input type="text" value="{{ candidate.compensation }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                        <span style="color: var(--faded-gray-color)" class="small-title">Compensation range</span>
+                        <div class="flex-display">
+                            <input type="text" value="{{ candidate.compensation_from }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" disabled>
+                            <input type="text" value="{{ candidate.compensation_to }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                        </div>
                     </div>
                     <div class="align-baseline column flex-display flex-start toggle-container" style="margin-top: 1rem; margin-bottom: 1rem">
                         <div class="flex-display vertical-align space-between" style="width: 150px; margin-bottom: 1rem">

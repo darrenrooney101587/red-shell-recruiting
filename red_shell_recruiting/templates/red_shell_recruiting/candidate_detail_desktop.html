@@ -33,6 +33,10 @@
                         <span style="color: var(--faded-gray-color)" class="small-title">Job Title</span>
                         <input type="text" value="{{ candidate.title.display_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
                     </div>
+                    <div>
+                        <span style="color: var(--faded-gray-color)" class="small-title">Ownership</span>
+                        <input type="text" value="{{ candidate.ownership.display_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                    </div>
                 </div>
                 <div style="width: 50%; position: relative">
                     <div>
@@ -44,8 +48,11 @@
                         <input type="email" value="{{ candidate.email }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
                     </div>
                     <div>
-                        <span style="color: var(--faded-gray-color)" class="small-title">Compensation</span>
-                        <input type="text" value="{{ candidate.compensation }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                        <span style="color: var(--faded-gray-color)" class="small-title">Compensation range</span>
+                        <div class="flex-display">
+                            <input type="text" value="{{ candidate.compensation_from }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" disabled>
+                            <input type="text" value="{{ candidate.compensation_to }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                        </div>
                     </div>
                     <div class="align-baseline column flex-display flex-start toggle-container" style="margin-top: 1rem;">
                         <div class="flex-display vertical-align space-between" style="width: 150px; margin-bottom: 1rem">
@@ -91,7 +98,6 @@
             <hr>
             <span style="color: var(--faded-gray-color)" class="small-title">Resumes</span>
             <ul>
-                #TODO address no resumes for text
                 {% for resume in candidate.resumes.all %}
                     {% if not resume.archived %}
                         <li style="margin-bottom: 0.5rem;">
@@ -175,11 +181,18 @@
                         {% include 'red_shell_recruiting/components/state_dropdown_component.html' %}
                         {% include 'red_shell_recruiting/components/city_dropdown_component.html' %}
                         {% include 'red_shell_recruiting/components/title_dropdown_component.html' with selected_title=candidate.title %}
+                        {% include 'red_shell_recruiting/components/ownership_dropdown_component.html' with selected_owner=candidate.ownership %}
                     </div>
                     <div style="width: 50%; position: relative">
                         <input type="tel" name="phone-number" class="text-input" placeholder="Phone Number" value="{{ candidate.phone_number }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
                         <input type="email" name="email" class="text-input" placeholder="Email" value="{{ candidate.email }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
-                        <input name="compensation" class="text-input" type="number" placeholder="Compensation" value="{{ candidate.compensation }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                        <div>
+                            <span style="color: var(--faded-gray-color)" class="small-title">Compensation range</span>
+                            <div class="flex-display">
+                                <input type="text" value="{{ candidate.compensation_from }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" disabled>
+                                <input type="text" value="{{ candidate.compensation_to }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                            </div>
+                        </div>
                         <div class="align-baseline column flex-display flex-start toggle-container" style="margin-top: 1rem; margin-bottom: 1rem;">
                             <label class="toggle flex-display vertical-align justify-center" style="margin-bottom: 1rem;">
                                 <input name="actively-looking" id="candidate-looking" class="toggle-checkbox" type="checkbox" {% if candidate.actively_looking %}checked{% endif %}>
