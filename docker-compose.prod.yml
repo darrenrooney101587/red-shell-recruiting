@@ -63,6 +63,7 @@ services:
     depends_on:
       - redis
       - web
+    profiles: ["production"]
     env_file:
       - .env.prod
     environment:
