@@ -9,26 +9,36 @@
 {% endblock %}
 {% block content %}
     <div>
-        <div class="flex-display justify-center" style="margin: 0 auto; width: 1150px;">
+        <div style="margin: 0 auto; width: 700px;">
             <form method="get" action="{% url 'candidate-search' %}" style="width: 100%;">
-                <div class="section flex-display column vertical-align">
-                    <div class="flex-display vertical-align space-between" style="width: 100%;">
-                        <div class="flex-display column flex-start" style="border-right: 1px solid rgba(0,0,0,.1);">
-                            <span style="margin-right: 1rem;">Total Candidates: {{ total_count_profile }}</span>
-                            <span style="margin-right: 1rem;">Total Resumes: {{ total_count_resume }}</span>
-                            <span>Selected Count: {{ selected_count }}</span>
+                <div class="section flex-display vertical-align space-between" style="width: 100%;">
+                    <div class="flex-display column space-between">
+                        <div class="flex-display vertical-align space-between" style="width: 100%;">
+                            <span style="margin-right: 1rem;">Total Candidates:</span>
+                            <span style="margin-right: 1rem;">{{ total_count_profile }}</span>
                         </div>
-                        <div>
-                            <div class="flex-display vertical-align space-between" style="width: 100%;">
-                                <input style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" type="text" class="text-input" name="q" value="{{ query }}" placeholder="Search candidates..." />
-                                <div class="flex-display space-between vertical-align">
-                                    <button class="button" type="submit">Search</button>
-                                    <div style="margin-left: 0.5rem;" class="flex-display vertical-align justify-center">
-                                        <a href="{% url 'candidate-search' %}" class="button">Clear</a>
-                                    </div>
+                        <div class="flex-display vertical-align space-between" style="width: 100%;">
+                            <span style="margin-right: 1rem;">Total Resumes:</span>
+                            <span style="margin-right: 1rem;">{{ total_count_resume }}</span>
+                        </div>
+                        <div class="flex-display vertical-align space-between" style="width: 100%;">
+                            <span style="margin-right: 1rem;">Total Count:</span>
+                            <span style="margin-right: 1rem;">{{ selected_count }}</span>
+                        </div>
+                    </div>
+                    <div style="height: 125px; border-right: 1px solid rgba(0,0,0,.1);"></div>
+                    <div>
+                        <div class="flex-display vertical-align space-between" style="width: 100%;">
+                            <input style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" type="text" class="text-input" name="q" value="{{ query }}" placeholder="Search candidates..." />
+                            <div class="flex-display space-between vertical-align">
+                                <button class="button" type="submit">Search</button>
+                                <div style="margin-left: 0.5rem;" class="flex-display vertical-align justify-center">
+                                    <a href="{% url 'candidate-search' %}" class="button">Clear</a>
                                 </div>
                             </div>
-                            <div class="flex-display vertical-align" style="margin-top: 1rem;">
+                        </div>
+                        <div class="flex-display vertical-align" style="margin-top: 1rem;">
+                            <div class="flex-display column align-baseline">
                                 <label class="toggle flex-display vertical-align justify-center" style="margin-right: 1rem;">
                                     <input type="checkbox" name="actively_looking" {% if request.GET.actively_looking %}checked{% endif %} class="toggle-checkbox">
                                     <div class="toggle-switch"></div>
@@ -49,14 +59,16 @@
                                     <div class="toggle-switch"></div>
                                     <span>Previously Placed</span>
                                 </label>
-                                <div style="height: 25px; border-right: 1px solid rgba(0,0,0,.1); margin-right: 1rem;"></div>
-                                <div style="width: 250px; height: 25px" class="custom-dropdown" id="title-search-dropdown-wrapper">
+                            </div>
+                            <div style="height: 75px; border-right: 1px solid rgba(0,0,0,.1); margin-right: 1rem;"></div>
+                            <div class="flex-display column align-baseline">
+                                <div style="width: 250px; height: 25px; margin-bottom: 1rem;" class="custom-dropdown" id="title-search-dropdown-wrapper">
                                     <div class="flex-display space-between">
-                                        <div class="selected-option" id="title-search-dropdown">
+                                        <div class="selected-option" id="candidate-title-dropdown">
                                             {% with selected=request.GET.title_id|default:'' %}
-                                                {% for t in all_titles %}
-                                                    {% if t.id|stringformat:"s" == selected %}
-                                                        {{ t.display_name }}
+                                                {% for title in all_titles %}
+                                                    {% if title.id|stringformat:"s" == selected %}
+                                                        {{ title.display_name }}
                                                     {% endif %}
                                                 {% endfor %}
                                                 {% if not selected %}Select a Title{% endif %}
@@ -65,12 +77,34 @@
                                         <span class="chevron-down">{% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}</span>
                                         <span class="chevron-up" style="display: none;">{% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}</span>
                                     </div>
-                                    <ul class="dropdown-list" id="title-search-list">
+                                    <ul class="dropdown-list" id="candidate-title-list">
                                         {% for title in all_titles %}
                                             <li class="option" data-value="{{ title.id }}">{{ title.display_name }}</li>
                                         {% endfor %}
                                     </ul>
-                                    <input type="hidden" name="title_id" id="title-search-hidden" value="{{ request.GET.title_id }}">
+                                    <input type="hidden" name="title_id" id="candidate-title-hidden" value="{{ request.GET.title_id }}">
+                                </div>
+                                <div style="width: 250px; height: 25px" class="custom-dropdown" id="ownership-search-dropdown-wrapper">
+                                    <div class="flex-display space-between">
+                                        <div class="selected-option" id="candidate-ownership-dropdown">
+                                            {% with selected=request.GET.ownership_id|default:'' %}
+                                                {% for owner in all_ownerships %}
+                                                    {% if owner.id|stringformat:"s" == selected %}
+                                                        {{ owner.display_name }}
+                                                    {% endif %}
+                                                {% endfor %}
+                                                {% if not selected %}Select an Ownership{% endif %}
+                                            {% endwith %}
+                                        </div>
+                                        <span class="chevron-down">{% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}</span>
+                                        <span class="chevron-up" style="display: none;">{% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}</span>
+                                    </div>
+                                    <ul class="dropdown-list" id="candidate-ownership-list">
+                                        {% for owner in all_ownerships %}
+                                            <li class="option" data-value="{{ owner.id }}">{{ owner.display_name }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                    <input type="hidden" name="ownership_id" id="candidate-ownership-hidden" value="{{ request.GET.ownership_id }}">
                                 </div>
                             </div>
                         </div>
@@ -135,20 +169,6 @@
     </div>
     <script>
         $(document).ready(function() {
-
-            // used for the search page
-            $('#title-search-list').on('click', '.option', function (event) {
-                event.stopPropagation();
-                const titleId = $(this).data('value');
-                const titleText = $(this).text();
-
-                $('#title-search-dropdown').text(titleText);
-                $('#title-search-hidden').val(titleId);
-
-                $(this).closest('.dropdown-list').hide();
-                $(this).closest('.custom-dropdown').find('.chevron-down').show();
-                $(this).closest('.custom-dropdown').find('.chevron-up').hide();
-            });
 
             $('.candidate-card').on('click', function() {
                 var candidateId = $(this).data('candidate-id');

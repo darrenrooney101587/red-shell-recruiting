@@ -171,10 +171,9 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         request = self.request
-        query = request.GET.get("q", "").strip()
 
-        title_id = request.GET.get("title_id")
         all_titles = CandidateProfileTitle.objects.all().order_by("display_name")
+        all_ownerships = CandidateOwnerShip.objects.all().order_by("display_name")
 
         toggle_filters = {
             "actively_looking": request.GET.get("actively_looking"),
@@ -185,12 +184,16 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
         toggles_active = any(toggle_filters.values())
 
         title_id = request.GET.get("title_id")
+        ownership_id = request.GET.get("ownership_id")
         query = request.GET.get("q", "").strip()
 
         candidates = CandidateProfile.objects.all()
 
         if title_id:
             candidates = candidates.filter(title_id=title_id)
+
+        if ownership_id:
+            candidates = candidates.filter(ownership_id=ownership_id)
 
         if query:
             candidates = (
@@ -236,7 +239,7 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
                 .distinct()
             )
 
-        elif not (toggles_active or title_id):
+        elif not (toggles_active or title_id or ownership_id):
             candidates = CandidateProfile.objects.none()
 
         if toggle_filters["actively_looking"]:
@@ -257,6 +260,8 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
         context["total_count_resume"] = CandidateResume.objects.count()
         context["all_titles"] = all_titles
         context["selected_title_id"] = title_id
+        context["all_ownerships"] = all_ownerships
+        context["selected_ownership_id"] = ownership_id
 
         return context
 

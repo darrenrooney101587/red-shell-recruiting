@@ -48,7 +48,7 @@ class CandidateOwnerShip(models.Model):
 
     class Meta:
         managed = True
-        db_table = "candidate_owner_ship"
+        db_table = "candidate_ownership"
 
 
 class CandidateProfile(models.Model):
