@@ -30,12 +30,11 @@
                         <input type="text" value="{{ candidate.city }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
                     </div>
                     <div>
-                        <span style="color: var(--faded-gray-color)" class="small-title">Job Title</span>
-                        <input type="text" value="{{ candidate.title.display_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
-                    </div>
-                    <div>
-                        <span style="color: var(--faded-gray-color)" class="small-title">Ownership</span>
-                        <input type="text" value="{{ candidate.ownership.display_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                        <span style="color: var(--faded-gray-color)" class="small-title">Compensation range</span>
+                        <div class="flex-display">
+                            <input type="text" value="{{ candidate.compensation_from }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" disabled>
+                            <input type="text" value="{{ candidate.compensation_to }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                        </div>
                     </div>
                     {% include 'red_shell_recruiting/components/candidate_linked_in_url.html' %}
                 </div>
@@ -49,11 +48,12 @@
                         <input type="email" value="{{ candidate.email }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
                     </div>
                     <div>
-                        <span style="color: var(--faded-gray-color)" class="small-title">Compensation range</span>
-                        <div class="flex-display">
-                            <input type="text" value="{{ candidate.compensation_from }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" disabled>
-                            <input type="text" value="{{ candidate.compensation_to }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
-                        </div>
+                        <span style="color: var(--faded-gray-color)" class="small-title">Ownership</span>
+                        <input type="text" value="{{ candidate.ownership.display_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                    </div>
+                    <div>
+                        <span style="color: var(--faded-gray-color)" class="small-title">Job Title</span>
+                        <input type="text" value="{{ candidate.title.display_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
                     </div>
                     <div class="align-baseline column flex-display flex-start toggle-container" style="margin-top: 1rem;">
                         <div class="flex-display vertical-align space-between" style="width: 150px; margin-bottom: 1rem">
@@ -69,21 +69,25 @@
                             {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.currently_working %}
                         </div>
                     </div>
-                    <hr>
-                    <div class="flex-display column" style="margin-bottom: 1rem;">
-                        <h4 class="small-title" style="color: var(--theme-base-color); opacity: 0.7; font-size: 12px">Placement History</h4>
-                        {% if candidate.placement_record.all %}
-                            <ul style="margin-top: 0.5rem;">
-                                {% for record in candidate.placement_record.all %}
-                                    <li style="margin-bottom: 0.25rem; font-size: 14px;">
-                                        {{ record.placement.display_name }} — {{ record.month }}/{{ record.year }}
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        {% else %}
-                            <p style="opacity: 0.6;">No placements recorded.</p>
-                        {% endif %}
-                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="flex-display column">
+                <div class="flex-display vertical-align" style="margin-bottom: 1rem;">
+                    <h3>Candidate Placement</h3>
+                </div>
+                <div class="flex-display column" style="margin-bottom: 1rem;">
+                    {% if candidate.placement_record.all %}
+                        <ul style="margin-top: 0.5rem;">
+                            {% for record in candidate.placement_record.all %}
+                                <li style="margin-bottom: 0.25rem; font-size: 14px;">
+                                    {{ record.placement.display_name }} — {{ record.month }}/{{ record.year }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <span class="small-title" style="opacity: 0.6;">No placements recorded.</span>
+                    {% endif %}
                 </div>
             </div>
             <hr>
@@ -100,25 +104,23 @@
             <hr>
             <span style="color: var(--faded-gray-color)" class="small-title">Resumes</span>
             <ul>
-                {% for resume in candidate.resumes.all %}
-                    {% if not resume.archived %}
-                        <li style="margin-bottom: 0.5rem;">
-                            <a href="{{ resume.get_signed_url }}" download>{{ resume.file.name|filename }}</a>
-                            <span style="font-size: 9px; color: var(--accent-text-color)">
-                                (Uploaded {{ resume.created_at|date:"Y-m-d H:i" }})
-                            </span>
-                            <form method="post" action="{% url 'archive-resume' resume.id %}" style="display: inline;">
-                                {% csrf_token %}
-                                <button class="button" type="submit" style="margin-left: 0.5rem; padding: 0;">
-                                    <div style="position: relative; top: 2px">
-                                        {% include 'red_shell_recruiting/components/svg_components.html' with type='close' %}
-                                    </div>
-                                </button>
-                            </form>
-                        </li>
-                    {% endif %}
+                {% for resume in resumes %}
+                    <li style="margin-bottom: 0.5rem;">
+                        <a href="{{ resume.get_signed_url }}" download>{{ resume.file.name|filename }}</a>
+                        <span style="font-size: 9px; color: var(--accent-text-color)">
+                            (Uploaded {{ resume.created_at|date:"Y-m-d H:i" }})
+                        </span>
+                        <form method="post" action="{% url 'archive-resume' resume.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button class="button" type="submit" style="margin-left: 0.5rem; padding: 0;">
+                                <div style="position: relative; top: 2px">
+                                    {% include 'red_shell_recruiting/components/svg_components.html' with type='close' %}
+                                </div>
+                            </button>
+                        </form>
+                    </li>
                 {% empty %}
-                    <li>No resumes uploaded yet.</li>
+                    <li class="small-title" style="opacity: 0.6">No resumes uploaded yet.</li>
                 {% endfor %}
             </ul>
             <div class="flex-display vertical-align" style="margin-right:3rem; margin-top: 1rem;">
@@ -134,27 +136,59 @@
                 </button>
             </div>
             <hr>
+            <span style="color: var(--faded-gray-color)" class="small-title">Culinary Portfolios</span>
+            <ul>
+                {% for portfolio in portfolios %}
+                    <li style="margin-bottom: 0.5rem;">
+                        <a href="{{ portfolio.get_signed_url }}" download>{{ portfolio.file.name|filename }}</a>
+                        <span style="font-size: 9px; color: var(--accent-text-color)">
+                            (Uploaded {{ portfolio.created_at|date:"Y-m-d H:i" }})
+                        </span>
+                        <form method="post" action="{% url 'archive-culinary-portfolio' portfolio.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button class="button" type="submit" style="margin-left: 0.5rem; padding: 0;">
+                                <div style="position: relative; top: 2px">
+                                    {% include 'red_shell_recruiting/components/svg_components.html' with type='close' %}
+                                </div>
+                            </button>
+                        </form>
+                    </li>
+                {% empty %}
+                    <li  class="small-title" style="opacity: 0.6">No portfolios uploaded yet.</li>
+                {% endfor %}
+            </ul>
+            <div class="flex-display vertical-align" style="margin-right:3rem; margin-top: 1rem;">
+                <input style="display: none;" type="file" id="candidate-culinary-portfolio" name="candidate_culinary_portfolio" accept=".pdf, .doc, .docx">
+                <button id="trigger-portfolio-upload" class="button flex-display vertical-align space-between">
+                    {% include 'red_shell_recruiting/components/svg_components.html' with type='quick-add' %}
+                    <span style="margin-left: 3px;">Add Portfolio</span>
+                </button>
+                <div style="margin-left: 1rem;" id="portfolio-file-name"></div>
+                <button id="add-portfolio-button" class="button flex-display vertical-align space-between" style="display:none; margin-left: 1rem;">
+                    {% include 'red_shell_recruiting/components/svg_components.html' with type='download' %}
+                    <span style="margin-left: 3px;">Upload</span>
+                </button>
+            </div>
+            <hr>
             <span style="color: var(--faded-gray-color)" class="small-title">Documents</span>
             <ul>
-                {% for document in candidate.documents.all %}
-                    {% if not document.archived %}
-                        <li style="margin-bottom: 0.5rem;">
-                            <a href="{{ resume.get_signed_url }}" download>{{ document.file.name|filename }}</a>
-                            <span style="font-size: 9px; color: var(--accent-text-color)">
-                                (Uploaded {{ document.created_at|date:"Y-m-d H:i" }})
-                            </span>
-                            <form method="post" action="{% url 'archive-document' document.id %}" style="display: inline;">
-                                {% csrf_token %}
-                                <button class="button" type="submit" style="margin-left: 0.5rem; padding: 0;">
-                                    <div style="position: relative; top: 2px">
-                                        {% include 'red_shell_recruiting/components/svg_components.html' with type='close' %}
-                                    </div>
-                                </button>
-                            </form>
-                        </li>
-                    {% endif %}
+                {% for document in documents %}
+                    <li style="margin-bottom: 0.5rem;">
+                        <a href="{{ document.get_signed_url }}" download>{{ document.file.name|filename }}</a>
+                        <span style="font-size: 9px; color: var(--accent-text-color)">
+                            (Uploaded {{ document.created_at|date:"Y-m-d H:i" }})
+                        </span>
+                        <form method="post" action="{% url 'archive-document' document.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button class="button" type="submit" style="margin-left: 0.5rem; padding: 0;">
+                                <div style="position: relative; top: 2px">
+                                    {% include 'red_shell_recruiting/components/svg_components.html' with type='close' %}
+                                </div>
+                            </button>
+                        </form>
+                    </li>
                 {% empty %}
-                    <li style="opacity: 0.6">No document uploaded yet.</li>
+                    <li  class="small-title" style="opacity: 0.6">No document uploaded yet.</li>
                 {% endfor %}
             </ul>
             <div class="flex-display vertical-align" style="margin-top: 1rem;">
@@ -180,11 +214,6 @@
                         {% include 'red_shell_recruiting/components/state_dropdown_component.html' %}
                         {% include 'red_shell_recruiting/components/city_dropdown_component.html' %}
                         {% include 'red_shell_recruiting/components/title_dropdown_component.html' with selected_title=candidate.title %}
-                        {% if user|in_groups:"Site Admin" or user.is_superuser or user|has_perm:required_permission %}
-                            {% include 'red_shell_recruiting/components/ownership_dropdown_component.html' with selected_owner=candidate.ownership %}
-                        {% else %}
-                            {% include 'red_shell_recruiting/components/ownership_dropdown_component.html' with selected_owner=candidate.ownership disabled=True %}
-                        {% endif %}
                         <input type="text" name="candidate-linkedin-url" class="text-input" placeholder="Linkedin URL" value="{{ candidate.linkedin_url|default_if_none:"" }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
                     </div>
                     <div style="width: 50%; position: relative">
@@ -197,6 +226,11 @@
                                 <input type="text" name="compensation-to" value="{{ candidate.compensation_to }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)">
                             </div>
                         </div>
+                        {% if user|in_groups:"Site Admin" or user.is_superuser or user|has_perm:required_permission %}
+                            {% include 'red_shell_recruiting/components/ownership_dropdown_component.html' with selected_owner=candidate.ownership %}
+                        {% else %}
+                            {% include 'red_shell_recruiting/components/ownership_dropdown_component.html' with selected_owner=candidate.ownership disabled=True %}
+                        {% endif %}
                         <div class="align-baseline column flex-display flex-start toggle-container" style="margin-top: 1rem; margin-bottom: 1rem;">
                             <label class="toggle flex-display vertical-align justify-center" style="margin-bottom: 1rem;">
                                 <input name="actively-looking" id="candidate-looking" class="toggle-checkbox" type="checkbox" {% if candidate.actively_looking %}checked{% endif %}>
@@ -213,21 +247,30 @@
                                 <div class="toggle-switch"></div>
                                 <span>Currently Working</span>
                             </label>
-                            <label class="toggle flex-display vertical-align justify-center" style="margin-bottom: 1rem;">
-                                <input name="client-placement" id="edit-client-placement-toggle" class="toggle-checkbox" type="checkbox"
-                                       {% if candidate.placement_record.exists %}checked{% endif %}>
-                                <div class="toggle-switch"></div>
-                                <span>Previously Placed</span>
-                            </label>
-                            <input type="hidden" name="remove_all_placements" id="remove-all-placements-flag" value="false">
-                            <div id="remove-placement-warning" class="placement-warning" style="display: none; margin-top: 0.5rem; color: var(--warning-color); font-size: 0.875rem;">
-                                All placement records will be removed when saved.
-                            </div>
                         </div>
                     </div>
                 </div>
+                <hr>
                 <div class="client-placement-section">
-                    <div id="placement-records-wrapper-edit" class="flex-display column" style="{% if not candidate.placement_record.exists %}display: none;{% endif %}">
+                    <div class="flex-display vertical-align" style="margin-bottom: 1rem;">
+                        <div style="margin-right: 1rem;">
+                            <h3>Candidate Placement</h3>
+                        </div>
+                        {% if candidate.placement_record.exists %}
+                            <div class="flex-display vertical-align">
+                                <label class="toggle flex-display vertical-align justify-center" style="margin-right: 1rem;">
+                                    <input name="client-placement" id="edit-client-placement-toggle" class="toggle-checkbox" type="checkbox">
+                                    <div class="toggle-switch"></div>
+                                    <span>Remove All Previously Placed</span>
+                                </label>
+                                <input type="hidden" name="remove_all_placements" id="remove-all-placements-flag" value="false">
+                                <div id="remove-placement-warning" class="placement-warning" style="border-radius: var(--std-border-radius); padding-left: 0.25rem; padding-right: 0.25rem; background-color: var(--full-warning-color); display: none; color: var(--full-light-orange-color);">
+                                    <span>All placement records will be removed when saved.</span>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div id="placement-records-wrapper-edit" class="flex-display column">
                         {% for record in candidate.placement_record.all %}
                             <div class="placement-line-item flex-display align-center"
                                  data-index="{{ forloop.counter }}"
@@ -271,6 +314,9 @@
     <script>
         const clientPlacementListUrl = "{% url 'client-placement-list' %}";
         const removePlacementButton = $("#remove-placement-button-template").html();
+        const uploadCulinaryPortfolioUrl = "{% url 'upload-culinary-portfolio' candidate.id %}";
+        const uploadResumeUrl = "{% url "upload-resume" candidate.id %}";
+        const uploadDocumentUrl = '{% url "upload-document" candidate.id %}';
     </script>
     <script src="{% static 'js/candidate_edit_save.js' %}" crossorigin="anonymous"></script>
     <script>
@@ -280,6 +326,7 @@
             CandidateEditSaveActions();
             AddDocumentAction();
             AddResumeAction();
+            AddPortfolioAction();
 
             // TOGGLE TO EDIT MODE
             $('#edit-button').on('click', function () {

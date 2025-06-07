@@ -8,6 +8,8 @@ from red_shell_recruiting.views import (
     UploadDocument,
     ArchiveDocument,
     client_placement_list,
+    UploadCulinaryPortfolio,
+    ArchiveCulinaryPortfolio,
 )
 
 urlpatterns = [
@@ -29,9 +31,19 @@ urlpatterns = [
         name="archive-document",
     ),
     path(
+        "candidate/culinary-portfolio/<int:portfolio_id>/archive/",
+        ArchiveCulinaryPortfolio.as_view(),
+        name="archive-culinary-portfolio",
+    ),
+    path(
         "candidate/<int:candidate_id>/upload-resume/",
         UploadResume.as_view(),
         name="upload-resume",
+    ),
+    path(
+        "candidate/<int:candidate_id>/upload-culinary-portfolio/",
+        UploadCulinaryPortfolio.as_view(),
+        name="upload-culinary-portfolio",
     ),
     path(
         "candidate/<int:candidate_id>/upload-document/",

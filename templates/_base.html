@@ -19,6 +19,9 @@
     </head>
     {% block body %}
         <body class="main-body">
+            <form id="csrf-token-form" style="display: none;">
+                {% csrf_token %}
+            </form>
             {% if not request.is_mobile %}
                 <header class="page-header bg-light d-flex align-items-center justify-content-between px-3"
                         style="height: 60px; border-bottom: 1px solid #dee2e6; box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .04);">
@@ -221,11 +224,23 @@
             $('.messages').append(messageHtml);
         }
 
+        function getCSRFToken() {
+            return $('#csrf-token-form input[name="csrfmiddlewaretoken"]').val();
+        }
+
         $(document).ready(function () {
 
             populateClientPlacements();
             populateCandidateTitles();
             populateCandidateOwners();
+
+            $.ajaxSetup({
+                beforeSend: function(xhr, settings) {
+                    if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", getCSRFToken());
+                    }
+                }
+            });
 
             $('.candidate-card').on('click', function() {
                 var candidateId = $(this).data('candidate-id');

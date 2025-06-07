@@ -28,6 +28,7 @@ from red_shell_recruiting.models import (
     CandidateClientPlacementHistory,
     CandidateProfileTitle,
     CandidateOwnerShip,
+    CandidateCulinaryPortfolio,
 )
 
 
@@ -111,7 +112,7 @@ class CandidateInput(LoginRequiredMixin, View):
 
         ownership_id = request.POST.get("candidate-ownership-id")
         ownership_obj = (
-            CandidateOwnerShip.objects.filter(id=title_id).first()
+            CandidateOwnerShip.objects.filter(id=ownership_id).first()
             if ownership_id
             else None
         )
@@ -293,6 +294,10 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
         candidate_id = self.kwargs.get("candidate_id")
         candidate = get_object_or_404(CandidateProfile, id=candidate_id)
         context["candidate"] = candidate
+        context["resumes"] = candidate.resumes.filter(archived=False)
+        context["portfolios"] = candidate.culinary_portfolios.filter(archived=False)
+        context["documents"] = candidate.documents.filter(archived=False)
+        context["has_placement_records"] = candidate.placement_record.exists()
         return context
 
     def post(self, request, *args, **kwargs):
@@ -334,6 +339,14 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
                 candidate.ownership = owner_obj
 
         candidate.save()
+
+        # ----- Portfolio upload (if applicable) -----
+        culinary_file = request.FILES.get("candidate_culinary_portfolio")
+
+        if culinary_file:
+            portfolio = CandidateCulinaryPortfolio.objects.create(
+                candidate=candidate, file=culinary_file
+            )
 
         # ----- Resume upload (if applicable) -----
         uploaded_file = request.FILES.get("resume-file")
@@ -498,10 +511,70 @@ class ArchiveDocument(LoginRequiredMixin, View):
         return redirect("candidate-detail", candidate_id=document.candidate.id)
 
 
+class ArchiveCulinaryPortfolio(LoginRequiredMixin, View):
+    def post(self, request, portfolio_id):
+        portfolio = get_object_or_404(CandidateCulinaryPortfolio, id=portfolio_id)
+
+        s3 = boto3.client(
+            "s3",
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            region_name=settings.AWS_S3_REGION_NAME,
+        )
+        bucket = settings.AWS_STORAGE_BUCKET_NAME
+        original_key = portfolio.file.name
+        archive_key = original_key.replace("portfolios/", "portfolios/archive/")
+
+        try:
+            # Copy to archive location
+            s3.copy_object(
+                Bucket=bucket,
+                CopySource={"Bucket": bucket, "Key": original_key},
+                Key=archive_key,
+            )
+            # Delete original
+            s3.delete_object(Bucket=bucket, Key=original_key)
+        except ClientError as e:
+            if e.response["Error"]["Code"] == "NoSuchKey":
+                return render(
+                    request,
+                    "500.html",
+                    {
+                        "message": f"The portfolio could not be found in S3 at: {original_key}"
+                    },
+                    status=500,
+                )
+            else:
+                return render(
+                    request,
+                    "500.html",
+                    {
+                        "message": "An unexpected error occurred while archiving the portfolio."
+                    },
+                    status=500,
+                )
+        except Exception:
+            return render(
+                request,
+                "500.html",
+                {
+                    "message": "An unexpected error occurred while archiving the portfolio."
+                },
+                status=500,
+            )
+
+        # Update DB
+        portfolio.archived = True
+        portfolio.file.name = archive_key  # update file path
+        portfolio.save(update_fields=["archived", "file"])
+
+        return redirect("candidate-detail", candidate_id=portfolio.candidate.id)
+
+
 class UploadResume(LoginRequiredMixin, View):
     def post(self, request, candidate_id):
         candidate = get_object_or_404(CandidateProfile, id=candidate_id)
-        uploaded_file = request.FILES.get("resume")
+        uploaded_file = request.FILES.get("candidate-resume")
 
         if uploaded_file:
             resume = CandidateResume.objects.create(
@@ -518,7 +591,7 @@ class UploadResume(LoginRequiredMixin, View):
 class UploadDocument(LoginRequiredMixin, View):
     def post(self, request, candidate_id):
         candidate = get_object_or_404(CandidateProfile, id=candidate_id)
-        uploaded_file = request.FILES.get("candidate_document")
+        uploaded_file = request.FILES.get("candidate-document")
 
         if uploaded_file:
             doc = CandidateDocument.objects.create(
@@ -526,6 +599,22 @@ class UploadDocument(LoginRequiredMixin, View):
             )
             # TODO may want to remove vectoring for documents
             update_document_search_vector.delay(doc.id)
+            return JsonResponse({"success": True})
+
+        return JsonResponse({"success": False, "error": "No file uploaded"}, status=400)
+
+
+class UploadCulinaryPortfolio(LoginRequiredMixin, View):
+    def post(self, request, candidate_id):
+        candidate = get_object_or_404(CandidateProfile, id=candidate_id)
+        uploaded_file = request.FILES.get("candidate-portfolio")
+
+        if uploaded_file:
+            portfolio = CandidateCulinaryPortfolio.objects.create(
+                candidate=candidate, file=uploaded_file
+            )
+            # Optional background task
+            # update_portfolio_search_vector.delay(portfolio.id)
             return JsonResponse({"success": True})
 
         return JsonResponse({"success": False, "error": "No file uploaded"}, status=400)

@@ -24,11 +24,11 @@ function AddResumeAction() {
         }
 
         const formData = new FormData();
-        formData.append('resume', fileInput.files[0]);
-        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+        formData.append('candidate-resume', fileInput.files[0]);
+        formData.append('csrfmiddlewaretoken', getCSRFToken());
 
         $.ajax({
-            url: '{% url "upload-resume" candidate.id %}',
+            url: uploadResumeUrl,
             method: 'POST',
             data: formData,
             processData: false,
@@ -42,6 +42,52 @@ function AddResumeAction() {
         });
     });
 }
+
+function AddPortfolioAction() {
+
+    // PORTFOLIO UPLOAD
+    $('#trigger-portfolio-upload').on('click', function () {
+        $('#candidate-culinary-portfolio').click();
+    });
+
+    $('#candidate-culinary-portfolio').on('change', function () {
+        const file = this.files[0];
+        if (file) {
+            $('#portfolio-file-name').text(file.name);
+            $('#add-portfolio-button').show();
+        } else {
+            $('#portfolio-file-name').text('');
+            $('#add-portfolio-button').hide();
+        }
+    });
+
+    $('#add-portfolio-button').on('click', function () {
+        const fileInput = $('#candidate-culinary-portfolio')[0];
+        if (fileInput.files.length === 0) {
+            alert('Please select a portfolio file first.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('candidate-portfolio', fileInput.files[0]);
+        formData.append('csrfmiddlewaretoken', getCSRFToken());
+
+        $.ajax({
+            url: uploadCulinaryPortfolioUrl,
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function () {
+                location.reload();
+            },
+            error: function () {
+                alert('Failed to upload culinary portfolio.');
+            }
+        });
+    });
+}
+
 
 function AddDocumentAction() {
 
@@ -69,11 +115,11 @@ function AddDocumentAction() {
         }
 
         const formData = new FormData();
-        formData.append('candidate_document', fileInput.files[0]);
-        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+        formData.append('candidate-document', fileInput.files[0]);
+        formData.append('csrfmiddlewaretoken', getCSRFToken());
 
         $.ajax({
-            url: '{% url "upload-document" candidate.id %}',
+            url: uploadDocumentUrl,
             method: 'POST',
             data: formData,
             processData: false,
@@ -115,15 +161,20 @@ function PlacementEditSaveActions(mobile = false) {
         const $wrapper = $('#placement-records-wrapper-edit');
 
         if (isChecked) {
-            $wrapper.slideDown(200);
-            $wrapper.find('.placement-line-item').show();
-            $('#remove-all-placements-flag').val('false');
-            $('#remove-placement-warning').hide();
-        } else {
+            // Hide and mark for deletion
             $wrapper.slideUp(200);
-            $wrapper.find('.placement-line-item').hide();
+            $wrapper.find('.placement-line-item').each(function () {
+                $(this).find('.delete-marker').val('true');
+            });
             $('#remove-all-placements-flag').val('true');
             $('#remove-placement-warning').fadeIn(200);
+        } else {
+            // Show existing records again (they were not removed yet)
+            $wrapper.slideDown(200);
+            $wrapper.find('.placement-line-item').show();
+            $wrapper.find('.delete-marker').val('false');
+            $('#remove-all-placements-flag').val('false');
+            $('#remove-placement-warning').hide();
         }
     });
 

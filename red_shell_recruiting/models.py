@@ -21,6 +21,12 @@ def document_upload_path(instance, filename):
     return f"documents/{instance.candidate.id}/{base}_{timestamp}{ext}"
 
 
+def portfolio_upload_path(instance, filename):
+    base, ext = os.path.splitext(filename)
+    timestamp = now().strftime("%Y_%m_%d_%H%M%S")
+    return f"portfolios/{instance.candidate.id}/{base}_{timestamp}{ext}"
+
+
 class CandidateProfileTitle(models.Model):
     display_name = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -266,3 +272,44 @@ class SearchVectorProcessingLog(models.Model):
 
     def __str__(self):
         return f"{self.resume} - {self.document_type} - {self.status}"
+
+
+class CandidateCulinaryPortfolio(models.Model):
+    candidate = models.ForeignKey(
+        CandidateProfile, on_delete=models.CASCADE, related_name="culinary_portfolios"
+    )
+    file = models.FileField(upload_to=portfolio_upload_path)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    extracted_text = models.TextField(null=True, blank=True)
+    search_document = SearchVectorField(null=True)
+    archived = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Culinary Portfolio for {self.candidate.first_name} {self.candidate.last_name}"
+
+    def get_signed_url(self, expiration=3600):
+        s3_client = boto3.client(
+            "s3",
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            region_name=settings.AWS_S3_REGION_NAME,
+        )
+
+        bucket_name = settings.AWS_STORAGE_BUCKET_NAME
+        object_key = self.file.name
+
+        return s3_client.generate_presigned_url(
+            "get_object",
+            Params={"Bucket": bucket_name, "Key": object_key},
+            ExpiresIn=expiration,
+        )
+
+    class Meta:
+        managed = True
+        db_table = "candidate_culinary_portfolio"
+        indexes = [
+            GinIndex(fields=["search_document"]),
+        ]
+        verbose_name_plural = "Candidate Culinary Portfolios"
+        verbose_name = "Candidate Culinary Portfolio"

@@ -271,6 +271,8 @@
     <script>
         const clientPlacementListUrl = "{% url 'client-placement-list' %}";
         const removePlacementButton = $("#remove-placement-button-template").html();
+        const uploadCulinaryPortfolioUrl = "{% url 'upload-culinary-portfolio' candidate.id %}";
+
     </script>
     <script src="{% static 'js/candidate_edit_save.js' %}" crossorigin="anonymous"></script>
     <script>
@@ -280,6 +282,7 @@
             CandidateEditSaveActions();
             AddDocumentAction();
             AddResumeAction();
+            AddPortfolioAction();
 
             // TOGGLE TO EDIT MODE
             $('#edit-button').on('click', function () {
