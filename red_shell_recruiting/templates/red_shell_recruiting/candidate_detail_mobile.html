@@ -52,7 +52,9 @@
                             <input type="text" value="{{ candidate.compensation_to }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
                         </div>
                     </div>
-                    <div class="align-baseline column flex-display flex-start toggle-container" style="margin-top: 1rem; margin-bottom: 1rem">
+                    {% include 'red_shell_recruiting/components/candidate_linked_in_url.html' %}
+                    <hr>
+                    <div class="align-baseline column flex-display align-center flex-start toggle-container" style="margin-top: 2rem; ">
                         <div class="flex-display vertical-align space-between" style="width: 150px; margin-bottom: 1rem">
                             <h4 style="margin-right: 0.5rem; color: var(--theme-base-color); opacity: 0.7;">Actively Looking</h4>
                             {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.actively_looking %}
@@ -66,7 +68,6 @@
                             {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.currently_working %}
                         </div>
                     </div>
-                    {% include 'red_shell_recruiting/components/candidate_linked_in_url.html' %}
                     <hr>
                     <div class="flex-display column" style="margin-bottom: 1rem;">
                         <h4 class="small-title" style="color: var(--theme-base-color); opacity: 0.7; font-size: 12px">Placement History</h4>
@@ -124,6 +125,40 @@
                 </button>
                 <div style="margin-left: 1rem;" id="file-name"></div>
                 <button id="add-resume-button" class="button flex-display vertical-align space-between" style="display:none; margin-left: 1rem;">
+                    {% include 'red_shell_recruiting/components/svg_components.html' with type='download' %}
+                    <span style="margin-left: 3px;">Upload</span>
+                </button>
+            </div>
+            <hr>
+            <span style="color: var(--faded-gray-color)" class="small-title">Culinary Portfolios</span>
+            <ul>
+                {% for portfolio in portfolios %}
+                    <li style="margin-bottom: 0.5rem;">
+                        <a href="{{ portfolio.get_signed_url }}" download>{{ portfolio.file.name|filename }}</a>
+                        <span style="font-size: 9px; color: var(--accent-text-color)">
+                            (Uploaded {{ portfolio.created_at|date:"Y-m-d H:i" }})
+                        </span>
+                        <form method="post" action="{% url 'archive-culinary-portfolio' portfolio.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button class="button" type="submit" style="margin-left: 0.5rem; padding: 0;">
+                                <div style="position: relative; top: 2px">
+                                    {% include 'red_shell_recruiting/components/svg_components.html' with type='close' %}
+                                </div>
+                            </button>
+                        </form>
+                    </li>
+                {% empty %}
+                    <li  class="small-title" style="opacity: 0.6">No portfolios uploaded yet.</li>
+                {% endfor %}
+            </ul>
+            <div class="flex-display vertical-align" style="margin-right:3rem; margin-top: 1rem;">
+                <input style="display: none;" type="file" id="candidate-culinary-portfolio" name="candidate_culinary_portfolio" accept=".pdf, .doc, .docx">
+                <button id="trigger-portfolio-upload" class="button flex-display vertical-align space-between">
+                    {% include 'red_shell_recruiting/components/svg_components.html' with type='quick-add' %}
+                    <span style="margin-left: 3px;">Add Portfolio</span>
+                </button>
+                <div style="margin-left: 1rem;" id="portfolio-file-name"></div>
+                <button id="add-portfolio-button" class="button flex-display vertical-align space-between" style="display:none; margin-left: 1rem;">
                     {% include 'red_shell_recruiting/components/svg_components.html' with type='download' %}
                     <span style="margin-left: 3px;">Upload</span>
                 </button>
@@ -193,7 +228,7 @@
                             </div>
                         </div>
                         <input type="text" name="candidate-linkedin-url" class="text-input" placeholder="Linkedin URL" value="{{ candidate.linkedin_url|default_if_none:"" }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
-                        <div class="align-baseline column flex-display flex-start toggle-container" style="margin-top: 1rem; margin-bottom: 1rem">
+                        <div class="align-baseline column flex-display flex-start toggle-container">
                             <label class="toggle flex-display vertical-align justify-center" style="margin-bottom: 1rem;">
                                 <input name="actively-looking" id="candidate-looking" class="toggle-checkbox" type="checkbox" {% if candidate.actively_looking %}checked{% endif %}>
                                 <div class="toggle-switch"></div>
@@ -209,45 +244,51 @@
                                 <div class="toggle-switch"></div>
                                 <span>Currently Working</span>
                             </label>
-                            <label class="toggle flex-display vertical-align justify-center" style="margin-bottom: 1rem;">
-                                <input name="client-placement" id="edit-client-placement-toggle" class="toggle-checkbox" type="checkbox"
-                                       {% if candidate.placement_record.exists %}checked{% endif %}>
-                                <div class="toggle-switch"></div>
-                                <span>Previously Placed</span>
-                            </label>
-                            <input type="hidden" name="remove_all_placements" id="remove-all-placements-flag" value="false">
-                            <div id="remove-placement-warning" class="placement-warning" style="display: none; margin-top: 0.5rem; color: var(--warning-color); font-size: 0.875rem;">
-                                All placement records will be removed when saved.
-                            </div>
                         </div>
                     </div>
                 </div>
+                <hr>
                 <div class="client-placement-section">
-                    <div id="placement-records-wrapper-edit" class="flex-display column" style="{% if not candidate.placement_record.exists %}display: none;{% endif %}">
+                    <div class="flex-display vertical-align" style="margin-bottom: 1rem;">
+                        <div style="margin-right: 1rem;">
+                            <h3>Candidate Placement</h3>
+                        </div>
+                        {% if candidate.placement_record.exists %}
+                            <div class="flex-display vertical-align">
+                                <label class="toggle flex-display vertical-align justify-center" style="margin-right: 1rem;">
+                                    <input name="client-placement" id="edit-client-placement-toggle" class="toggle-checkbox" type="checkbox">
+                                    <div class="toggle-switch"></div>
+                                    <span>Remove All Previously Placed</span>
+                                </label>
+                                <input type="hidden" name="remove_all_placements" id="remove-all-placements-flag" value="false">
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div id="remove-placement-warning" class="placement-warning"
+                         style="display: none; margin-bottom: 1rem;border-radius: var(--std-border-radius);padding-left: 0.25rem;padding-right: 0.25rem;background-color: var(--full-warning-color);color: var(--full-light-orange-color);padding-top: 0.25rem;padding-bottom: .5rem;text-align: center;">
+                        <span>All placement records will be removed when saved.</span>
+                    </div>
+                    <div id="placement-records-wrapper-edit" class="flex-display column">
                         {% for record in candidate.placement_record.all %}
-                            <div class="placement-line-item"
+                            <div class="placement-line-item flex-display align-center"
                                  data-index="{{ forloop.counter }}"
                                  data-placement-id="{{ record.id }}"
                                  style="margin-bottom: 1rem;">
-                                <div>
-                                    {% with forloop.counter|stringformat:"s" as counter_str %}
-                                        {% with "placement_id_"|add:counter_str as placement_input_name %}
-                                            {% include 'red_shell_recruiting/components/candidate_placement_dropdown_component.html' with selected_placement=record.placement name=placement_input_name id_suffix=forloop.counter all_placements=all_placements %}
-                                        {% endwith %}
+                                {% with forloop.counter|stringformat:"s" as counter_str %}
+                                    {% with "placement_id_"|add:counter_str as placement_input_name %}
+                                        {% include 'red_shell_recruiting/components/candidate_placement_dropdown_component.html' with selected_placement=record.placement name=placement_input_name id_suffix=forloop.counter all_placements=all_placements %}
                                     {% endwith %}
-                                </div>
-                                <div class="flex-display space-between vertical-align">
-                                    <input name="placement_month_{{ forloop.counter }}" value="{{ record.month }}" placeholder="Month" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); width: 80px;">
-                                    <input name="placement_year_{{ forloop.counter }}" value="{{ record.year }}" placeholder="Year" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); width: 100px;">
-                                    <input type="hidden" name="placement_record_id_{{ forloop.counter }}" value="{{ record.id }}">
-                                    <input type="hidden" name="delete_placement_{{ forloop.counter }}" value="false" class="delete-marker">
-                                    {% include 'red_shell_recruiting/components/candidate_remove_placement_button.html' %}
-                                </div>
+                                {% endwith %}
+                                <input name="placement_month_{{ forloop.counter }}" value="{{ record.month }}" placeholder="Month" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); margin-left: 1rem; width: 80px;">
+                                <input name="placement_year_{{ forloop.counter }}" value="{{ record.year }}" placeholder="Year" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); margin-left: 1rem; width: 100px;">
+                                <input type="hidden" name="placement_record_id_{{ forloop.counter }}" value="{{ record.id }}">
+                                <input type="hidden" name="delete_placement_{{ forloop.counter }}" value="false" class="delete-marker">
+                                {% include 'red_shell_recruiting/components/candidate_remove_placement_button.html' %}
                             </div>
                         {% endfor %}
                         <input type="hidden" name="placement_total_count" value="{{ candidate.placement_record.count }}">
                     </div>
-                    <button type="button" class="button" id="add-placement-line-edit">+ Add Placement</button>
+                    <button type="button" class="button" id="add-placement-line-edit">{% include 'red_shell_recruiting/components/svg_components.html' with type='plus' %} Add Placement</button>
                 </div>
                 <hr>
                 <textarea name="notes" class="text-input" placeholder="Notes" style="border: 1px solid var(--ui-support-element-color); height: 200px; padding: 0.5rem;">{{ candidate.notes }}</textarea>
@@ -272,7 +313,8 @@
         const clientPlacementListUrl = "{% url 'client-placement-list' %}";
         const removePlacementButton = $("#remove-placement-button-template").html();
         const uploadCulinaryPortfolioUrl = "{% url 'upload-culinary-portfolio' candidate.id %}";
-
+        const uploadResumeUrl = "{% url "upload-resume" candidate.id %}";
+        const uploadDocumentUrl = '{% url "upload-document" candidate.id %}';
     </script>
     <script src="{% static 'js/candidate_edit_save.js' %}" crossorigin="anonymous"></script>
     <script>

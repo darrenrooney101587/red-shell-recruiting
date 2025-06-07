@@ -290,7 +290,7 @@
                         {% endfor %}
                         <input type="hidden" name="placement_total_count" value="{{ candidate.placement_record.count }}">
                     </div>
-                    <button type="button" class="button" id="add-placement-line-edit">+ Add Placement</button>
+                    <button type="button" class="button" id="add-placement-line-edit">{% include 'red_shell_recruiting/components/svg_components.html' with type='plus' %} Add Placement</button>
                 </div>
                 <hr>
                 <textarea name="notes" class="text-input" placeholder="Notes" style="border: 1px solid var(--ui-support-element-color); height: 200px; padding: 0.5rem;">{{ candidate.notes }}</textarea>
