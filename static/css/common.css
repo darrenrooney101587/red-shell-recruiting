@@ -949,10 +949,15 @@ li.nav-item.sub {
   height: 100%;
 }
 
-#client-placement-dropdown-wrapper {
+.client-placement-dropdown-wrapper {
   margin-bottom: 0.5rem;
 }
 
 .search-dropdown .custom-dropdown {
   width: 250px !important;
+}
+
+.custom-dropdown.dropdown-disabled {
+  pointer-events: none;
+  opacity: 0.5;
 }

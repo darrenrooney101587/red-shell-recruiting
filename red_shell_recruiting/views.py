@@ -281,12 +281,14 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
         candidate_id = self.kwargs.get("candidate_id")
         candidate = get_object_or_404(CandidateProfile, id=candidate_id)
         context["candidate"] = candidate
+        print(f"Candidate ID: {candidate}")
         return context
 
     def post(self, request, *args, **kwargs):
         candidate_id = self.kwargs.get("candidate_id")
         candidate = get_object_or_404(CandidateProfile, id=candidate_id)
 
+        print(request.POST)
         # ----- Update candidate base info -----
         candidate.first_name = request.POST.get("first-name", candidate.first_name)
         candidate.last_name = request.POST.get("last-name", candidate.last_name)
@@ -296,8 +298,11 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
             "phone-number", candidate.phone_number
         )
         candidate.email = request.POST.get("email", candidate.email)
-        candidate.compensation = str(
-            request.POST.get("compensation", candidate.compensation)
+        candidate.compensation_from = str(
+            request.POST.get("compensation-from", candidate.compensation_from)
+        ).replace(",", "")
+        candidate.compensation_to = str(
+            request.POST.get("compensation-to", candidate.compensation_to)
         ).replace(",", "")
         candidate.notes = request.POST.get("notes", candidate.notes)
         candidate.open_to_relocation = request.POST.get("open-to-relocation") == "on"
@@ -309,6 +314,12 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
             title_obj = CandidateProfileTitle.objects.filter(id=title_id).first()
             if title_obj:
                 candidate.title = title_obj
+
+        owner_id = request.POST.get("candidate-ownership-id")
+        if owner_id:
+            owner_obj = CandidateOwnerShip.objects.filter(id=owner_id).first()
+            if owner_obj:
+                candidate.ownership = owner_obj
 
         candidate.save()
 

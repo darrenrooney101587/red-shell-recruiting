@@ -181,7 +181,11 @@
                         {% include 'red_shell_recruiting/components/state_dropdown_component.html' %}
                         {% include 'red_shell_recruiting/components/city_dropdown_component.html' %}
                         {% include 'red_shell_recruiting/components/title_dropdown_component.html' with selected_title=candidate.title %}
-                        {% include 'red_shell_recruiting/components/ownership_dropdown_component.html' with selected_owner=candidate.ownership %}
+                        {% if user|in_groups:"Site Admin" or user.is_superuser or user|has_perm:required_permission %}
+                            {% include 'red_shell_recruiting/components/ownership_dropdown_component.html' with selected_owner=candidate.ownership %}
+                        {% else %}
+                            {% include 'red_shell_recruiting/components/ownership_dropdown_component.html' with selected_owner=candidate.ownership disabled=True %}
+                        {% endif %}
                     </div>
                     <div style="width: 50%; position: relative">
                         <input type="tel" name="phone-number" class="text-input" placeholder="Phone Number" value="{{ candidate.phone_number }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
@@ -189,8 +193,8 @@
                         <div>
                             <span style="color: var(--faded-gray-color)" class="small-title">Compensation range</span>
                             <div class="flex-display">
-                                <input type="text" value="{{ candidate.compensation_from }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" disabled>
-                                <input type="text" value="{{ candidate.compensation_to }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                                <input type="text" name="compensation-from" value="{{ candidate.compensation_from }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;">
+                                <input type="text" name="compensation-to" value="{{ candidate.compensation_to }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)">
                             </div>
                         </div>
                         <div class="align-baseline column flex-display flex-start toggle-container" style="margin-top: 1rem; margin-bottom: 1rem;">
@@ -263,6 +267,9 @@
             </form>
         </div>
     </div>
+    <script>
+        const clientPlacementListUrl = "{% url 'client-placement-list' %}";
+    </script>
     <script src="{% static 'js/candidate_edit_save.js' %}" crossorigin="anonymous"></script>
     <script>
         $(document).ready(function () {

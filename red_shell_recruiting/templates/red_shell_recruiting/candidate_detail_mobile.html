@@ -177,24 +177,34 @@
                         {% include 'red_shell_recruiting/components/state_dropdown_component.html' %}
                         {% include 'red_shell_recruiting/components/city_dropdown_component.html' %}
                         {% include 'red_shell_recruiting/components/title_dropdown_component.html' with selected_title=candidate.title %}
-{#                    </div>#}
+                        {% if user|in_groups:"Site Admin" or user.is_superuser or user|has_perm:required_permission %}
+                            {% include 'red_shell_recruiting/components/ownership_dropdown_component.html' with selected_owner=candidate.ownership %}
+                        {% else %}
+                            {% include 'red_shell_recruiting/components/ownership_dropdown_component.html' with selected_owner=candidate.ownership disabled=True %}
+                        {% endif %}{#                    </div>#}
 {#                    <div style="width: 50%; position: relative">#}
                         <input type="tel" name="phone_number" class="text-input" placeholder="Phone Number" value="{{ candidate.phone_number }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
                         <input type="email" name="email" class="text-input" placeholder="Email" value="{{ candidate.email }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
-                        <input name="compensation" class="text-input" type="number" placeholder="Compensation" value="{{ candidate.compensation }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                        <div>
+                            <span style="color: var(--faded-gray-color)" class="small-title">Compensation range</span>
+                            <div class="flex-display">
+                                <input type="text" name="compensation-from" value="{{ candidate.compensation_from }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;">
+                                <input type="text" name="compensation-to" value="{{ candidate.compensation_to }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                            </div>
+                        </div>
                         <div class="align-baseline column flex-display flex-start toggle-container" style="margin-top: 1rem; margin-bottom: 1rem">
                             <label class="toggle flex-display vertical-align justify-center" style="margin-bottom: 1rem;">
-                                <input name="actively_looking" id="candidate-looking" class="toggle-checkbox" type="checkbox" {% if candidate.actively_looking %}checked{% endif %}>
+                                <input name="actively-looking" id="candidate-looking" class="toggle-checkbox" type="checkbox" {% if candidate.actively_looking %}checked{% endif %}>
                                 <div class="toggle-switch"></div>
                                 <span>Actively Looking</span>
                             </label>
                             <label class="toggle flex-display vertical-align justify-center" style="margin-bottom: 1rem;">
-                                <input name="open_to_relocation" id="candidate-relocation" class="toggle-checkbox" type="checkbox" {% if candidate.open_to_relocation %}checked{% endif %}>
+                                <input name="open-to-relocation" id="candidate-relocation" class="toggle-checkbox" type="checkbox" {% if candidate.open_to_relocation %}checked{% endif %}>
                                 <div class="toggle-switch"></div>
                                 <span>Open to Relocation</span>
                             </label>
                             <label class="toggle flex-display vertical-align justify-center"style="margin-bottom: 1rem;">
-                                <input name="currently_working" id="candidate-working" class="toggle-checkbox" type="checkbox" {% if candidate.currently_working %}checked{% endif %}>
+                                <input name="currently-working" id="candidate-working" class="toggle-checkbox" type="checkbox" {% if candidate.currently_working %}checked{% endif %}>
                                 <div class="toggle-switch"></div>
                                 <span>Currently Working</span>
                             </label>
@@ -214,22 +224,26 @@
                 <div class="client-placement-section">
                     <div id="placement-records-wrapper-edit" class="flex-display column" style="{% if not candidate.placement_record.exists %}display: none;{% endif %}">
                         {% for record in candidate.placement_record.all %}
-                            <div class="placement-line-item flex-display align-center"
+                            <div class="placement-line-item"
                                  data-index="{{ forloop.counter }}"
                                  data-placement-id="{{ record.id }}"
                                  style="margin-bottom: 1rem;">
-                                {% with forloop.counter|stringformat:"s" as counter_str %}
-                                    {% with "placement_id_"|add:counter_str as placement_input_name %}
-                                        {% include 'red_shell_recruiting/components/candidate_placement_dropdown_component.html' with selected_placement=record.placement name=placement_input_name id_suffix=forloop.counter all_placements=all_placements %}
+                                <div>
+                                    {% with forloop.counter|stringformat:"s" as counter_str %}
+                                        {% with "placement_id_"|add:counter_str as placement_input_name %}
+                                            {% include 'red_shell_recruiting/components/candidate_placement_dropdown_component.html' with selected_placement=record.placement name=placement_input_name id_suffix=forloop.counter all_placements=all_placements %}
+                                        {% endwith %}
                                     {% endwith %}
-                                {% endwith %}
-                                <input name="placement_month_{{ forloop.counter }}" value="{{ record.month }}" placeholder="Month" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); margin-left: 1rem; width: 80px;">
-                                <input name="placement_year_{{ forloop.counter }}" value="{{ record.year }}" placeholder="Year" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); margin-left: 1rem; width: 100px;">
-                                <input type="hidden" name="placement_record_id_{{ forloop.counter }}" value="{{ record.id }}">
-                                <input type="hidden" name="delete_placement_{{ forloop.counter }}" value="false" class="delete-marker">
-                                <button type="button" class="button remove-placement" style="margin-left: 0.5rem;">
-                                    {% include 'red_shell_recruiting/components/svg_components.html' with type='close' %}
-                                </button>
+                                </div>
+                                <div class="flex-display space-between vertical-align">
+                                    <input name="placement_month_{{ forloop.counter }}" value="{{ record.month }}" placeholder="Month" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); width: 80px;">
+                                    <input name="placement_year_{{ forloop.counter }}" value="{{ record.year }}" placeholder="Year" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); width: 100px;">
+                                    <input type="hidden" name="placement_record_id_{{ forloop.counter }}" value="{{ record.id }}">
+                                    <input type="hidden" name="delete_placement_{{ forloop.counter }}" value="false" class="delete-marker">
+                                    <button type="button" class="button remove-placement" style="margin-left: 0.5rem;">
+                                        {% include 'red_shell_recruiting/components/svg_components.html' with type='close' %}
+                                    </button>
+                                </div>
                             </div>
                         {% endfor %}
                         <input type="hidden" name="placement_total_count" value="{{ candidate.placement_record.count }}">
@@ -253,9 +267,13 @@
         </div>
     </div>
     <script>
+        const clientPlacementListUrl = "{% url 'client-placement-list' %}";
+    </script>
+    <script src="{% static 'js/candidate_edit_save.js' %}" crossorigin="anonymous"></script>
+    <script>
         $(document).ready(function () {
 
-            PlacementEditSaveActions();
+            PlacementEditSaveActions(true);
             CandidateEditSaveActions();
             AddDocumentAction();
             AddResumeAction();

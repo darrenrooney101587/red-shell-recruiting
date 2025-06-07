@@ -96,7 +96,7 @@ function CandidateEditSaveActions() {
     });
 }
 
-function PlacementEditSaveActions() {
+function PlacementEditSaveActions(mobile = false) {
     // INPUT PAGE TOGGLE
     $('#client-placement').change(function () {
         const isChecked = $(this).is(':checked');
@@ -135,7 +135,42 @@ function PlacementEditSaveActions() {
 
         $('#edit-client-placement-toggle').prop('checked', true).trigger('change');
 
-        const newLine = `
+        let newLine;
+
+        if(mobile) {
+            newLine = `
+                    <div class="placement-line-item" data-index="${placementIndex}" style="margin-bottom: 1rem;">
+                        <div class="custom-dropdown client-placement-dropdown-wrapper" style="border-bottom: 1px solid var(--ui-support-element-color);">
+                            <div class="flex-display space-between">
+                                <div class="selected-option client-placement-dropdown">Select a Client</div>
+                                <span class="chevron-down">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" aria-hidden="true">
+                                        <path fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m16 10-4 4-4-4"/>
+                                    </svg>
+                                </span>
+                                <span class="chevron-up" style="display: none;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" aria-hidden="true" style="transform: rotate(180deg);">
+                                        <path fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m16 10-4 4-4-4"/>
+                                    </svg>
+                                </span>
+                            </div>
+                            <ul class="dropdown-list client-placement-list"></ul>
+                            <input class="client-placement-hidden" type="hidden" name="placement_id_${placementIndex}" value="">
+                        </div>
+                        <div class="flex-display space-between vertical-align">
+                            <input name="placement_month_${placementIndex}" placeholder="Month" class="text-input" style="width: 80px; border-bottom: 1px solid var(--ui-support-element-color);">
+                            <input name="placement_year_${placementIndex}" placeholder="Year" class="text-input" style="width: 100px; border-bottom: 1px solid var(--ui-support-element-color);">
+                            <input type="hidden" name="delete_placement_${placementIndex}" value="false" class="delete-marker">
+                            <button type="button" class="button remove-placement" style="margin-left: 0.5rem;">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M16.2426 7.75736C16.6332 7.36683 16.6332 6.73367 16.2426 6.34314C15.8521 5.95262 15.2189 5.95262 14.8284 6.34314L12 9.17157L9.17157 6.34314C8.78105 5.95262 8.14788 5.95262 7.75736 6.34314C7.36683 6.73367 7.36683 7.36683 7.75736 7.75736L10.5858 10.5858L7.75736 13.4142C7.36683 13.8047 7.36683 14.4379 7.75736 14.8284C8.14788 15.2189 8.78105 15.2189 9.17157 14.8284L12 12L14.8284 14.8284C15.2189 15.2189 15.8521 15.2189 16.2426 14.8284C16.6332 14.4379 16.6332 13.8047 16.2426 13.4142L13.4142 10.5858L16.2426 7.75736Z" fill="currentColor"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                `;
+        } else {
+            newLine = `
                     <div class="placement-line-item flex-display align-center" data-index="${placementIndex}" style="margin-bottom: 1rem;">
                         <div class="custom-dropdown" style="border-bottom: 1px solid var(--ui-support-element-color);">
                             <div class="flex-display space-between">
@@ -164,6 +199,7 @@ function PlacementEditSaveActions() {
                         </button>
                     </div>
                 `;
+        }
 
         $('#placement-records-wrapper-edit').append(newLine);
 
@@ -171,7 +207,7 @@ function PlacementEditSaveActions() {
         const $newRow = $('#placement-records-wrapper-edit .placement-line-item').last();
         const $list = $newRow.find('.client-placement-list');
 
-        $.get("{% url 'client-placement-list' %}", function (data) {
+        $.get(clientPlacementListUrl, function (data) {
             $list.empty();
             data.forEach(function (item) {
                 $list.append(`<li class="option" data-value="${item.id}">${item.name}</li>`);
