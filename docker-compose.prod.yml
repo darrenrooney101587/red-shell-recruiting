@@ -17,6 +17,7 @@ services:
       - PORT=${CONTAINER_PORT:-5000}
       - PYTHONPATH=/app/
     entrypoint: [ "/bin/bash", "/docker-entrypoint.sh" ]
+    profiles: ["production"]
     expose:
       - "${CONTAINER_PORT:-5000}"
     networks:
