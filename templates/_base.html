@@ -19,6 +19,9 @@
     </head>
     {% block body %}
         <body class="main-body">
+            <form id="csrf-token-form" style="display: none;">
+                {% csrf_token %}
+            </form>
             {% if not request.is_mobile %}
                 <header class="page-header bg-light d-flex align-items-center justify-content-between px-3"
                         style="height: 60px; border-bottom: 1px solid #dee2e6; box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .04);">
@@ -61,151 +64,354 @@
         </body>
     {% endblock %}
     {% block script %}
-        <script>
-            $(document).ready(function () {
+    <script>
 
-                $('#candidate-phone-number').on('input', function() {
-                    let input = $(this).val();
-                    input = input.replace(/\D/g, '');
+        function SubmitCandidate() {
+            const debug = true;
 
-                    if (input.length > 3 && input.length <= 6) {
-                        input = input.slice(0,3) + '-' + input.slice(3);
-                    } else if (input.length > 6) {
-                        input = input.slice(0,3) + '-' + input.slice(3,6) + '-' + input.slice(6,10);
-                    }
+            $('#submit-btn').click(function (event) {
+                const state = $('#state-hidden').val();
+                const city = $('#city-hidden').val();
 
-                    $(this).val(input);
-                });
+                if (debug) console.log('[DEBUG] State:', state, 'City:', city);
 
-
-                $('.custom-dropdown').click(function(event) {
-                    const dropdownList = $(this).find('.dropdown-list');
-                    const chevronDown = $(this).find('.chevron-down');
-                    const chevronUp = $(this).find('.chevron-up');
-
-                    event.stopPropagation();
-
-                    if (dropdownList.is(':visible')) {
-                        dropdownList.hide();
-                        chevronDown.show();
-                        chevronUp.hide();
-                    } else {
-                        dropdownList.show();
-                        chevronDown.hide();
-                        chevronUp.show();
-                    }
-                });
-
-                $(document).click(function(event) {
-                    if (!$(event.target).closest('.custom-dropdown').length) {
-                        $('.dropdown-list').hide();
-                        $('.chevron-down').show();
-                        $('.chevron-up').hide();
-                    }
-                });
-
-                $(".nav-dropdown-container").hover(
-                    function () {
-                        $(this).find(".nav-dropdown-submenu").stop(true, true).slideDown(200);
-                        $(this).find(".chevron-down").hide();
-                        $(this).find(".chevron-up").show();
-                    },
-                    function () {
-                        $(this).find(".nav-dropdown-submenu").stop(true, true).slideUp(200);
-                        $(this).find(".chevron-up").hide();
-                        $(this).find(".chevron-down").show();
-                    }
-                );
-
-                $(".accordion-section .accordion").click(function() {
-                    $(this).toggleClass("active");
-                    let panel = $(this).next()
-                    panel.toggleClass("active");
-                    let caret = $(this).find('.accordion-block i');
-                    if(caret.hasClass("fa-angle-down")) {
-                        caret.removeClass('fa-angle-down').addClass('fa-angle-up')
-                    } else {
-                        caret.removeClass('fa-angle-up').addClass('fa-angle-down')
-                    }
-                });
-
-                $('#state-list').on('click', '.option', function(event) {
-                    event.stopPropagation();
-                    const state = $(this).data('value');
-                    const stateName = $(this).data('fullname');
-
-                    $('#state-dropdown').text(stateName);
-                    $('#state-hidden').val(state);
-
-                    $(this).closest('.dropdown-list').hide();
-                    $(this).closest('.custom-dropdown').find('.chevron-down').show();
-                    $(this).closest('.custom-dropdown').find('.chevron-up').hide();
-
-                    populateCities(state);
-                });
-
-                $('#city-list').on('click', '.option', function(event) {
-                    event.stopPropagation();
-                    const city = $(this).data('value');
-                    const cityName = $(this).text();
-
-                    $('#city-dropdown').text(cityName);
-                    $('#city-hidden').val(city);
-
-                    $(this).closest('.dropdown-list').hide();
-                    $(this).closest('.custom-dropdown').find('.chevron-down').show();
-                    $(this).closest('.custom-dropdown').find('.chevron-up').hide();
-                });
-
-                function populateCities(state) {
-                    $('.spinner-wrapper').show();
-                    $('.simple-spinner').show();
-
-                    $('#city-list').empty();
-                    $('#city-list').append('<li class="option placeholder" data-value="">Select a City</li>');
-
-                    const apiKey = 'darren101587';
-                    const geocodeUrl = `https://secure.geonames.org/searchJSON?formatted=true&lang=en&country=US&adminCode1=${state}&maxRows=500&username=${apiKey}`;
-
-                    $.get(geocodeUrl, function(data) {
-                        const cities = data.geonames.sort(function(a, b) {
-                            return a.name.localeCompare(b.name);
-                        });
-
-                        cities.forEach(function(city) {
-                            $('#city-list').append(`<li class="option" data-value="${city.name}">${city.name}</li>`);
-                        });
-
-                        $('.spinner-wrapper').hide();
-                        $('#city-list').show();
-                        $('#city-dropdown-wrapper').show();
-                    }).fail(function() {
-                        addClientMessage('Error fetching cities.');
-                        $('.spinner-wrapper').hide();
-                    });
+                if (!state || !city) {
+                    event.preventDefault();
+                    if (debug) console.log('[DEBUG] Missing state or city - blocking form submission.');
+                    addClientMessage('Please select both a State and a City.');
+                    return false;
                 }
 
-                $('#hamburger-button').click(function() {
-                    $('#mobile-menu').addClass('active');
-                });
+                const ownership = $('#candidate-ownership-hidden').val();
 
-                $('#close-mobile-menu').click(function() {
-                    $('#mobile-menu').removeClass('active');
-                });
+                if (debug) console.log('[DEBUG] Ownership:', ownership);
 
+                if(!ownership) {
+                    event.preventDefault();
+                    if (debug) console.log('[DEBUG] Missing ownership - blocking form submission.');
+                    addClientMessage('Please select an ownership.');
+                    return false;
+                }
+
+                const phone = $('#candidate-phone-number').val().trim();
+                const email = $('#candidate-email').val().trim();
+
+                if (debug) console.log('[DEBUG] Phone:', phone, 'Email:', email);
+
+                const phoneDigits = phone.replace(/\D/g, '');
+                if (debug) console.log('[DEBUG] Phone digits only:', phoneDigits);
+
+                if (phoneDigits.length < 10 || phoneDigits.length > 15) {
+                    event.preventDefault();
+                    if (debug) console.log('[DEBUG] Invalid phone number - blocking form submission.');
+                    addClientMessage('Please enter a valid phone number.');
+                    return false;
+                }
+
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    event.preventDefault();
+                    if (debug) console.log('[DEBUG] Invalid email address - blocking form submission.');
+                    addClientMessage('Please enter a valid email address.');
+                    return false;
+                }
+
+                const resume = $('#resume').val();
+                if (debug) console.log('[DEBUG] Resume file value:', resume);
+
+                if (!resume) {
+                    event.preventDefault();
+                    if (debug) console.log('[DEBUG] No resume uploaded - blocking form submission.');
+                    $('#file-name').css('color', 'red').text('Please upload a resume before submitting.');
+                    return false;
+                }
+
+                if (debug) console.log('[DEBUG] Form passed all validation checks - submitting.');
             });
 
-            function addClientMessage(messageText, messageType = 'error') {
-                const alertClass = messageType === 'success' ? 'alert-success' : 'alert-danger';
-                const messageHtml = `
-                    <div class="alert ${alertClass} alert-dismissible fade show" role="alert" style="position: relative;">
-                        ${messageText}
-                        <span class="custom-close" style="position: absolute; top: 13px; right: 10px; cursor: pointer;">&times;</span>
-                    </div>
-                `;
-                $('.messages').append(messageHtml);
-            }
 
-        </script>
+            $('#resume').change(function() {
+                const fileName = $(this).val().split('\\').pop();
+                if (fileName) {
+                    $('#file-name').css('color', 'black').text(fileName);
+                }
+            });
+
+            $(document).on('click', '.custom-close', function() {
+                $(this).closest('.alert').fadeOut('slow');
+            });
+        }
+
+        function populateCandidateTitles() {
+            const list = $('#candidate-title-list');
+            list.empty();
+
+            $.get("{% url 'candidate-title-list' %}", function(data) {
+                data.forEach(function(item) {
+                    list.append(`<li class="option" data-value="${item.id}">${item.name}</li>`);
+                });
+            }).fail(function() {
+                addClientMessage('Error fetching titles.');
+            });
+        }
+
+        function populateCandidateOwners() {
+            const list = $('#candidate-ownership-list');
+            list.empty();
+
+            $.get("{% url 'candidate-ownership-list' %}", function(data) {
+                data.forEach(function(item) {
+                    list.append(`<li class="option" data-value="${item.id}">${item.name}</li>`);
+                });
+            }).fail(function() {
+                addClientMessage('Error fetching titles.');
+            });
+        }
+
+        function populateCities(state) {
+            $('.spinner-wrapper').show();
+            $('.simple-spinner').show();
+
+            $('#city-list').empty();
+            const apiKey = 'darren101587';
+            const geocodeUrl = `https://secure.geonames.org/searchJSON?formatted=true&lang=en&country=US&adminCode1=${state}&maxRows=500&username=${apiKey}`;
+
+            $.get(geocodeUrl, function(data) {
+                const cities = data.geonames.sort(function(a, b) {
+                    return a.name.localeCompare(b.name);
+                });
+
+                cities.forEach(function(city) {
+                    $('#city-list').append(`<li class="option" data-value="${city.name}">${city.name}</li>`);
+                });
+
+                $('.spinner-wrapper').hide();
+                $('#city-list').show();
+                $('#city-dropdown-wrapper').show();
+            }).fail(function() {
+                addClientMessage('Error fetching cities.');
+                $('.spinner-wrapper').hide();
+            });
+        }
+
+        function populateClientPlacements() {
+            $.get("{% url 'client-placement-list' %}", function(data) {
+                $('.client-placement-list').each(function() {
+                    const list = $(this);
+                    list.empty();
+
+                    data.forEach(function(item) {
+                        list.append(`<li class="option" data-value="${item.id}">${item.name}</li>`);
+                    });
+                });
+
+                $('.custom-dropdown').show();
+            }).fail(function() {
+                addClientMessage('Error fetching clients.');
+            });
+        }
+
+        function addClientMessage(messageText, messageType = 'error') {
+            {#console.log(messageText, messageType, messageType);#}
+            $('.messages').empty();
+            const alertClass = messageType === 'success' ? 'alert-success' : 'alert-danger';
+            const messageHtml = `
+                <div class="alert ${alertClass} alert-dismissible fade show flex-display space-between vertical-align" role="alert" style="width: 100%;">
+                    <span class="message-text">${messageText}</span>
+                    {% include 'red_shell_recruiting/components/candidate_close_button.html' %}>
+                </div>
+            `;
+            $('.messages').append(messageHtml);
+        }
+
+        function getCSRFToken() {
+            return $('#csrf-token-form input[name="csrfmiddlewaretoken"]').val();
+        }
+
+        $(document).ready(function () {
+
+            populateClientPlacements();
+            populateCandidateTitles();
+            populateCandidateOwners();
+
+            $.ajaxSetup({
+                beforeSend: function(xhr, settings) {
+                    if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", getCSRFToken());
+                    }
+                }
+            });
+
+            $('.candidate-card').on('click', function() {
+                var candidateId = $(this).data('candidate-id');
+                if (candidateId) {
+                    window.location.href = '/candidate/' + candidateId + '/';
+                }
+            });
+
+            // title click handler
+            $('#candidate-title-list').on('click', '.option', function (event) {
+                event.stopPropagation();
+                const titleId = $(this).data('value');
+                const titleText = $(this).text();
+
+                $('#candidate-title-dropdown').text(titleText);
+                $('#candidate-title-hidden').val(titleId);
+
+                $(this).closest('.dropdown-list').hide();
+                $(this).closest('.custom-dropdown').find('.chevron-down').show();
+                $(this).closest('.custom-dropdown').find('.chevron-up').hide();
+            });
+
+            // ownership click handler
+            $('#candidate-ownership-list').on('click', '.option', function (event) {
+                event.stopPropagation();
+                const titleId = $(this).data('value');
+                const titleText = $(this).text();
+
+                $('#candidate-ownership-dropdown').text(titleText);
+                $('#candidate-ownership-hidden').val(titleId);
+
+                $(this).closest('.dropdown-list').hide();
+                $(this).closest('.custom-dropdown').find('.chevron-down').show();
+                $(this).closest('.custom-dropdown').find('.chevron-up').hide();
+            });
+
+            // placement click handler
+            $(document).on('click', '.client-placement-list .option', function (event) {
+                event.stopPropagation();
+
+                const $option = $(this);
+                const clientId = $option.data('value');
+                const clientName = $option.text();
+
+                const $dropdown = $option.closest('.custom-dropdown');
+                const $display = $dropdown.find('.client-placement-dropdown');
+                const $hidden = $dropdown.find('.client-placement-hidden');
+
+                $display.text(clientName);
+                $hidden.val(clientId);
+
+                $dropdown.find('.dropdown-list').hide();
+                $dropdown.find('.chevron-down').show();
+                $dropdown.find('.chevron-up').hide();
+            });
+
+            // general dropdown show/hide
+            $(document).on('click', '.custom-dropdown', function (event) {
+                const dropdownList = $(this).find('.dropdown-list');
+                const chevronDown = $(this).find('.chevron-down');
+                const chevronUp = $(this).find('.chevron-up');
+
+                event.stopPropagation();
+
+                if (dropdownList.is(':visible')) {
+                    dropdownList.hide();
+                    chevronDown.show();
+                    chevronUp.hide();
+                } else {
+                    dropdownList.show();
+                    chevronDown.hide();
+                    chevronUp.show();
+                }
+            });
+
+            // toggle input page show placement elements
+            $('#client-placement').change(function () {
+                const isChecked = $(this).is(':checked');
+                if (isChecked) {
+                    $('#client-placement-toggle-wrapper').slideDown(200);
+                } else {
+                    $('#client-placement-toggle-wrapper').slideUp(200);
+                    $('#client-placement-dropdown').text('Select a Client Placement');
+                    $('#client-placement-hidden').val('');
+                }
+            });
+
+            $('#candidate-phone-number').on('input', function() {
+                let input = $(this).val();
+                input = input.replace(/\D/g, '');
+
+                if (input.length > 3 && input.length <= 6) {
+                    input = input.slice(0,3) + '-' + input.slice(3);
+                } else if (input.length > 6) {
+                    input = input.slice(0,3) + '-' + input.slice(3,6) + '-' + input.slice(6,10);
+                }
+
+                $(this).val(input);
+            });
+
+            $(document).click(function(event) {
+                if (!$(event.target).closest('.custom-dropdown').length) {
+                    $('.dropdown-list').hide();
+                    $('.chevron-down').show();
+                    $('.chevron-up').hide();
+                }
+            });
+
+            $(".nav-dropdown-container").hover(
+                function () {
+                    $(this).find(".nav-dropdown-submenu").stop(true, true).slideDown(200);
+                    $(this).find(".chevron-down").hide();
+                    $(this).find(".chevron-up").show();
+                },
+                function () {
+                    $(this).find(".nav-dropdown-submenu").stop(true, true).slideUp(200);
+                    $(this).find(".chevron-up").hide();
+                    $(this).find(".chevron-down").show();
+                }
+            );
+
+            $(".accordion-section .accordion").click(function() {
+                $(this).toggleClass("active");
+                let panel = $(this).next()
+                panel.toggleClass("active");
+                let caret = $(this).find('.accordion-block i');
+                if(caret.hasClass("fa-angle-down")) {
+                    caret.removeClass('fa-angle-down').addClass('fa-angle-up')
+                } else {
+                    caret.removeClass('fa-angle-up').addClass('fa-angle-down')
+                }
+            });
+
+            $('#state-list').on('click', '.option', function(event) {
+                event.stopPropagation();
+                const state = $(this).data('value');
+                const stateName = $(this).data('fullname');
+
+                $('#state-dropdown').text(stateName);
+                $('#state-hidden').val(state);
+
+                $(this).closest('.dropdown-list').hide();
+                $(this).closest('.custom-dropdown').find('.chevron-down').show();
+                $(this).closest('.custom-dropdown').find('.chevron-up').hide();
+
+                populateCities(state);
+            });
+
+            $('#city-list').on('click', '.option', function(event) {
+                event.stopPropagation();
+                const city = $(this).data('value');
+                const cityName = $(this).text();
+
+                $('#city-dropdown').text(cityName);
+                $('#city-hidden').val(city);
+
+                $(this).closest('.dropdown-list').hide();
+                $(this).closest('.custom-dropdown').find('.chevron-down').show();
+                $(this).closest('.custom-dropdown').find('.chevron-up').hide();
+            });
+
+            $('#hamburger-button').click(function() {
+                $('#mobile-menu').addClass('active');
+            });
+
+            $('#close-mobile-menu').click(function() {
+                $('#mobile-menu').removeClass('active');
+            });
+
+        });
+
+    </script>
     {% endblock %}
 </html>

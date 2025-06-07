@@ -9,26 +9,36 @@
 {% endblock %}
 {% block content %}
     <div>
-        <div class="flex-display justify-center" style="margin: 0 auto; width: 700px;">
+        <div style="margin: 0 auto; width: 700px;">
             <form method="get" action="{% url 'candidate-search' %}" style="width: 100%;">
-                <div class="section flex-display column vertical-align">
-                    <div class="flex-display vertical-align space-between" style="width: 100%;">
-                        <div class="flex-display column flex-start" style="border-right: 1px solid rgba(0,0,0,.1);">
-                            <span style="margin-right: 1rem;">Total Candidates: {{ total_count_profile }}</span>
-                            <span style="margin-right: 1rem;">Total Resumes: {{ total_count_resume }}</span>
-                            <span>Selected Count: {{ selected_count }}</span>
+                <div class="section flex-display vertical-align space-between" style="width: 100%;">
+                    <div class="flex-display column space-between" style="width: 215px;">
+                        <div class="flex-display vertical-align space-between" style="width: 100%;">
+                            <span style="margin-right: 1rem;">Total Candidates:</span>
+                            <span style="margin-right: 1rem;">{{ total_count_profile }}</span>
                         </div>
-                        <div>
-                            <div class="flex-display vertical-align space-between" style="width: 100%;">
-                                <input style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" type="text" class="text-input" name="q" value="{{ query }}" placeholder="Search candidates..." />
-                                <div class="flex-display space-between vertical-align">
-                                    <button class="button" type="submit">Search</button>
-                                    <div style="margin-left: 0.5rem;" class="flex-display vertical-align justify-center">
-                                        <a href="{% url 'candidate-search' %}" class="button">Clear</a>
-                                    </div>
+                        <div class="flex-display vertical-align space-between" style="width: 100%;">
+                            <span style="margin-right: 1rem;">Total Resumes:</span>
+                            <span style="margin-right: 1rem;">{{ total_count_resume }}</span>
+                        </div>
+                        <div class="flex-display vertical-align space-between" style="width: 100%;">
+                            <span style="margin-right: 1rem;">Total Count:</span>
+                            <span style="margin-right: 1rem;">{{ selected_count }}</span>
+                        </div>
+                    </div>
+                    <div style="height: 125px; border-right: 1px solid rgba(0,0,0,.1); margin-right: 1rem; margin-left: 1rem;"></div>
+                    <div style="width: 100%;">
+                        <div class="flex-display vertical-align space-between" style="width: 100%;">
+                            <input style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" type="text" class="text-input" name="q" value="{{ query }}" placeholder="Search candidates..." />
+                            <div class="flex-display space-between vertical-align">
+                                <button class="button" type="submit">Search</button>
+                                <div style="margin-left: 0.5rem;" class="flex-display vertical-align justify-center">
+                                    <a href="{% url 'candidate-search' %}" class="button">Clear</a>
                                 </div>
                             </div>
-                            <div class="flex-display vertical-align justify-center" style="margin-top: 1rem;">
+                        </div>
+                        <div class="flex-display vertical-align space-between" style="margin-top: 1rem;">
+                            <div class="flex-display column align-baseline">
                                 <label class="toggle flex-display vertical-align justify-center" style="margin-right: 1rem;">
                                     <input type="checkbox" name="actively_looking" {% if request.GET.actively_looking %}checked{% endif %} class="toggle-checkbox">
                                     <div class="toggle-switch"></div>
@@ -39,11 +49,20 @@
                                     <div class="toggle-switch"></div>
                                     <span>Open to Relocation</span>
                                 </label>
-                                <label class="toggle flex-display vertical-align justify-center">
+                                <label class="toggle flex-display vertical-align justify-center" style="margin-right: 1rem;">
                                     <input type="checkbox" name="currently_working" {% if request.GET.currently_working %}checked{% endif %} class="toggle-checkbox">
                                     <div class="toggle-switch"></div>
                                     <span>Currently Working</span>
                                 </label>
+                                <label class="toggle flex-display vertical-align justify-center" style="margin-right: 1rem;">
+                                    <input  type="checkbox" name="previously_placed" {% if request.GET.previously_placed %}checked{% endif %} class="toggle-checkbox">
+                                    <div class="toggle-switch"></div>
+                                    <span>Previously Placed</span>
+                                </label>
+                            </div>
+                            <div style="height: 75px; border-right: 1px solid rgba(0,0,0,.1); margin-right: 1rem;"></div>
+                            <div class="flex-display column align-baseline search-dropdown">
+                                {% include 'red_shell_recruiting/components/candidate_search_dropdowns.html' %}
                             </div>
                         </div>
                     </div>
@@ -62,7 +81,7 @@
                         <div class="flex-display space-between">
                             <div>
                                 <span style="font-size: 9px; color: var(--faded-gray-color)">Job Title</span>
-                                <h4>{{ candidate.job_title }}</h4>
+                                <h4>{{ candidate.title.display_name }}</h4>
                             </div>
                             <div>
                                 <span style="font-size: 9px; color: var(--faded-gray-color)">Email</span>
@@ -84,6 +103,10 @@
                                     <h5 style="margin-right: 0.5rem;">Currently Working</h5>
                                     {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.currently_working %}
                                 </div>
+                                <div class="flex-display vertical-align space-between" style="width: 135px;">
+                                    <h5 style="margin-right: 0.5rem;">Previously Placed</h5>
+                                    {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.placement_record.exists %}
+                                </div>
                             </div>
                             <div class="flex-display">
                                 <div style="height: 100%; border: 0; border-left: 1px solid rgba(0,0,0,.1); margin-left: 1rem; margin-right: 1rem;"></div>
@@ -104,17 +127,7 @@
     <script>
         $(document).ready(function() {
 
-            $('#clear-button').on('click', function() {
-                $('input[type="text"]').val('');
-                $('input[type="checkbox"]').prop('checked', false);
-            });
 
-            $('.candidate-card').on('click', function() {
-                var candidateId = $(this).data('candidate-id');
-                if (candidateId) {
-                    window.location.href = '/candidate/' + candidateId + '/';
-                }
-            });
         });
     </script>
 {% endblock %}

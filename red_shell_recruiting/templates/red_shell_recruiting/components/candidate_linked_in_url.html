@@ -1,0 +1,18 @@
+<div>
+    <span style="color: var(--faded-gray-color)" class="small-title">LinkedIn URL</span><br>
+    {% if candidate.linkedin_url %}
+        {% with url=candidate.linkedin_url %}
+            {% if url|slice:":4" == "http" %}
+                <a href="{{ url }}" target="_blank" rel="noopener noreferrer" style="display: inline-block;">
+                    View LinkedIn Profile
+                </a>
+            {% else %}
+                <a href="https://{{ url }}" target="_blank" rel="noopener noreferrer" style="display: inline-block;">
+                    View LinkedIn Profile
+                </a>
+            {% endif %}
+        {% endwith %}
+    {% else %}
+        <span style="color: var(--faded-gray-color)">No LinkedIn profile provided</span>
+    {% endif %}
+</div>

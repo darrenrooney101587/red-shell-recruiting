@@ -2,14 +2,14 @@
     <div class="flex-display space-between">
         <div class="selected-option" id="city-dropdown">Select a City</div>
         <span class="chevron-down">
-                                    {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}
-                                </span>
+            {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}
+        </span>
         <span class="chevron-up" style="display: none;">
-                                {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}
-                            </span>
+            {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}
+        </span>
     </div>
     <ul class="dropdown-list" id="city-list">
-        <li class="option placeholder" data-value="">Select a City</li>
+{#        <li class="option placeholder" data-value="">Select a City</li>#}
     </ul>
     <input required type="hidden" name="candidate-city" id="city-hidden">
 </div>

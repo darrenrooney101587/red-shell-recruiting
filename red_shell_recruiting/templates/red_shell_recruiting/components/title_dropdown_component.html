@@ -1,0 +1,19 @@
+<div class="custom-dropdown" style="border-bottom: 1px solid var(--ui-support-element-color); margin-bottom: 1rem;" id="candidate-title-dropdown-wrapper">
+    <div class="flex-display space-between">
+        <div class="selected-option" id="candidate-title-dropdown">
+            {{ selected_title.display_name|default:"Select a Title" }}
+        </div>
+        <span class="chevron-down">
+            {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}
+        </span>
+        <span class="chevron-up" style="display: none;">
+            {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}
+        </span>
+    </div>
+    <ul class="dropdown-list" id="candidate-title-list">
+        {% for title in all_titles %}
+            <li class="option {% if selected_title and selected_title.id == title.id %}selected{% endif %}" data-value="{{ title.id }}">{{ title.display_name }}</li>
+        {% endfor %}
+    </ul>
+    <input type="hidden" name="candidate-title-id" id="candidate-title-hidden" value="{{ selected_title.id|default:'' }}">
+</div>

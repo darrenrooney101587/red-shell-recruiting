@@ -7,8 +7,10 @@ import boto3
 import textract
 from django.conf import settings
 from django.contrib.postgres.search import SearchVector
+from django.db.models import Value
+
 from red_shell_recruiting.models import (
-    Resume,
+    CandidateResume,
     CandidateProfile,
     SearchVectorProcessingLog,
     CandidateDocument,
@@ -92,7 +94,7 @@ def update_document_search_vector(self, document_id):
 @shared_task(bind=True)
 def update_resume_search_vector(self, resume_id):
     try:
-        resume = Resume.objects.get(id=resume_id)
+        resume = CandidateResume.objects.get(id=resume_id)
         s3 = boto3.client("s3")
         obj = s3.get_object(
             Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=resume.file.name
@@ -114,7 +116,7 @@ def update_resume_search_vector(self, resume_id):
             resume.extracted_text = extracted_text
             resume.save(update_fields=["extracted_text"])
 
-            Resume.objects.filter(id=resume.id).update(
+            CandidateResume.objects.filter(id=resume.id).update(
                 search_document=SearchVector("extracted_text", weight="D")
             )
 
@@ -126,17 +128,24 @@ def update_resume_search_vector(self, resume_id):
                 attempts=self.request.retries,
             )
 
-            candidate = resume.candidate
-            CandidateProfile.objects.filter(id=candidate.id).update(
-                search_document=(
-                    SearchVector("first_name", weight="A")
-                    + SearchVector("last_name", weight="A")
-                    + SearchVector("job_title", weight="B")
-                    + SearchVector("city", weight="C")
-                    + SearchVector("state", weight="C")
-                    + SearchVector("notes", weight="D")
-                    + SearchVector("email", weight="A")
+            candidate = CandidateProfile.objects.select_related("title").get(
+                id=resume.candidate_id
+            )
+            combined_vector = (
+                SearchVector(Value(candidate.first_name), weight="A")
+                + SearchVector(Value(candidate.last_name), weight="A")
+                + SearchVector(
+                    Value(candidate.title.display_name if candidate.title else ""),
+                    weight="B",
                 )
+                + SearchVector(Value(candidate.city), weight="C")
+                + SearchVector(Value(candidate.state), weight="C")
+                + SearchVector(Value(candidate.notes or ""), weight="D")
+                + SearchVector(Value(candidate.email), weight="A")
+            )
+
+            CandidateProfile.objects.filter(id=candidate.id).update(
+                search_document=combined_vector
             )
 
             SearchVectorProcessingLog.objects.create(
@@ -156,7 +165,7 @@ def update_resume_search_vector(self, resume_id):
             )
             raise Ignore()
 
-    except Resume.DoesNotExist:
+    except CandidateResume.DoesNotExist:
         SearchVectorProcessingLog.objects.create(
             resume_id=resume_id,
             document_type="resume",

@@ -1,0 +1,12 @@
+<input required name="candidate-first-name" tabindex="1" style="border-bottom: 1px solid var(--ui-support-element-color)" id="candidate-first-name" type="text" class="text-input" placeholder="First Name" autocomplete="off">
+<input required name="candidate-last-name" tabindex="2" style="border-bottom: 1px solid var(--ui-support-element-color)" id="candidate-last-name" type="text" class="text-input" placeholder="Last Name" autocomplete="off">
+{% include 'red_shell_recruiting/components/state_dropdown_component.html' %}
+{% include 'red_shell_recruiting/components/city_dropdown_component.html' %}
+<div>
+    <span>Compensation range</span>
+    <div class="flex-display">
+        <input tabindex="8" name="candidate-compensation-from" style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" class="text-input" id="candidate-compensation-from" type="number" placeholder="From" autocomplete="off">
+        <input tabindex="8" name="candidate-compensation-to" style="border-bottom: 1px solid var(--ui-support-element-color)" class="text-input" id="candidate-compensation-to" type="number" placeholder="To" autocomplete="off">
+    </div>
+</div>
+<input required name="candidate-linkedin-url" style="border-bottom: 1px solid var(--ui-support-element-color)" id="candidate-linkedin-url" type="url" class="text-input" placeholder="Linkedin URL" autocomplete="off">

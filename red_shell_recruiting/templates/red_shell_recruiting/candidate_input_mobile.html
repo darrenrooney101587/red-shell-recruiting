@@ -15,115 +15,34 @@
                 <h1>Enter Candidate</h1>
                 <hr>
             </div>
-            {% if messages %}
-                <div class="messages">
-                    {% for message in messages %}
-                        <div class="{{ message.tags }} alert-dismissible fade show" role="alert" style="position: relative;">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-            <div class="field-set " >
-                <div style="width: 100%; margin-bottom: 1rem; position: relative">
-                    <input tabindex="1" required name="candidate-first-name" style="border-bottom: 1px solid var(--ui-support-element-color)" id="candidate-first-name" type="text" class="text-input" placeholder="First Name" autocomplete="off">
-                    <input required name="candidate-last-name" tabindex="2" style="border-bottom: 1px solid var(--ui-support-element-color)" id="candidate-last-name" type="text" class="text-input" placeholder="Last Name" autocomplete="off">
-                    {% include 'red_shell_recruiting/components/state_dropdown_component.html' %}
-                    {% include 'red_shell_recruiting/components/city_dropdown_component.html' %}
-                    <input tabindex="4" required name="candidate-job-title" style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-job-title" type="text" placeholder="Job Title" autocomplete="off">
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="alert {{ message.tags }} alert-dismissible fade show flex-display space-between vertical-align" role="alert" style="width: 100%;">
+                        <span class="message-text">{{ message }}</span>
+                        {% include 'red_shell_recruiting/components/candidate_close_button.html' %}
+                    </div>
+                {% endfor %}
+            </div>
+            <br>
+            <div class="field-set">
+                <div style="width: 100%; position: relative">
+                    {% include 'red_shell_recruiting/components/candidate_input_section_one.html' %}
                 </div>
                 <div style="width: 100%; margin-bottom: 1rem">
-                    <input required tabindex="5" name="candidate-phone-number" style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-phone-number" type="tel" placeholder="Phone Number" autocomplete="off">
-                    <input required tabindex="6" name="candidate-email" style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-email" type="email" placeholder="Email" autocomplete="off">
-                    <input tabindex="7" name="candidate-compensation" style="border-bottom: 1px solid var(--ui-support-element-color)"  class="text-input" id="candidate-compensation" type="number" placeholder="Compensation" autocomplete="off">
-                    <div class="align-baseline column  flex-start toggle-container">
-                        <label class="toggle  vertical-align justify-center">
-                            <input name="candidate-looking" id="candidate-looking" class="toggle-checkbox" type="checkbox">
-                            <div class="toggle-switch"></div>
-                            <span>Actively Looking</span>
-                        </label>
-                        <label class="toggle  vertical-align justify-center">
-                            <input name="candidate-relocation" id="candidate-relocation" class="toggle-checkbox" type="checkbox">
-                            <div class="toggle-switch"></div>
-                            <span>Open to relocation</span>
-                        </label>
-                        <label class="toggle  vertical-align justify-center">
-                            <input name="candidate-working" id="candidate-working" class="toggle-checkbox" type="checkbox">
-                            <div class="toggle-switch"></div>
-                            <span>Currently working</span>
-                        </label>
-                    </div>
+                    {% include 'red_shell_recruiting/components/candidate_input_section_two.html' %}
                 </div>
             </div>
             <textarea tabindex="8" name="candidate-notes" style="border: 1px solid var(--ui-support-element-color); height: 200px; padding: 0.5rem;" class="text-input" id="candidate-notes" type="text" placeholder="Notes" autocomplete="off"></textarea>
             <hr>
             <div class="flex-display space-between vertical-align space-between" style="width: 100%">
-                <div class="flex-display" style="margin-right:3rem;">
-                    <input required style="display: none;" type="file" id="resume" name="candidate_resume" accept=".pdf, .doc, .docx">
-                    <div class="vertical-divider" style="height: var(--std-item-height)"></div>
-                    <button type="button" class="button" onclick="document.getElementById('resume').click();">Upload Resume</button>
-                    <div style="margin-left: 1rem;" id="file-name"></div>
-                    <div id="resume-warning" style="display:none; color:red; margin-top:5px;">Please upload a resume before submitting.</div>
-                </div>
-                <button id="submit-btn" type="submit" class="button">Submit Candidate</button>
+                {% include 'red_shell_recruiting/components/candidate_input_resume.html' %}
             </div>
         </form>
     </div>
     <script>
 
         $(document).ready(function() {
-
-            $('#submit-btn').click(function(event) {
-
-
-                const state = $('#state-hidden').val();
-                const city = $('#city-hidden').val();
-
-                if (!state || !city) {
-                    event.preventDefault();
-                    console.log('Submitting...');
-                    addClientMessage('Please select both a State and a City.');
-                    return false;
-                }
-
-                const phone = $('#candidate-phone-number').val().trim();
-                const email = $('#candidate-email').val().trim();
-
-                const phoneDigits = phone.replace(/\D/g, '');
-                if (phoneDigits.length < 10 || phoneDigits.length > 15) {
-                    event.preventDefault();
-                    addClientMessage('Please enter a valid phone number.');
-                    return false;
-                }
-
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(email)) {
-                    event.preventDefault();
-                    addClientMessage('Please enter a valid email address.');
-                    return false;
-                }
-
-                const resume = $('#resume').val();
-
-                if (!resume) {
-                    event.preventDefault();
-                    $('#file-name').css('color', 'red').text('Please upload a resume before submitting.');
-                    return false;
-                }
-
-            });
-
-            $('#resume').change(function() {
-                const fileName = $(this).val().split('\\').pop();
-                if (fileName) {
-                    $('#file-name').css('color', 'black').text(fileName);
-                }
-            });
-
-            $(document).on('click', '.custom-close', function() {
-                $(this).closest('.alert').fadeOut('slow');
-            });
-
+            SubmitCandidate();
         });
 
     </script>

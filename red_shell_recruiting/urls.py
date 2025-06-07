@@ -7,12 +7,15 @@ from red_shell_recruiting.views import (
     UploadResume,
     UploadDocument,
     ArchiveDocument,
+    client_placement_list,
+    UploadCulinaryPortfolio,
+    ArchiveCulinaryPortfolio,
 )
 
 urlpatterns = [
     path(
         "",
-        views.CandidateEnter.as_view(),
+        views.CandidateInput.as_view(),
         name="candidate-submit",
     ),
     path("candidate-search/", CandidateSearch.as_view(), name="candidate-search"),
@@ -28,13 +31,32 @@ urlpatterns = [
         name="archive-document",
     ),
     path(
+        "candidate/culinary-portfolio/<int:portfolio_id>/archive/",
+        ArchiveCulinaryPortfolio.as_view(),
+        name="archive-culinary-portfolio",
+    ),
+    path(
         "candidate/<int:candidate_id>/upload-resume/",
         UploadResume.as_view(),
         name="upload-resume",
     ),
     path(
+        "candidate/<int:candidate_id>/upload-culinary-portfolio/",
+        UploadCulinaryPortfolio.as_view(),
+        name="upload-culinary-portfolio",
+    ),
+    path(
         "candidate/<int:candidate_id>/upload-document/",
         UploadDocument.as_view(),
         name="upload-document",
+    ),
+    path("api/client-placements/", client_placement_list, name="client-placement-list"),
+    path(
+        "api/candidate-titles/", views.candidate_title_list, name="candidate-title-list"
+    ),
+    path(
+        "api/candidate-ownership/",
+        views.candidate_ownership_list,
+        name="candidate-ownership-list",
     ),
 ]

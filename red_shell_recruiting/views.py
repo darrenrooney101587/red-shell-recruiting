@@ -20,7 +20,16 @@ from django.contrib import messages
 from django.views import View
 from django.db import IntegrityError, transaction
 
-from red_shell_recruiting.models import CandidateProfile, Resume, CandidateDocument
+from red_shell_recruiting.models import (
+    CandidateProfile,
+    CandidateResume,
+    CandidateDocument,
+    CandidateClientPlacement,
+    CandidateClientPlacementHistory,
+    CandidateProfileTitle,
+    CandidateOwnerShip,
+    CandidateCulinaryPortfolio,
+)
 
 
 @login_required
@@ -29,7 +38,34 @@ def index(request):
     return render(request, "red_shell_recruiting/index.html", context)
 
 
-class CandidateEnter(LoginRequiredMixin, View):
+def normalize_linkedin_url(url):
+    if not url:
+        return ""
+    url = url.strip()
+    if not url.startswith(("http://", "https://")):
+        url = f"https://{url}"
+    return url
+
+
+def client_placement_list(request):
+    placements = CandidateClientPlacement.objects.all().order_by("display_name")
+    data = [{"id": p.id, "name": p.display_name} for p in placements]
+    return JsonResponse(data, safe=False)
+
+
+def candidate_title_list(request):
+    titles = CandidateProfileTitle.objects.all().order_by("display_name")
+    data = [{"id": t.id, "name": t.display_name} for t in titles]
+    return JsonResponse(data, safe=False)
+
+
+def candidate_ownership_list(request):
+    titles = CandidateOwnerShip.objects.all().order_by("display_name")
+    data = [{"id": t.id, "name": t.display_name} for t in titles]
+    return JsonResponse(data, safe=False)
+
+
+class CandidateInput(LoginRequiredMixin, View):
     template_name_desktop = "red_shell_recruiting/candidate_input_desktop.html"
     template_name_mobile = "red_shell_recruiting/candidate_input_mobile.html"
 
@@ -40,16 +76,25 @@ class CandidateEnter(LoginRequiredMixin, View):
         return self.template_name_desktop
 
     def get(self, request, *args, **kwargs):
-        return render(request, self.get_template_name(request))
+        context = {"all_placements": CandidateClientPlacement.objects.all()}
+        return render(request, self.get_template_name(request), context)
 
     def post(self, request, *args, **kwargs):
         first_name = request.POST.get("candidate-first-name")
         last_name = request.POST.get("candidate-last-name")
-        job_title = request.POST.get("candidate-job-title")
+        title_id = request.POST.get("candidate-title-id")
+        title_obj = (
+            CandidateProfileTitle.objects.filter(id=title_id).first()
+            if title_id
+            else None
+        )
         phone_number = request.POST.get("candidate-phone-number")
         email = request.POST.get("candidate-email")
-        compensation = (
-            str(request.POST.get("candidate-compensation")).replace(",", "") or 0
+        compensation_from = (
+            str(request.POST.get("candidate-compensation-from")).replace(",", "") or 0
+        )
+        compensation_to = (
+            str(request.POST.get("candidate-compensation-to")).replace(",", "") or 0
         )
         notes = request.POST.get("candidate-notes")
         candidate_state = request.POST.get("candidate-state")
@@ -58,26 +103,53 @@ class CandidateEnter(LoginRequiredMixin, View):
         open_to_relocation = bool(request.POST.get("candidate-relocation"))
         currently_working = bool(request.POST.get("candidate-working"))
         candidate_resume = request.FILES.get("candidate_resume")
+        raw_linkedin_url = request.POST.get("candidate-linkedin-url", "").strip()
+        linkedin_url = normalize_linkedin_url(raw_linkedin_url)
+
+        placement_id = request.POST.get("client-placement-id")
+        placement_month = request.POST.get("client-placement-month")
+        placement_year = request.POST.get("client-placement-year")
+
+        ownership_id = request.POST.get("candidate-ownership-id")
+        ownership_obj = (
+            CandidateOwnerShip.objects.filter(id=ownership_id).first()
+            if ownership_id
+            else None
+        )
 
         try:
             with transaction.atomic():
                 candidate = CandidateProfile.objects.create(
                     first_name=first_name,
                     last_name=last_name,
+                    title=title_obj,
+                    ownership=ownership_obj,
                     state=candidate_state,
                     city=candidate_city,
-                    job_title=job_title,
                     phone_number=phone_number,
                     email=email,
-                    compensation=compensation,
+                    compensation_from=compensation_from,
+                    compensation_to=compensation_to,
                     notes=notes,
                     open_to_relocation=open_to_relocation,
                     currently_working=currently_working,
                     actively_looking=actively_looking,
+                    linkedin_url=linkedin_url,
                 )
 
+                if placement_id and placement_month and placement_year:
+                    placement_history = CandidateClientPlacementHistory.objects.create(
+                        candidate=candidate,
+                        placement_id=placement_id,
+                        month=placement_month,
+                        year=placement_year,
+                    )
+
+                    candidate.candidate_placement_history = placement_history
+                    candidate.save(update_fields=["candidate_placement_history"])
+
                 if candidate_resume:
-                    resume = Resume.objects.create(
+                    resume = CandidateResume.objects.create(
                         candidate=candidate, file=candidate_resume
                     )
                     update_resume_search_vector.delay(resume.id)
@@ -85,8 +157,15 @@ class CandidateEnter(LoginRequiredMixin, View):
                     raise IntegrityError("Resume upload failed.")
 
         except IntegrityError as e:
-            messages.error(request, f"Error saving candidate: {str(e)}")
-            return redirect("candidate-submit")
+            if str(e).startswith("duplicate key"):
+                messages.error(
+                    request,
+                    f"Looks like a candidate with that email already exists for {email}",
+                )
+                return redirect("candidate-submit")
+            else:
+                messages.error(request, f"Error saving candidate: {str(e)}")
+                return redirect("candidate-submit")
 
         messages.success(request, f"{first_name} {last_name} has been added.")
         return redirect("candidate-submit")
@@ -105,16 +184,29 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         request = self.request
-        query = request.GET.get("q", "").strip()
+
+        all_titles = CandidateProfileTitle.objects.all().order_by("display_name")
+        all_ownerships = CandidateOwnerShip.objects.all().order_by("display_name")
 
         toggle_filters = {
             "actively_looking": request.GET.get("actively_looking"),
             "open_to_relocation": request.GET.get("open_to_relocation"),
             "currently_working": request.GET.get("currently_working"),
+            "previously_placed": request.GET.get("previously_placed"),
         }
         toggles_active = any(toggle_filters.values())
 
-        candidates = CandidateProfile.objects.none()
+        title_id = request.GET.get("title_id")
+        ownership_id = request.GET.get("ownership_id")
+        query = request.GET.get("q", "").strip()
+
+        candidates = CandidateProfile.objects.all()
+
+        if title_id:
+            candidates = candidates.filter(title_id=title_id)
+
+        if ownership_id:
+            candidates = candidates.filter(ownership_id=ownership_id)
 
         if query:
             candidates = (
@@ -160,17 +252,17 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
                 .distinct()
             )
 
-        elif toggles_active:
-            candidates = CandidateProfile.objects.all()
+        elif not (toggles_active or title_id or ownership_id):
+            candidates = CandidateProfile.objects.none()
 
         if toggle_filters["actively_looking"]:
             candidates = candidates.filter(actively_looking=True)
-
         if toggle_filters["open_to_relocation"]:
             candidates = candidates.filter(open_to_relocation=True)
-
         if toggle_filters["currently_working"]:
             candidates = candidates.filter(currently_working=True)
+        if toggle_filters["previously_placed"]:
+            candidates = candidates.filter(placement_record__isnull=False)
 
         candidates = candidates.annotate(resume_count=Count("resumes"))
 
@@ -178,7 +270,12 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
         context["query"] = query
         context["selected_count"] = candidates.count()
         context["total_count_profile"] = CandidateProfile.objects.count()
-        context["total_count_resume"] = Resume.objects.count()
+        context["total_count_resume"] = CandidateResume.objects.count()
+        context["all_titles"] = all_titles
+        context["selected_title_id"] = title_id
+        context["all_ownerships"] = all_ownerships
+        context["selected_ownership_id"] = ownership_id
+
         return context
 
 
@@ -197,39 +294,114 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
         candidate_id = self.kwargs.get("candidate_id")
         candidate = get_object_or_404(CandidateProfile, id=candidate_id)
         context["candidate"] = candidate
+        context["resumes"] = candidate.resumes.filter(archived=False)
+        context["portfolios"] = candidate.culinary_portfolios.filter(archived=False)
+        context["documents"] = candidate.documents.filter(archived=False)
+        context["has_placement_records"] = candidate.placement_record.exists()
         return context
 
     def post(self, request, *args, **kwargs):
         candidate_id = self.kwargs.get("candidate_id")
         candidate = get_object_or_404(CandidateProfile, id=candidate_id)
-        candidate.first_name = request.POST.get("first_name", candidate.first_name)
-        candidate.last_name = request.POST.get("last_name", candidate.last_name)
+
+        # ----- Update candidate base info -----
+        candidate.first_name = request.POST.get("first-name", candidate.first_name)
+        candidate.last_name = request.POST.get("last-name", candidate.last_name)
         candidate.state = request.POST.get("candidate-state", candidate.state)
         candidate.city = request.POST.get("candidate-city", candidate.city)
-        candidate.job_title = request.POST.get("job_title", candidate.job_title)
         candidate.phone_number = request.POST.get(
-            "phone_number", candidate.phone_number
+            "phone-number", candidate.phone_number
         )
         candidate.email = request.POST.get("email", candidate.email)
-        candidate.compensation = str(
-            request.POST.get("compensation", candidate.compensation)
+        candidate.compensation_from = str(
+            request.POST.get("compensation-from", candidate.compensation_from)
+        ).replace(",", "")
+        candidate.compensation_to = str(
+            request.POST.get("compensation-to", candidate.compensation_to)
         ).replace(",", "")
         candidate.notes = request.POST.get("notes", candidate.notes)
-        candidate.open_to_relocation = request.POST.get("open_to_relocation") == "on"
-        candidate.currently_working = request.POST.get("currently_working") == "on"
-        candidate.actively_looking = request.POST.get("actively_looking") == "on"
+        candidate.open_to_relocation = request.POST.get("open-to-relocation") == "on"
+        candidate.currently_working = request.POST.get("currently-working") == "on"
+        candidate.actively_looking = request.POST.get("actively-looking") == "on"
+        raw_linkedin_url = request.POST.get("candidate-linkedin-url", "").strip()
+        candidate.linkedin_url = normalize_linkedin_url(raw_linkedin_url)
+
+        title_id = request.POST.get("candidate-title-id")
+        if title_id:
+            title_obj = CandidateProfileTitle.objects.filter(id=title_id).first()
+            if title_obj:
+                candidate.title = title_obj
+
+        owner_id = request.POST.get("candidate-ownership-id")
+        if owner_id:
+            owner_obj = CandidateOwnerShip.objects.filter(id=owner_id).first()
+            if owner_obj:
+                candidate.ownership = owner_obj
+
         candidate.save()
 
+        # ----- Portfolio upload (if applicable) -----
+        culinary_file = request.FILES.get("candidate_culinary_portfolio")
+
+        if culinary_file:
+            portfolio = CandidateCulinaryPortfolio.objects.create(
+                candidate=candidate, file=culinary_file
+            )
+
+        # ----- Resume upload (if applicable) -----
         uploaded_file = request.FILES.get("resume-file")
         if uploaded_file:
-            Resume.objects.create(candidate=candidate, file=uploaded_file)
+            CandidateResume.objects.create(candidate=candidate, file=uploaded_file)
+
+        # ----- If toggle is OFF: delete all placements and return -----
+        if request.POST.get("remove_all_placements") == "true":
+            CandidateClientPlacementHistory.objects.filter(candidate=candidate).delete()
+            return redirect("candidate-detail", candidate_id=candidate.id)
+
+        # ----- Handle placement records -----
+        placement_total = int(request.POST.get("placement_total_count", 0))
+
+        for i in range(1, placement_total + 1):
+            placement_id = request.POST.get(f"placement_id_{i}")
+            placement_month = request.POST.get(f"placement_month_{i}")
+            placement_year = request.POST.get(f"placement_year_{i}")
+            record_id = request.POST.get(f"placement_record_id_{i}")
+            delete_flag = request.POST.get(f"delete_placement_{i}") == "true"
+
+            if delete_flag and record_id:
+                CandidateClientPlacementHistory.objects.filter(
+                    id=record_id, candidate=candidate
+                ).delete()
+                continue
+
+            if not placement_id or not placement_month or not placement_year:
+                continue  # skip incomplete rows
+
+            if record_id:
+                try:
+                    record = CandidateClientPlacementHistory.objects.get(
+                        id=record_id, candidate=candidate
+                    )
+                    record.placement_id = placement_id
+                    record.month = int(placement_month)
+                    record.year = int(placement_year)
+                    record.save()
+                except CandidateClientPlacementHistory.DoesNotExist:
+                    continue
+            else:
+                CandidateClientPlacementHistory.objects.create(
+                    candidate=candidate,
+                    placement_id=placement_id,
+                    month=int(placement_month),
+                    year=int(placement_year),
+                )
 
         return redirect("candidate-detail", candidate_id=candidate.id)
 
 
 class ArchiveResume(LoginRequiredMixin, View):
     def post(self, request, resume_id):
-        resume = get_object_or_404(Resume, id=resume_id)
+        resume = get_object_or_404(CandidateResume, id=resume_id)
 
         s3 = boto3.client(
             "s3",
@@ -339,15 +511,76 @@ class ArchiveDocument(LoginRequiredMixin, View):
         return redirect("candidate-detail", candidate_id=document.candidate.id)
 
 
+class ArchiveCulinaryPortfolio(LoginRequiredMixin, View):
+    def post(self, request, portfolio_id):
+        portfolio = get_object_or_404(CandidateCulinaryPortfolio, id=portfolio_id)
+
+        s3 = boto3.client(
+            "s3",
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            region_name=settings.AWS_S3_REGION_NAME,
+        )
+        bucket = settings.AWS_STORAGE_BUCKET_NAME
+        original_key = portfolio.file.name
+        archive_key = original_key.replace("portfolios/", "portfolios/archive/")
+
+        try:
+            # Copy to archive location
+            s3.copy_object(
+                Bucket=bucket,
+                CopySource={"Bucket": bucket, "Key": original_key},
+                Key=archive_key,
+            )
+            # Delete original
+            s3.delete_object(Bucket=bucket, Key=original_key)
+        except ClientError as e:
+            if e.response["Error"]["Code"] == "NoSuchKey":
+                return render(
+                    request,
+                    "500.html",
+                    {
+                        "message": f"The portfolio could not be found in S3 at: {original_key}"
+                    },
+                    status=500,
+                )
+            else:
+                return render(
+                    request,
+                    "500.html",
+                    {
+                        "message": "An unexpected error occurred while archiving the portfolio."
+                    },
+                    status=500,
+                )
+        except Exception:
+            return render(
+                request,
+                "500.html",
+                {
+                    "message": "An unexpected error occurred while archiving the portfolio."
+                },
+                status=500,
+            )
+
+        # Update DB
+        portfolio.archived = True
+        portfolio.file.name = archive_key  # update file path
+        portfolio.save(update_fields=["archived", "file"])
+
+        return redirect("candidate-detail", candidate_id=portfolio.candidate.id)
+
+
 class UploadResume(LoginRequiredMixin, View):
     def post(self, request, candidate_id):
         candidate = get_object_or_404(CandidateProfile, id=candidate_id)
-        uploaded_file = request.FILES.get("resume")
+        uploaded_file = request.FILES.get("candidate-resume")
 
         if uploaded_file:
-            resume = Resume.objects.create(
+            resume = CandidateResume.objects.create(
                 candidate=candidate, file=uploaded_file, archived=False
             )
+            # TODO may want to remove vectoring for resumes
             update_resume_search_vector.delay(resume.id)
 
             return JsonResponse({"success": True})
@@ -358,13 +591,30 @@ class UploadResume(LoginRequiredMixin, View):
 class UploadDocument(LoginRequiredMixin, View):
     def post(self, request, candidate_id):
         candidate = get_object_or_404(CandidateProfile, id=candidate_id)
-        uploaded_file = request.FILES.get("candidate_document")
+        uploaded_file = request.FILES.get("candidate-document")
 
         if uploaded_file:
             doc = CandidateDocument.objects.create(
                 candidate=candidate, file=uploaded_file
             )
+            # TODO may want to remove vectoring for documents
             update_document_search_vector.delay(doc.id)
+            return JsonResponse({"success": True})
+
+        return JsonResponse({"success": False, "error": "No file uploaded"}, status=400)
+
+
+class UploadCulinaryPortfolio(LoginRequiredMixin, View):
+    def post(self, request, candidate_id):
+        candidate = get_object_or_404(CandidateProfile, id=candidate_id)
+        uploaded_file = request.FILES.get("candidate-portfolio")
+
+        if uploaded_file:
+            portfolio = CandidateCulinaryPortfolio.objects.create(
+                candidate=candidate, file=uploaded_file
+            )
+            # Optional background task
+            # update_portfolio_search_vector.delay(portfolio.id)
             return JsonResponse({"success": True})
 
         return JsonResponse({"success": False, "error": "No file uploaded"}, status=400)
