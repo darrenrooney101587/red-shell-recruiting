@@ -161,11 +161,7 @@ function PlacementEditSaveActions(mobile = false) {
                             <input name="placement_month_${placementIndex}" placeholder="Month" class="text-input" style="width: 80px; border-bottom: 1px solid var(--ui-support-element-color);">
                             <input name="placement_year_${placementIndex}" placeholder="Year" class="text-input" style="width: 100px; border-bottom: 1px solid var(--ui-support-element-color);">
                             <input type="hidden" name="delete_placement_${placementIndex}" value="false" class="delete-marker">
-                            <button type="button" class="button remove-placement" style="margin-left: 0.5rem;">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M16.2426 7.75736C16.6332 7.36683 16.6332 6.73367 16.2426 6.34314C15.8521 5.95262 15.2189 5.95262 14.8284 6.34314L12 9.17157L9.17157 6.34314C8.78105 5.95262 8.14788 5.95262 7.75736 6.34314C7.36683 6.73367 7.36683 7.36683 7.75736 7.75736L10.5858 10.5858L7.75736 13.4142C7.36683 13.8047 7.36683 14.4379 7.75736 14.8284C8.14788 15.2189 8.78105 15.2189 9.17157 14.8284L12 12L14.8284 14.8284C15.2189 15.2189 15.8521 15.2189 16.2426 14.8284C16.6332 14.4379 16.6332 13.8047 16.2426 13.4142L13.4142 10.5858L16.2426 7.75736Z" fill="currentColor"/>
-                                </svg>
-                            </button>
+                            ${removePlacementButton}
                         </div>
                     </div>
                 `;
@@ -192,11 +188,7 @@ function PlacementEditSaveActions(mobile = false) {
                         <input name="placement_month_${placementIndex}" placeholder="Month" class="text-input" style="margin-left: 1rem; width: 80px; border-bottom: 1px solid var(--ui-support-element-color);">
                         <input name="placement_year_${placementIndex}" placeholder="Year" class="text-input" style="margin-left: 1rem; width: 100px; border-bottom: 1px solid var(--ui-support-element-color);">
                         <input type="hidden" name="delete_placement_${placementIndex}" value="false" class="delete-marker">
-                        <button type="button" class="button remove-placement" style="margin-left: 0.5rem;">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" clip-rule="evenodd" d="M16.2426 7.75736C16.6332 7.36683 16.6332 6.73367 16.2426 6.34314C15.8521 5.95262 15.2189 5.95262 14.8284 6.34314L12 9.17157L9.17157 6.34314C8.78105 5.95262 8.14788 5.95262 7.75736 6.34314C7.36683 6.73367 7.36683 7.36683 7.75736 7.75736L10.5858 10.5858L7.75736 13.4142C7.36683 13.8047 7.36683 14.4379 7.75736 14.8284C8.14788 15.2189 8.78105 15.2189 9.17157 14.8284L12 12L14.8284 14.8284C15.2189 15.2189 15.8521 15.2189 16.2426 14.8284C16.6332 14.4379 16.6332 13.8047 16.2426 13.4142L13.4142 10.5858L16.2426 7.75736Z" fill="currentColor"/>
-                            </svg>
-                        </button>
+                        ${removePlacementButton}
                     </div>
                 `;
         }

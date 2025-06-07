@@ -70,7 +70,11 @@ class CandidateProfile(models.Model):
         related_name="candidates",
     )
     ownership = models.ForeignKey(
-        CandidateOwnerShip, on_delete=models.PROTECT, default=None
+        CandidateOwnerShip,
+        on_delete=models.PROTECT,
+        default=None,
+        null=True,
+        blank=True,
     )
     phone_number = models.CharField(max_length=15)
     email = models.EmailField(unique=True)
@@ -90,6 +94,7 @@ class CandidateProfile(models.Model):
         blank=True,
         related_name="currently_active_for",
     )
+    linkedin_url = models.URLField(null=True)
 
     @property
     def previously_placed(self):
@@ -115,6 +120,7 @@ class CandidateProfile(models.Model):
             f"actively_looking={self.actively_looking}, "
             f"created_at={self.created_at}, "
             f"updated_at={self.updated_at}, "
+            f"linkedin_url={self.linkedin_url}, "
             f"placement_history_id={self.candidate_placement_history_id}"
             f")"
         )

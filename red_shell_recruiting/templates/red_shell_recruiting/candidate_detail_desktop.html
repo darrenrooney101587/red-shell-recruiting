@@ -37,6 +37,7 @@
                         <span style="color: var(--faded-gray-color)" class="small-title">Ownership</span>
                         <input type="text" value="{{ candidate.ownership.display_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
                     </div>
+                    {% include 'red_shell_recruiting/components/candidate_linked_in_url.html' %}
                 </div>
                 <div style="width: 50%; position: relative">
                     <div>
@@ -85,6 +86,7 @@
                     </div>
                 </div>
             </div>
+            <hr>
             <div style="margin-bottom: 1rem;">
                 <span style="color: var(--faded-gray-color)" class="small-title">Notes</span>
                 <textarea class="text-input" style="border: 1px solid var(--ui-support-element-color); height: 200px; padding: 0.5rem;" disabled>{{ candidate.notes }}</textarea>
@@ -157,14 +159,11 @@
             </ul>
             <div class="flex-display vertical-align" style="margin-top: 1rem;">
                 <input type="file" id="candidate-document" name="candidate_document" style="display: none;" accept=".pdf,.doc,.docx">
-
                 <button type="button" id="trigger-document-upload" class="button flex-display vertical-align space-between">
                     {% include 'red_shell_recruiting/components/svg_components.html' with type='quick-add' %}
                     <span style="margin-left: 3px;">Add Document</span>
                 </button>
-
                 <div id="document-file-name" style="margin-left: 1rem;"></div>
-
                 <button id="add-document-button" class="button flex-display vertical-align space-between" style="display: none; margin-left: 1rem;">
                     {% include 'red_shell_recruiting/components/svg_components.html' with type='download' %}
                     <span style="margin-left: 3px;">Upload</span>
@@ -186,6 +185,7 @@
                         {% else %}
                             {% include 'red_shell_recruiting/components/ownership_dropdown_component.html' with selected_owner=candidate.ownership disabled=True %}
                         {% endif %}
+                        <input type="text" name="candidate-linkedin-url" class="text-input" placeholder="Linkedin URL" value="{{ candidate.linkedin_url|default_if_none:"" }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
                     </div>
                     <div style="width: 50%; position: relative">
                         <input type="tel" name="phone-number" class="text-input" placeholder="Phone Number" value="{{ candidate.phone_number }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
@@ -242,9 +242,7 @@
                                 <input name="placement_year_{{ forloop.counter }}" value="{{ record.year }}" placeholder="Year" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); margin-left: 1rem; width: 100px;">
                                 <input type="hidden" name="placement_record_id_{{ forloop.counter }}" value="{{ record.id }}">
                                 <input type="hidden" name="delete_placement_{{ forloop.counter }}" value="false" class="delete-marker">
-                                <button type="button" class="button remove-placement" style="margin-left: 0.5rem;">
-                                    {% include 'red_shell_recruiting/components/svg_components.html' with type='close' %}
-                                </button>
+                                {% include 'red_shell_recruiting/components/candidate_remove_placement_button.html' %}
                             </div>
                         {% endfor %}
                         <input type="hidden" name="placement_total_count" value="{{ candidate.placement_record.count }}">
@@ -267,8 +265,12 @@
             </form>
         </div>
     </div>
+    <script type="text/template" id="remove-placement-button-template">
+        {% include 'red_shell_recruiting/components/candidate_remove_placement_button.html' %}
+    </script>
     <script>
         const clientPlacementListUrl = "{% url 'client-placement-list' %}";
+        const removePlacementButton = $("#remove-placement-button-template").html();
     </script>
     <script src="{% static 'js/candidate_edit_save.js' %}" crossorigin="anonymous"></script>
     <script>

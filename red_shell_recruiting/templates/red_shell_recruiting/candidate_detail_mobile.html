@@ -66,6 +66,7 @@
                             {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.currently_working %}
                         </div>
                     </div>
+                    {% include 'red_shell_recruiting/components/candidate_linked_in_url.html' %}
                     <hr>
                     <div class="flex-display column" style="margin-bottom: 1rem;">
                         <h4 class="small-title" style="color: var(--theme-base-color); opacity: 0.7; font-size: 12px">Placement History</h4>
@@ -181,8 +182,7 @@
                             {% include 'red_shell_recruiting/components/ownership_dropdown_component.html' with selected_owner=candidate.ownership %}
                         {% else %}
                             {% include 'red_shell_recruiting/components/ownership_dropdown_component.html' with selected_owner=candidate.ownership disabled=True %}
-                        {% endif %}{#                    </div>#}
-{#                    <div style="width: 50%; position: relative">#}
+                        {% endif %}
                         <input type="tel" name="phone_number" class="text-input" placeholder="Phone Number" value="{{ candidate.phone_number }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
                         <input type="email" name="email" class="text-input" placeholder="Email" value="{{ candidate.email }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
                         <div>
@@ -192,6 +192,7 @@
                                 <input type="text" name="compensation-to" value="{{ candidate.compensation_to }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)">
                             </div>
                         </div>
+                        <input type="text" name="candidate-linkedin-url" class="text-input" placeholder="Linkedin URL" value="{{ candidate.linkedin_url|default_if_none:"" }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
                         <div class="align-baseline column flex-display flex-start toggle-container" style="margin-top: 1rem; margin-bottom: 1rem">
                             <label class="toggle flex-display vertical-align justify-center" style="margin-bottom: 1rem;">
                                 <input name="actively-looking" id="candidate-looking" class="toggle-checkbox" type="checkbox" {% if candidate.actively_looking %}checked{% endif %}>
@@ -240,9 +241,7 @@
                                     <input name="placement_year_{{ forloop.counter }}" value="{{ record.year }}" placeholder="Year" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); width: 100px;">
                                     <input type="hidden" name="placement_record_id_{{ forloop.counter }}" value="{{ record.id }}">
                                     <input type="hidden" name="delete_placement_{{ forloop.counter }}" value="false" class="delete-marker">
-                                    <button type="button" class="button remove-placement" style="margin-left: 0.5rem;">
-                                        {% include 'red_shell_recruiting/components/svg_components.html' with type='close' %}
-                                    </button>
+                                    {% include 'red_shell_recruiting/components/candidate_remove_placement_button.html' %}
                                 </div>
                             </div>
                         {% endfor %}
@@ -266,8 +265,12 @@
             </form>
         </div>
     </div>
+    <script type="text/template" id="remove-placement-button-template">
+        {% include 'red_shell_recruiting/components/candidate_remove_placement_button.html' %}
+    </script>
     <script>
         const clientPlacementListUrl = "{% url 'client-placement-list' %}";
+        const removePlacementButton = $("#remove-placement-button-template").html();
     </script>
     <script src="{% static 'js/candidate_edit_save.js' %}" crossorigin="anonymous"></script>
     <script>

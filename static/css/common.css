@@ -945,8 +945,8 @@ li.nav-item.sub {
 }
 
 .message-text {
-  padding: 1rem;
-  height: 100%;
+  padding: 0.5rem;
+  height: 101%;
 }
 
 .client-placement-dropdown-wrapper {
@@ -960,4 +960,14 @@ li.nav-item.sub {
 .custom-dropdown.dropdown-disabled {
   pointer-events: none;
   opacity: 0.5;
+}
+
+.custom-close svg {
+  position: relative;
+  top: 3px;
+}
+
+.button.remove-placement svg {
+  position: relative;
+  /*top: 1px;*/
 }

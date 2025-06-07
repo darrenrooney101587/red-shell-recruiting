@@ -37,6 +37,15 @@ def index(request):
     return render(request, "red_shell_recruiting/index.html", context)
 
 
+def normalize_linkedin_url(url):
+    if not url:
+        return ""
+    url = url.strip()
+    if not url.startswith(("http://", "https://")):
+        url = f"https://{url}"
+    return url
+
+
 def client_placement_list(request):
     placements = CandidateClientPlacement.objects.all().order_by("display_name")
     data = [{"id": p.id, "name": p.display_name} for p in placements]
@@ -93,6 +102,8 @@ class CandidateInput(LoginRequiredMixin, View):
         open_to_relocation = bool(request.POST.get("candidate-relocation"))
         currently_working = bool(request.POST.get("candidate-working"))
         candidate_resume = request.FILES.get("candidate_resume")
+        raw_linkedin_url = request.POST.get("candidate-linkedin-url", "").strip()
+        linkedin_url = normalize_linkedin_url(raw_linkedin_url)
 
         placement_id = request.POST.get("client-placement-id")
         placement_month = request.POST.get("client-placement-month")
@@ -122,6 +133,7 @@ class CandidateInput(LoginRequiredMixin, View):
                     open_to_relocation=open_to_relocation,
                     currently_working=currently_working,
                     actively_looking=actively_looking,
+                    linkedin_url=linkedin_url,
                 )
 
                 if placement_id and placement_month and placement_year:
@@ -281,14 +293,12 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
         candidate_id = self.kwargs.get("candidate_id")
         candidate = get_object_or_404(CandidateProfile, id=candidate_id)
         context["candidate"] = candidate
-        print(f"Candidate ID: {candidate}")
         return context
 
     def post(self, request, *args, **kwargs):
         candidate_id = self.kwargs.get("candidate_id")
         candidate = get_object_or_404(CandidateProfile, id=candidate_id)
 
-        print(request.POST)
         # ----- Update candidate base info -----
         candidate.first_name = request.POST.get("first-name", candidate.first_name)
         candidate.last_name = request.POST.get("last-name", candidate.last_name)
@@ -308,6 +318,8 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
         candidate.open_to_relocation = request.POST.get("open-to-relocation") == "on"
         candidate.currently_working = request.POST.get("currently-working") == "on"
         candidate.actively_looking = request.POST.get("actively-looking") == "on"
+        raw_linkedin_url = request.POST.get("candidate-linkedin-url", "").strip()
+        candidate.linkedin_url = normalize_linkedin_url(raw_linkedin_url)
 
         title_id = request.POST.get("candidate-title-id")
         if title_id:

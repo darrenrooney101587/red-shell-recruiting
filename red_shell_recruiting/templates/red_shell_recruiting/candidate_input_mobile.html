@@ -19,9 +19,7 @@
                 {% for message in messages %}
                     <div class="alert {{ message.tags }} alert-dismissible fade show flex-display space-between vertical-align" role="alert" style="width: 100%;">
                         <span class="message-text">{{ message }}</span>
-                        <span class="custom-close" style="cursor: pointer;">
-                            {% include 'red_shell_recruiting/components/svg_components.html' with type='close' %}
-                        </span>
+                        {% include 'red_shell_recruiting/components/candidate_close_button.html' %}
                     </div>
                 {% endfor %}
             </div>
