@@ -229,6 +229,13 @@
             populateCandidateTitles();
             populateCandidateOwners();
 
+            $('.candidate-card').on('click', function() {
+                var candidateId = $(this).data('candidate-id');
+                if (candidateId) {
+                    window.location.href = '/candidate/' + candidateId + '/';
+                }
+            });
+
             // title click handler
             $('#candidate-title-list').on('click', '.option', function (event) {
                 event.stopPropagation();

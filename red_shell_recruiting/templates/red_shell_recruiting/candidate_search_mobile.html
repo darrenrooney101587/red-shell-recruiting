@@ -54,50 +54,7 @@
                                 </label>
                             </div>
                             <hr>
-                            <div style=" height: 25px; margin-bottom: 1rem;" class="custom-dropdown" id="title-search-dropdown-wrapper">
-                                <div class="flex-display space-between">
-                                    <div class="selected-option" id="candidate-title-dropdown">
-                                        {% with selected=request.GET.title_id|default:'' %}
-                                            {% for title in all_titles %}
-                                                {% if title.id|stringformat:"s" == selected %}
-                                                    {{ title.display_name }}
-                                                {% endif %}
-                                            {% endfor %}
-                                            {% if not selected %}Select a Title{% endif %}
-                                        {% endwith %}
-                                    </div>
-                                    <span class="chevron-down">{% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}</span>
-                                    <span class="chevron-up" style="display: none;">{% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}</span>
-                                </div>
-                                <ul class="dropdown-list" id="candidate-title-list">
-                                    {% for title in all_titles %}
-                                        <li class="option" data-value="{{ title.id }}">{{ title.display_name }}</li>
-                                    {% endfor %}
-                                </ul>
-                                <input type="hidden" name="title_id" id="candidate-title-hidden" value="{{ request.GET.title_id }}">
-                            </div>
-                            <div style=" height: 25px" class="custom-dropdown" id="ownership-search-dropdown-wrapper">
-                                <div class="flex-display space-between">
-                                    <div class="selected-option" id="candidate-ownership-dropdown">
-                                        {% with selected=request.GET.ownership_id|default:'' %}
-                                            {% for owner in all_ownerships %}
-                                                {% if owner.id|stringformat:"s" == selected %}
-                                                    {{ owner.display_name }}
-                                                {% endif %}
-                                            {% endfor %}
-                                            {% if not selected %}Select an Ownership{% endif %}
-                                        {% endwith %}
-                                    </div>
-                                    <span class="chevron-down">{% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}</span>
-                                    <span class="chevron-up" style="display: none;">{% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}</span>
-                                </div>
-                                <ul class="dropdown-list" id="candidate-ownership-list">
-                                    {% for owner in all_ownerships %}
-                                        <li class="option" data-value="{{ owner.id }}">{{ owner.display_name }}</li>
-                                    {% endfor %}
-                                </ul>
-                                <input type="hidden" name="ownership_id" id="candidate-ownership-hidden" value="{{ request.GET.ownership_id }}">
-                            </div>
+                            {% include 'red_shell_recruiting/components/candidate_search_dropdowns.html' %}
                         </div>
                     </div>
                 </div>
@@ -118,7 +75,7 @@
                         <div class="">
                             <div>
                                 <span style="font-size: 9px; color: var(--faded-gray-color)">Job Title</span>
-                                <h4>{{ candidate.job_title }}</h4>
+                                <h4>{{ candidate.title.display_name }}</h4>
                             </div>
                             <div>
                                 <span style="font-size: 9px; color: var(--faded-gray-color)">Email</span>
@@ -139,6 +96,10 @@
                                 <div class="flex-display vertical-align space-between" style="margin-bottom: 1rem; width: 150px;">
                                     <h5 style="margin-right: 0.5rem;">Currently Working</h5>
                                     {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.currently_working %}
+                                </div>
+                                <div class="flex-display vertical-align space-between" style="margin-bottom: 1rem; width: 150px;">
+                                    <h5 style="margin-right: 0.5rem;">Previously Placed</h5>
+                                    {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.placement_record.exists %}
                                 </div>
                             </div>
                             <hr>
@@ -161,17 +122,11 @@
     <script>
         $(document).ready(function() {
 
-            $('#clear-button').on('click', function() {
-                $('input[type="text"]').val('');
-                $('input[type="checkbox"]').prop('checked', false);
-            });
+            {#$('#clear-button').on('click', function() {#}
+            {#    $('input[type="text"]').val('');#}
+            {#    $('input[type="checkbox"]').prop('checked', false);#}
+            {#});#}
 
-            $('.candidate-card').on('click', function() {
-                var candidateId = $(this).data('candidate-id');
-                if (candidateId) {
-                    window.location.href = '/candidate/' + candidateId + '/';
-                }
-            });
         });
     </script>
 {% endblock %}

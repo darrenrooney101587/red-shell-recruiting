@@ -952,3 +952,7 @@ li.nav-item.sub {
 #client-placement-dropdown-wrapper {
   margin-bottom: 0.5rem;
 }
+
+.search-dropdown .custom-dropdown {
+  width: 250px !important;
+}
