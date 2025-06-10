@@ -81,7 +81,7 @@
                         <ul style="margin-top: 0.5rem;">
                             {% for record in candidate.placement_record.all %}
                                 <li style="margin-bottom: 0.25rem; font-size: 14px;">
-                                    {{ record.placement.display_name }} — {{ record.month }}/{{ record.year }}
+                                    {{ record.placement.display_name }} - {{ record.month }}/{{ record.year }} - {{ record.compensation }}
                                 </li>
                             {% endfor %}
                         </ul>
@@ -205,25 +205,34 @@
             </div>
         </div>
         <div id="candidate-edit-mode" class="section" style="display: none;">
-            <form method="post">
+            <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="alert {{ message.tags }} alert-dismissible fade show flex-display space-between vertical-align" role="alert" style="width: 100%;">
+                            <span class="message-text">{{ message }}</span>
+                            {% include 'red_shell_recruiting/components/candidate_close_button.html' %}
+                        </div>
+                    {% endfor %}
+                </div>
+                <br>
                 <div class="field-set flex-display" style="column-gap: 2rem; min-height: 280px;">
                     <div style="width: 50%; position: relative">
-                        <input type="text" name="first-name" class="text-input" placeholder="First Name" value="{{ candidate.first_name }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
-                        <input type="text" name="last-name" class="text-input" placeholder="Last Name" value="{{ candidate.last_name }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                        <input type="text" id="candidate-first-name" name="candidate-first-name" class="text-input" placeholder="First Name" value="{{ candidate.first_name }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                        <input type="text" id="candidate-last-name" name="candidate-last-name" class="text-input" placeholder="Last Name" value="{{ candidate.last_name }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
                         {% include 'red_shell_recruiting/components/state_dropdown_component.html' %}
                         {% include 'red_shell_recruiting/components/city_dropdown_component.html' %}
                         {% include 'red_shell_recruiting/components/title_dropdown_component.html' with selected_title=candidate.title %}
                         <input type="text" name="candidate-linkedin-url" class="text-input" placeholder="Linkedin URL" value="{{ candidate.linkedin_url|default_if_none:"" }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
                     </div>
                     <div style="width: 50%; position: relative">
-                        <input type="tel" name="phone-number" class="text-input" placeholder="Phone Number" value="{{ candidate.phone_number }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
-                        <input type="email" name="email" class="text-input" placeholder="Email" value="{{ candidate.email }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                        <input type="tel" id="candidate-phone-number" name="candidate-phone-number" class="text-input" placeholder="Phone Number" value="{{ candidate.phone_number }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                        <input type="email" id="candidate-email" name="candidate-email" class="text-input" placeholder="Email" value="{{ candidate.email }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
                         <div>
                             <span style="color: var(--faded-gray-color)" class="small-title">Compensation range</span>
                             <div class="flex-display">
-                                <input type="text" name="compensation-from" value="{{ candidate.compensation_from }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;">
-                                <input type="text" name="compensation-to" value="{{ candidate.compensation_to }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                                <input type="text" id="candidate-compensation-from" name="candidate-compensation-from" value="{{ candidate.compensation_from }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;">
+                                <input type="text" id="candidate-compensation-to" name="candidate-compensation-to" value="{{ candidate.compensation_to }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)">
                             </div>
                         </div>
                         {% if user|in_groups:"Site Admin" or user.is_superuser or user|has_perm:required_permission %}
@@ -233,17 +242,17 @@
                         {% endif %}
                         <div class="align-baseline column flex-display flex-start toggle-container" style="margin-top: 1rem; margin-bottom: 1rem;">
                             <label class="toggle flex-display vertical-align justify-center" style="margin-bottom: 1rem;">
-                                <input name="actively-looking" id="candidate-looking" class="toggle-checkbox" type="checkbox" {% if candidate.actively_looking %}checked{% endif %}>
+                                <input name="candidate-actively-looking" id="candidate-looking" class="toggle-checkbox" type="checkbox" {% if candidate.actively_looking %}checked{% endif %}>
                                 <div class="toggle-switch"></div>
                                 <span>Actively Looking</span>
                             </label>
                             <label class="toggle flex-display vertical-align justify-center" style="margin-bottom: 1rem;">
-                                <input name="open-to-relocation" id="candidate-relocation" class="toggle-checkbox" type="checkbox" {% if candidate.open_to_relocation %}checked{% endif %}>
+                                <input name="candidate-open-to-relocation" id="candidate-relocation" class="toggle-checkbox" type="checkbox" {% if candidate.open_to_relocation %}checked{% endif %}>
                                 <div class="toggle-switch"></div>
                                 <span>Open to Relocation</span>
                             </label>
                             <label class="toggle flex-display vertical-align justify-center" style="margin-bottom: 1rem;">
-                                <input name="currently-working" id="candidate-working" class="toggle-checkbox" type="checkbox" {% if candidate.currently_working %}checked{% endif %}>
+                                <input name="candidate-currently-working" id="candidate-working" class="toggle-checkbox" type="checkbox" {% if candidate.currently_working %}checked{% endif %}>
                                 <div class="toggle-switch"></div>
                                 <span>Currently Working</span>
                             </label>
@@ -278,11 +287,12 @@
                                  style="margin-bottom: 1rem;">
                                 {% with forloop.counter|stringformat:"s" as counter_str %}
                                     {% with "placement_id_"|add:counter_str as placement_input_name %}
-                                        {% include 'red_shell_recruiting/components/candidate_placement_dropdown_component.html' with selected_placement=record.placement name=placement_input_name id_suffix=forloop.counter all_placements=all_placements %}
+                                        {% include 'red_shell_recruiting/components/candidate_placement_dropdown_component.html' with selected_placement=record.placement name=placement_input_name all_placements=all_placements %}
                                     {% endwith %}
                                 {% endwith %}
                                 <input name="placement_month_{{ forloop.counter }}" value="{{ record.month }}" placeholder="Month" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); margin-left: 1rem; width: 80px;">
                                 <input name="placement_year_{{ forloop.counter }}" value="{{ record.year }}" placeholder="Year" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); margin-left: 1rem; width: 100px;">
+                                <input name="placement_compensation_{{ forloop.counter }}" value="{{ record.compensation }}" type="number" placeholder="Compensation Amount" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); margin-left: 1rem; width: 200px;">
                                 <input type="hidden" name="placement_record_id_{{ forloop.counter }}" value="{{ record.id }}">
                                 <input type="hidden" name="delete_placement_{{ forloop.counter }}" value="false" class="delete-marker">
                                 {% include 'red_shell_recruiting/components/candidate_remove_placement_button.html' %}
@@ -293,14 +303,14 @@
                     <button type="button" class="button" id="add-placement-line-edit">{% include 'red_shell_recruiting/components/svg_components.html' with type='plus' %} Add Placement</button>
                 </div>
                 <hr>
-                <textarea name="notes" class="text-input" placeholder="Notes" style="border: 1px solid var(--ui-support-element-color); height: 200px; padding: 0.5rem;">{{ candidate.notes }}</textarea>
+                <textarea id="candidate-notes" name="candidate-notes" class="text-input" placeholder="Notes" style="border: 1px solid var(--ui-support-element-color); height: 200px; padding: 0.5rem;">{{ candidate.notes }}</textarea>
                 <hr>
                 <div style="width: 100%" class="flex-display vertical-align justify-center space-between">
                     <button class="button flex-display vertical-align justify-center space-between" type="button" id="cancel-button">
                         {% include 'red_shell_recruiting/components/svg_components.html' with type='close-basic' %}
                         <span style="margin-left: 3px;">Cancel</span>
                     </button>
-                    <button class="button flex-display vertical-align justify-center space-between" type="submit">
+                    <button id="submit-btn" class="button flex-display vertical-align justify-center space-between" type="submit">
                         {% include 'red_shell_recruiting/components/svg_components.html' with type='edit' %}
                         <span style="margin-left: 3px;">Save Changes</span>
                     </button>
@@ -327,6 +337,7 @@
             AddDocumentAction();
             AddResumeAction();
             AddPortfolioAction();
+            SubmitCandidate();
 
             // TOGGLE TO EDIT MODE
             $('#edit-button').on('click', function () {

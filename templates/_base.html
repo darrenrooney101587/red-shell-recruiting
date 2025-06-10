@@ -66,69 +66,100 @@
     {% block script %}
     <script>
 
-        function SubmitCandidate() {
-            const debug = true;
+        function SubmitCandidate(debug=false) {
 
             $('#submit-btn').click(function (event) {
-                const state = $('#state-hidden').val();
-                const city = $('#city-hidden').val();
+                function validateField({ selector, name, msg, customCheck }) {
+                    const value = $(selector).val()?.trim();
+                    if (debug) console.log(`[DEBUG] ${name}:`, value);
 
-                if (debug) console.log('[DEBUG] State:', state, 'City:', city);
+                    if (typeof customCheck === 'function') {
+                        const result = customCheck(value);
+                        if (result !== true) {
+                            event.preventDefault();
+                            if (debug) console.log(`[DEBUG] ${result}`);
+                            addClientMessage(msg);
+                            return false;
+                        }
+                    } else if (!value) {
+                        event.preventDefault();
+                        if (debug) console.log(`[DEBUG] Missing ${name} - blocking form submission.`);
+                        addClientMessage(msg);
+                        return false;
+                    }
 
-                if (!state || !city) {
-                    event.preventDefault();
-                    if (debug) console.log('[DEBUG] Missing state or city - blocking form submission.');
-                    addClientMessage('Please select both a State and a City.');
-                    return false;
+                    return true;
                 }
 
-                const ownership = $('#candidate-ownership-hidden').val();
+                const validations = [
+                    { selector: '#candidate-first-name', name: 'First Name', msg: 'Please enter a valid first name.' },
+                    { selector: '#candidate-last-name', name: 'Last Name', msg: 'Please enter a valid last name.' },
+                    { selector: '#candidate-notes', name: 'Notes', msg: 'Please enter a valid notes.' },
+                    {
+                        selector: '#candidate-compensation-from',
+                        name: 'Compensation From',
+                        msg: 'Please enter a valid compensation range.',
+                        customCheck: () => {
+                            const from = $('#candidate-compensation-from').val();
+                            const to = $('#candidate-compensation-to').val();
+                            if (debug) {
+                                console.log('[DEBUG] Compensation from:', from);
+                                console.log('[DEBUG] Compensation to:', to);
+                            }
+                            return from && to ? true : '[DEBUG] Missing compensation range - blocking form submission.';
+                        }
+                    },
+                    {
+                        selector: '#state-hidden',
+                        name: 'State/City',
+                        msg: 'Please select both a State and a City.',
+                        customCheck: () => {
+                            const state = $('#state-hidden').val();
+                            const city = $('#city-hidden').val();
+                            if (debug) console.log('[DEBUG] State:', state, 'City:', city);
+                            return state && city ? true : '[DEBUG] Missing state or city - blocking form submission.';
+                        }
+                    },
+                    { selector: '#candidate-ownership-hidden', name: 'Ownership', msg: 'Please select an ownership.' },
+                    { selector: '#candidate-title-hidden', name: 'Title', msg: 'Please select a title.' },
+                    {
+                        selector: '#candidate-phone-number',
+                        name: 'Phone',
+                        msg: 'Please enter a valid phone number.',
+                        customCheck: (value) => {
+                            const digits = value.replace(/\D/g, '');
+                            if (debug) console.log('[DEBUG] Phone digits only:', digits);
+                            return digits.length >= 10 && digits.length <= 15 ? true : '[DEBUG] Invalid phone number - blocking form submission.';
+                        }
+                    },
+                    {
+                        selector: '#candidate-email',
+                        name: 'Email',
+                        msg: 'Please enter a valid email address.',
+                        customCheck: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+                            ? true
+                            : '[DEBUG] Invalid email address - blocking form submission.'
+                    },
+                    {
+                        selector: '#resume',
+                        name: 'Resume',
+                        msg: 'Please upload a resume before submitting.',
+                        customCheck: (value) => {
+                            if (!value) {
+                                $('#file-name').css('color', 'red').text('Please upload a resume before submitting.');
+                                return '[DEBUG] No resume uploaded - blocking form submission.';
+                            }
+                            return true;
+                        }
+                    },
+                ];
 
-                if (debug) console.log('[DEBUG] Ownership:', ownership);
-
-                if(!ownership) {
-                    event.preventDefault();
-                    if (debug) console.log('[DEBUG] Missing ownership - blocking form submission.');
-                    addClientMessage('Please select an ownership.');
-                    return false;
-                }
-
-                const phone = $('#candidate-phone-number').val().trim();
-                const email = $('#candidate-email').val().trim();
-
-                if (debug) console.log('[DEBUG] Phone:', phone, 'Email:', email);
-
-                const phoneDigits = phone.replace(/\D/g, '');
-                if (debug) console.log('[DEBUG] Phone digits only:', phoneDigits);
-
-                if (phoneDigits.length < 10 || phoneDigits.length > 15) {
-                    event.preventDefault();
-                    if (debug) console.log('[DEBUG] Invalid phone number - blocking form submission.');
-                    addClientMessage('Please enter a valid phone number.');
-                    return false;
-                }
-
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(email)) {
-                    event.preventDefault();
-                    if (debug) console.log('[DEBUG] Invalid email address - blocking form submission.');
-                    addClientMessage('Please enter a valid email address.');
-                    return false;
-                }
-
-                const resume = $('#resume').val();
-                if (debug) console.log('[DEBUG] Resume file value:', resume);
-
-                if (!resume) {
-                    event.preventDefault();
-                    if (debug) console.log('[DEBUG] No resume uploaded - blocking form submission.');
-                    $('#file-name').css('color', 'red').text('Please upload a resume before submitting.');
-                    return false;
+                for (let field of validations) {
+                    if (!validateField(field)) return false;
                 }
 
                 if (debug) console.log('[DEBUG] Form passed all validation checks - submitting.');
             });
-
 
             $('#resume').change(function() {
                 const fileName = $(this).val().split('\\').pop();
@@ -174,7 +205,7 @@
 
             $('#city-list').empty();
             const apiKey = 'darren101587';
-            const geocodeUrl = `https://secure.geonames.org/searchJSON?formatted=true&lang=en&country=US&adminCode1=${state}&maxRows=500&username=${apiKey}`;
+            const geocodeUrl = `https://secure.geonames.org/searchJSON?formatted=true&lang=en&country=US&adminCode1=${state}&maxRows=1000&username=${apiKey}`;
 
             $.get(geocodeUrl, function(data) {
                 const cities = data.geonames.sort(function(a, b) {
@@ -218,7 +249,7 @@
             const messageHtml = `
                 <div class="alert ${alertClass} alert-dismissible fade show flex-display space-between vertical-align" role="alert" style="width: 100%;">
                     <span class="message-text">${messageText}</span>
-                    {% include 'red_shell_recruiting/components/candidate_close_button.html' %}>
+                    {% include 'red_shell_recruiting/components/candidate_close_button.html' %}
                 </div>
             `;
             $('.messages').append(messageHtml);

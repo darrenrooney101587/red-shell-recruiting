@@ -679,14 +679,13 @@ li.nav-item.sub {
 
 .selected-option {
   background-color: #fff;
-  color: var(--theme-base-color);
+  color: black;
   cursor: pointer;
   padding-left: 3px;
   outline: 0;
   line-height: 24px;
   font-size: 16px;
   font-weight: 300;
-  opacity: 0.7;
   font-family: var(--font-famiy);
 }
 
@@ -947,10 +946,6 @@ li.nav-item.sub {
 .message-text {
   padding: 0.5rem;
   height: 101%;
-}
-
-.client-placement-dropdown-wrapper {
-  margin-bottom: 0.5rem;
 }
 
 .search-dropdown .custom-dropdown {

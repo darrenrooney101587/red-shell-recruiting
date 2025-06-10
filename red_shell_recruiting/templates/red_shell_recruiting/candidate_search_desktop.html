@@ -9,7 +9,7 @@
 {% endblock %}
 {% block content %}
     <div>
-        <div style="margin: 0 auto; width: 800px;">
+        <div style="margin: 0 auto; width: 900px;">
             <form method="get" action="{% url 'candidate-search' %}" style="width: 100%;">
                 <div class="section flex-display vertical-align space-between" style="width: 100%;">
                     <div class="flex-display column space-between" style="width: 230px;">
@@ -30,10 +30,13 @@
                     <div style="width: 100%;">
                         <div class="flex-display vertical-align space-between" style="width: 100%;">
                             <input style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" type="text" class="text-input" name="q" value="{{ query }}" placeholder="Search candidates..." />
-                            <div class="flex-display space-between vertical-align">
+                            <div class="flex-display vertical-align">
                                 <button class="button" type="submit">Search</button>
                                 <div style="margin-left: 0.5rem;" class="flex-display vertical-align justify-center">
                                     <a href="{% url 'candidate-search' %}" class="button">Clear</a>
+                                </div>
+                                <div style="width: auto; margin-left: 0.5rem;" class="flex-display vertical-align justify-center">
+                                    <a href="{% url 'candidate-search' %}?q=all" class="button">All</a>
                                 </div>
                             </div>
                         </div>

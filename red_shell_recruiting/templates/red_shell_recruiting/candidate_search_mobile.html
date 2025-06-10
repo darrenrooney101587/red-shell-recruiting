@@ -28,6 +28,9 @@
                                         <a href="{% url 'candidate-search' %}" class="button large">Clear</a>
                                     </div>
                                     <button class="button large" type="submit">Search</button>
+                                    <div style="width: auto; margin-left: 0.5rem;" class="flex-display vertical-align justify-center">
+                                        <a href="{% url 'candidate-search' %}?q=all" class="button large">All</a>
+                                    </div>
                                 </div>
                             </div>
                             <hr>
@@ -37,12 +40,12 @@
                                     <div class="toggle-switch"></div>
                                     <span>Actively Looking</span>
                                 </label>
-                                <label class="toggle " style="margin-right: 1rem; margin-bottom: 1rem">
+                                <label class="toggle" style="margin-right: 1rem; margin-bottom: 1rem">
                                     <input type="checkbox" name="open_to_relocation" {% if request.GET.open_to_relocation %}checked{% endif %} class="toggle-checkbox">
                                     <div class="toggle-switch"></div>
                                     <span>Open to Relocation</span>
                                 </label>
-                                <label class="toggle " style="margin-right: 1rem; margin-bottom: 1rem">
+                                <label class="toggle" style="margin-right: 1rem; margin-bottom: 1rem">
                                     <input type="checkbox" name="currently_working" {% if request.GET.currently_working %}checked{% endif %} class="toggle-checkbox">
                                     <div class="toggle-switch"></div>
                                     <span>Currently Working</span>
@@ -68,8 +71,9 @@
             <div class="flex-display col flex-wrap" style="gap: 2rem;">
                 {% for candidate in candidates %}
                     <div class="candidate-card section" data-candidate-id="{{ candidate.id }}" style="width: 100%">
-                        <div class="">
+                        <div class="flex-display space-between vertical-align">
                             <h2>{{ candidate.first_name }} {{ candidate.last_name }}</h2>
+                            <h2 class="small-title">Added {{ candidate.created_at }}</h2>
                         </div>
                         <hr style="margin-top: 0.5rem; margin-bottom: 0.5rem;">
                         <div class="">
