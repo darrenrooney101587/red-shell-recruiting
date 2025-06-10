@@ -77,8 +77,9 @@
             <div class="flex-display flex-wrap" style="gap: 2rem;">
                 {% for candidate in candidates %}
                     <div class="candidate-card section" data-candidate-id="{{ candidate.id }}" style="width: 400px">
-                        <div class="flex-display space-between">
+                        <div class="flex-display space-between vertical-align">
                             <h2>{{ candidate.first_name }} {{ candidate.last_name }}</h2>
+                            <h2 class="small-title">Added {{ candidate.created_at }}</h2>
                         </div>
                         <hr style="margin-top: 0.5rem; margin-bottom: 0.5rem;">
                         <div class="flex-display space-between">
