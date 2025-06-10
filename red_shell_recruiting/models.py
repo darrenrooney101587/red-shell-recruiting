@@ -163,6 +163,7 @@ class CandidateClientPlacementHistory(models.Model):
     month = models.IntegerField()
     year = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
+    compensation = models.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:
         db_table = "candidate_client_placement_history"

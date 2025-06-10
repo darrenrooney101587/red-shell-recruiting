@@ -1,4 +1,5 @@
 <div>
+    {% include 'red_shell_recruiting/components/svg_components.html' with type='linkedin' %}
     <span style="color: var(--faded-gray-color)" class="small-title">LinkedIn URL</span><br>
     {% if candidate.linkedin_url %}
         {% with url=candidate.linkedin_url %}

@@ -32,7 +32,8 @@
         {% include 'red_shell_recruiting/components/candidate_placement_dropdown_component.html' with all_placements=all_placements name='client-placement-id' %}
         <div class="flex-display vertical-align justify-center">
             <input name="client-placement-month" tabindex="8" style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" id="client-placement-month" type="number" class="text-input" placeholder="Month" autocomplete="off" min="1" max="12">
-            <input name="client-placement-year" tabindex="9" style="border-bottom: 1px solid var(--ui-support-element-color)" id="client-placement-year" type="number" class="text-input" placeholder="Year" autocomplete="off" min="1900" max="2100">
+            <input name="client-placement-year" tabindex="9" style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" id="client-placement-year" type="number" class="text-input" placeholder="Year" autocomplete="off" min="1900" max="2100">
+            <input name="client-placement-compensation" tabindex="10" style="border-bottom: 1px solid var(--ui-support-element-color)" id="client-placement-compensation" type="number" class="text-input" placeholder="Amount" autocomplete="off">
         </div>
     </div>
 </div>

@@ -5,6 +5,7 @@ from botocore.exceptions import ClientError
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from pip._internal.resolution.resolvelib.base import Candidate
 from user_agents import parse
 from django.db.models import F, Count, Q
 from django.db.models.expressions import RawSQL
@@ -109,6 +110,7 @@ class CandidateInput(LoginRequiredMixin, View):
         placement_id = request.POST.get("client-placement-id")
         placement_month = request.POST.get("client-placement-month")
         placement_year = request.POST.get("client-placement-year")
+        placement_compensation = request.POST.get("client-placement-compensation")
 
         ownership_id = request.POST.get("candidate-ownership-id")
         ownership_obj = (
@@ -137,12 +139,18 @@ class CandidateInput(LoginRequiredMixin, View):
                     linkedin_url=linkedin_url,
                 )
 
-                if placement_id and placement_month and placement_year:
+                if (
+                    placement_id
+                    and placement_month
+                    and placement_year
+                    and placement_compensation
+                ):
                     placement_history = CandidateClientPlacementHistory.objects.create(
                         candidate=candidate,
                         placement_id=placement_id,
                         month=placement_month,
                         year=placement_year,
+                        compensation=placement_compensation,
                     )
 
                     candidate.candidate_placement_history = placement_history
@@ -199,72 +207,76 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
         title_id = request.GET.get("title_id")
         ownership_id = request.GET.get("ownership_id")
         query = request.GET.get("q", "").strip()
-
         candidates = CandidateProfile.objects.all()
 
-        if title_id:
-            candidates = candidates.filter(title_id=title_id)
+        if "all" in query:
+            candidates = candidates.order_by("-created_at")
+            query = None
+        else:
 
-        if ownership_id:
-            candidates = candidates.filter(ownership_id=ownership_id)
+            if title_id:
+                candidates = candidates.filter(title_id=title_id)
 
-        if query:
-            candidates = (
-                CandidateProfile.objects.extra(
-                    where=[
-                        """
-                        candidate_profile.search_document @@ plainto_tsquery(%s)
-                        OR EXISTS (
-                            SELECT 1 FROM candidate_resume
-                            WHERE candidate_resume.candidate_id = candidate_profile.id
-                            AND candidate_resume.search_document @@ plainto_tsquery(%s)
-                        )
-                        OR EXISTS (
-                            SELECT 1 FROM candidate_document
-                            WHERE candidate_document.candidate_id = candidate_profile.id
-                            AND candidate_document.search_document @@ plainto_tsquery(%s)
-                        )
-                        """
-                    ],
-                    params=[query, query, query],
-                )
-                .annotate(
-                    rank=RawSQL(
-                        """
-                        GREATEST(
-                            ts_rank(candidate_profile.search_document, plainto_tsquery(%s)),
-                            COALESCE((
-                                SELECT MAX(ts_rank(candidate_resume.search_document, plainto_tsquery(%s)))
-                                FROM candidate_resume
+            if ownership_id:
+                candidates = candidates.filter(ownership_id=ownership_id)
+
+            if query:
+                candidates = (
+                    CandidateProfile.objects.extra(
+                        where=[
+                            """
+                            candidate_profile.search_document @@ plainto_tsquery(%s)
+                            OR EXISTS (
+                                SELECT 1 FROM candidate_resume
                                 WHERE candidate_resume.candidate_id = candidate_profile.id
-                            ), 0),
-                            COALESCE((
-                                SELECT MAX(ts_rank(candidate_document.search_document, plainto_tsquery(%s)))
-                                FROM candidate_document
+                                AND candidate_resume.search_document @@ plainto_tsquery(%s)
+                            )
+                            OR EXISTS (
+                                SELECT 1 FROM candidate_document
                                 WHERE candidate_document.candidate_id = candidate_profile.id
-                            ), 0)
-                        )
-                        """,
-                        (query, query, query),
+                                AND candidate_document.search_document @@ plainto_tsquery(%s)
+                            )
+                            """
+                        ],
+                        params=[query, query, query],
                     )
+                    .annotate(
+                        rank=RawSQL(
+                            """
+                            GREATEST(
+                                ts_rank(candidate_profile.search_document, plainto_tsquery(%s)),
+                                COALESCE((
+                                    SELECT MAX(ts_rank(candidate_resume.search_document, plainto_tsquery(%s)))
+                                    FROM candidate_resume
+                                    WHERE candidate_resume.candidate_id = candidate_profile.id
+                                ), 0),
+                                COALESCE((
+                                    SELECT MAX(ts_rank(candidate_document.search_document, plainto_tsquery(%s)))
+                                    FROM candidate_document
+                                    WHERE candidate_document.candidate_id = candidate_profile.id
+                                ), 0)
+                            )
+                            """,
+                            (query, query, query),
+                        )
+                    )
+                    .order_by("-rank")
+                    .distinct()
                 )
-                .order_by("-rank")
-                .distinct()
-            )
 
-        elif not (toggles_active or title_id or ownership_id):
-            candidates = CandidateProfile.objects.none()
+            elif not (toggles_active or title_id or ownership_id):
+                candidates = CandidateProfile.objects.none()
 
-        if toggle_filters["actively_looking"]:
-            candidates = candidates.filter(actively_looking=True)
-        if toggle_filters["open_to_relocation"]:
-            candidates = candidates.filter(open_to_relocation=True)
-        if toggle_filters["currently_working"]:
-            candidates = candidates.filter(currently_working=True)
-        if toggle_filters["previously_placed"]:
-            candidates = candidates.filter(placement_record__isnull=False)
+            if toggle_filters["actively_looking"]:
+                candidates = candidates.filter(actively_looking=True)
+            if toggle_filters["open_to_relocation"]:
+                candidates = candidates.filter(open_to_relocation=True)
+            if toggle_filters["currently_working"]:
+                candidates = candidates.filter(currently_working=True)
+            if toggle_filters["previously_placed"]:
+                candidates = candidates.filter(placement_record__isnull=False)
 
-        candidates = candidates.annotate(resume_count=Count("resumes"))
+            candidates = candidates.annotate(resume_count=Count("resumes"))
 
         context["candidates"] = candidates
         context["query"] = query
@@ -305,24 +317,34 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
         candidate = get_object_or_404(CandidateProfile, id=candidate_id)
 
         # ----- Update candidate base info -----
-        candidate.first_name = request.POST.get("first-name", candidate.first_name)
-        candidate.last_name = request.POST.get("last-name", candidate.last_name)
+        candidate.first_name = request.POST.get(
+            "candidate-first-name", candidate.first_name
+        )
+        candidate.last_name = request.POST.get(
+            "candidate-last-name", candidate.last_name
+        )
         candidate.state = request.POST.get("candidate-state", candidate.state)
         candidate.city = request.POST.get("candidate-city", candidate.city)
         candidate.phone_number = request.POST.get(
-            "phone-number", candidate.phone_number
+            "candidate-phone-number", candidate.phone_number
         )
-        candidate.email = request.POST.get("email", candidate.email)
+        candidate.email = request.POST.get("candidate-email", candidate.email)
         candidate.compensation_from = str(
-            request.POST.get("compensation-from", candidate.compensation_from)
+            request.POST.get("candidate-compensation-from", candidate.compensation_from)
         ).replace(",", "")
         candidate.compensation_to = str(
-            request.POST.get("compensation-to", candidate.compensation_to)
+            request.POST.get("candidate-compensation-to", candidate.compensation_to)
         ).replace(",", "")
         candidate.notes = request.POST.get("notes", candidate.notes)
-        candidate.open_to_relocation = request.POST.get("open-to-relocation") == "on"
-        candidate.currently_working = request.POST.get("currently-working") == "on"
-        candidate.actively_looking = request.POST.get("actively-looking") == "on"
+        candidate.open_to_relocation = (
+            request.POST.get("candidate-open-to-relocation") == "on"
+        )
+        candidate.currently_working = (
+            request.POST.get("candidate-currently-working") == "on"
+        )
+        candidate.actively_looking = (
+            request.POST.get("candidate-actively-looking") == "on"
+        )
         raw_linkedin_url = request.POST.get("candidate-linkedin-url", "").strip()
         candidate.linkedin_url = normalize_linkedin_url(raw_linkedin_url)
 
@@ -365,6 +387,7 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
             placement_id = request.POST.get(f"placement_id_{i}")
             placement_month = request.POST.get(f"placement_month_{i}")
             placement_year = request.POST.get(f"placement_year_{i}")
+            placement_compensation = request.POST.get(f"placement_compensation_{i}")
             record_id = request.POST.get(f"placement_record_id_{i}")
             delete_flag = request.POST.get(f"delete_placement_{i}") == "true"
 
@@ -374,7 +397,12 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
                 ).delete()
                 continue
 
-            if not placement_id or not placement_month or not placement_year:
+            if (
+                not placement_id
+                or not placement_month
+                or not placement_year
+                or not placement_compensation
+            ):
                 continue  # skip incomplete rows
 
             if record_id:
@@ -385,6 +413,7 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
                     record.placement_id = placement_id
                     record.month = int(placement_month)
                     record.year = int(placement_year)
+                    record.compensation = float(placement_compensation)
                     record.save()
                 except CandidateClientPlacementHistory.DoesNotExist:
                     continue
@@ -394,6 +423,7 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
                     placement_id=placement_id,
                     month=int(placement_month),
                     year=int(placement_year),
+                    compensation=float(placement_compensation),
                 )
 
         return redirect("candidate-detail", candidate_id=candidate.id)
