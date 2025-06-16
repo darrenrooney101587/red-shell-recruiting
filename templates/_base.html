@@ -66,111 +66,134 @@
     {% block script %}
     <script>
 
-        function SubmitCandidate(debug=false) {
-
-            $('#submit-btn').click(function (event) {
-                function validateField({ selector, name, msg, customCheck }) {
-                    const value = $(selector).val()?.trim();
-                    if (debug) console.log(`[DEBUG] ${name}:`, value);
-
-                    if (typeof customCheck === 'function') {
-                        const result = customCheck(value);
-                        if (result !== true) {
-                            event.preventDefault();
-                            if (debug) console.log(`[DEBUG] ${result}`);
-                            addClientMessage(msg);
-                            return false;
+        function getValidations(debug=false) {
+            return [
+                { selector: '#candidate-first-name', name: 'First Name', msg: 'Please enter a valid first name.' },
+                { selector: '#candidate-last-name', name: 'Last Name', msg: 'Please enter a valid last name.' },
+                {
+                    selector: '#candidate-compensation-from',
+                    name: 'Compensation From',
+                    msg: 'Please enter a valid compensation range.',
+                    customCheck: () => {
+                        const from = $('#candidate-compensation-from').val();
+                        const to = $('#candidate-compensation-to').val();
+                        if (debug) {
+                            console.log('[DEBUG] Compensation from:', from);
+                            console.log('[DEBUG] Compensation to:', to);
                         }
-                    } else if (!value) {
-                        event.preventDefault();
-                        if (debug) console.log(`[DEBUG] Missing ${name} - blocking form submission.`);
-                        addClientMessage(msg);
-                        return false;
+                        return from && to ? true : '[DEBUG] Missing compensation range - blocking form submission.';
                     }
-
-                    return true;
+                },
+                {
+                    selector: '#state-hidden',
+                    name: 'State/City',
+                    msg: 'Please select both a State and a City.',
+                    customCheck: () => {
+                        const state = $('#state-hidden').val();
+                        const city = $('#city-hidden').val();
+                        if (debug) console.log('[DEBUG] State:', state, 'City:', city);
+                        return state && city ? true : '[DEBUG] Missing state or city - blocking form submission.';
+                    }
+                },
+                { selector: '#candidate-ownership-hidden', name: 'Ownership', msg: 'Please select an ownership.' },
+                { selector: '#candidate-title-hidden', name: 'Title', msg: 'Please select a title.' },
+                {
+                    selector: '#candidate-phone-number',
+                    name: 'Phone',
+                    msg: 'Please enter a valid phone number.',
+                    customCheck: (value) => {
+                        const digits = value.replace(/\D/g, '');
+                        if (debug) console.log('[DEBUG] Phone digits only:', digits);
+                        return digits.length >= 10 && digits.length <= 15 ? true : '[DEBUG] Invalid phone number - blocking form submission.';
+                    }
+                },
+                {
+                    selector: '#candidate-email',
+                    name: 'Email',
+                    msg: 'Please enter a valid email address.',
+                    customCheck: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+                        ? true
+                        : '[DEBUG] Invalid email address - blocking form submission.'
                 }
+            ];
+        }
 
-                const validations = [
-                    { selector: '#candidate-first-name', name: 'First Name', msg: 'Please enter a valid first name.' },
-                    { selector: '#candidate-last-name', name: 'Last Name', msg: 'Please enter a valid last name.' },
-                    { selector: '#candidate-notes', name: 'Notes', msg: 'Please enter a valid notes.' },
-                    {
-                        selector: '#candidate-compensation-from',
-                        name: 'Compensation From',
-                        msg: 'Please enter a valid compensation range.',
-                        customCheck: () => {
-                            const from = $('#candidate-compensation-from').val();
-                            const to = $('#candidate-compensation-to').val();
-                            if (debug) {
-                                console.log('[DEBUG] Compensation from:', from);
-                                console.log('[DEBUG] Compensation to:', to);
-                            }
-                            return from && to ? true : '[DEBUG] Missing compensation range - blocking form submission.';
-                        }
-                    },
-                    {
-                        selector: '#state-hidden',
-                        name: 'State/City',
-                        msg: 'Please select both a State and a City.',
-                        customCheck: () => {
-                            const state = $('#state-hidden').val();
-                            const city = $('#city-hidden').val();
-                            if (debug) console.log('[DEBUG] State:', state, 'City:', city);
-                            return state && city ? true : '[DEBUG] Missing state or city - blocking form submission.';
-                        }
-                    },
-                    { selector: '#candidate-ownership-hidden', name: 'Ownership', msg: 'Please select an ownership.' },
-                    { selector: '#candidate-title-hidden', name: 'Title', msg: 'Please select a title.' },
-                    {
-                        selector: '#candidate-phone-number',
-                        name: 'Phone',
-                        msg: 'Please enter a valid phone number.',
-                        customCheck: (value) => {
-                            const digits = value.replace(/\D/g, '');
-                            if (debug) console.log('[DEBUG] Phone digits only:', digits);
-                            return digits.length >= 10 && digits.length <= 15 ? true : '[DEBUG] Invalid phone number - blocking form submission.';
-                        }
-                    },
-                    {
-                        selector: '#candidate-email',
-                        name: 'Email',
-                        msg: 'Please enter a valid email address.',
-                        customCheck: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
-                            ? true
-                            : '[DEBUG] Invalid email address - blocking form submission.'
-                    },
-                    {
-                        selector: '#resume',
-                        name: 'Resume',
-                        msg: 'Please upload a resume before submitting.',
-                        customCheck: (value) => {
-                            if (!value) {
-                                $('#file-name').css('color', 'red').text('Please upload a resume before submitting.');
-                                return '[DEBUG] No resume uploaded - blocking form submission.';
-                            }
-                            return true;
-                        }
-                    },
-                ];
-
-                for (let field of validations) {
-                    if (!validateField(field)) return false;
-                }
-
-                if (debug) console.log('[DEBUG] Form passed all validation checks - submitting.');
-            });
-
+        function resumeChange() {
             $('#resume').change(function() {
                 const fileName = $(this).val().split('\\').pop();
                 if (fileName) {
                     $('#file-name').css('color', 'black').text(fileName);
                 }
             });
+        }
 
+        function validationClose() {
             $(document).on('click', '.custom-close', function() {
                 $(this).closest('.alert').fadeOut('slow');
             });
+        }
+
+        function validateField({ selector, name, msg, customCheck }, event, debug=false) {
+            const value = $(selector).val()?.trim();
+            if (debug) console.log(`[DEBUG] ${name}:`, value);
+
+            if (typeof customCheck === 'function') {
+                const result = customCheck(value);
+                if (result !== true) {
+                    event.preventDefault();
+                    if (debug) console.log(`[DEBUG] ${result}`);
+                    addClientMessage(msg);
+                    return false;
+                }
+            } else if (!value) {
+                event.preventDefault();
+                if (debug) console.log(`[DEBUG] Missing ${name} - blocking form submission.`);
+                addClientMessage(msg);
+                return false;
+            }
+
+            return true;
+        }
+
+        function SaveCandidate(debug=false) {
+            $('#submit-btn').click(function (event) {
+                let validations = getValidations(debug);
+                for (let field of validations) {
+                    if (!validateField(field, event)) return false;
+                }
+
+                if (debug) console.log('[DEBUG] Form passed all validation checks - submitting.');
+            });
+            resumeChange();
+            validationClose();
+        }
+
+        function SubmitCandidate(debug=false) {
+
+            $('#submit-btn').click(function (event) {
+
+                let validations = getValidations(debug);
+                validations.push({
+                    selector: '#resume',
+                    name: 'Resume',
+                    msg: 'Please upload a resume before submitting.',
+                    customCheck: (value) => {
+                        if (!value) {
+                            $('#file-name').css('color', 'red').text('Please upload a resume before submitting.');
+                            return '[DEBUG] No resume uploaded - blocking form submission.';
+                        }
+                        return true;
+                    }
+                })
+
+                for (let field of validations) {
+                    if (!validateField(field, event)) return false;
+                }
+
+                if (debug) console.log('[DEBUG] Form passed all validation checks - submitting.');
+            });
+            resumeChange();
+            validationClose();
         }
 
         function populateCandidateTitles() {
