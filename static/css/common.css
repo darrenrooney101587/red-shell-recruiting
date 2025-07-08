@@ -531,7 +531,7 @@ pre {
 }
 
 #sidebar:hover {
-  width: 300px;
+  width: 60px; /* Prevent expansion on hover */
 }
 
 #sidebar .nav-link {
@@ -542,11 +542,6 @@ pre {
   padding: 10px;
   border-radius: 5px;
   transition: all 0.3s ease;
-}
-
-#sidebar .nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  cursor: pointer;
 }
 
 .sidebar-icon {
@@ -565,26 +560,79 @@ pre {
   transition: opacity 0.3s ease, margin-left 0.3s ease;
   margin-left: 0;
   font-size: 14px;
-  top: 0px;
-  position: relative;
 }
 
 #sidebar:hover .sidebar-text {
+  opacity: 0;
+  margin-left: 0;
+}
+
+#sidebar:hover .sidebar-icon {
+  margin-right: 0;
+}
+
+#sidebar.sidebar-expanded {
+  width: 300px;
+}
+
+#sidebar.sidebar-expanded .sidebar-text {
   opacity: 1;
   margin-left: 10px;
 }
 
-#sidebar:hover .sidebar-icon {
+#sidebar.sidebar-expanded .sidebar-icon {
   margin-right: 10px;
 }
+
+#sidebar.sidebar-expanded .nav-item.nav-dropdown-container .nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+}
+
+/* Remove or override legacy hover for nav-item outside expanded sidebar */
+li.nav-item:hover {
+  /* transition: all ease-out 0.6s; */
+  /* padding-left: 5px; */
+}
+
+/* Remove hover-based submenu display for sidebar dropdowns */
+#sidebar .nav-item.nav-dropdown-container:hover .nav-dropdown-submenu {
+  /* display: block; */
+}
+
+/* Only apply hover and submenu styles when sidebar is expanded */
+#sidebar:not(.sidebar-expanded) .nav-item.nav-dropdown-container:hover,
+#sidebar:not(.sidebar-expanded) .nav-item.nav-dropdown-container:active,
+#sidebar:not(.sidebar-expanded) .nav-item.nav-dropdown-container:focus {
+  background: none !important;
+  cursor: default !important;
+  padding-left: 0 !important;
+}
+
+#sidebar:not(.sidebar-expanded) .nav-item.nav-dropdown-container .nav-link:hover {
+  background: none !important;
+  cursor: default !important;
+}
+
+#sidebar:not(.sidebar-expanded) .nav-item.nav-dropdown-container .chevron-down,
+#sidebar:not(.sidebar-expanded) .nav-item.nav-dropdown-container .chevron-up {
+  display: none !important;
+}
+
+#sidebar:not(.sidebar-expanded) .nav-item.nav-dropdown-container .nav-dropdown-submenu {
+  display: none !important;
+}
+
+#sidebar.sidebar-expanded .nav-item.nav-dropdown-container:hover {
+  padding-left: 5px;
+  transition: all ease-out 0.6s;
+}
+
 
 
 .bg-dark {
   background-color: #282E3f!important;
 }
-
-
-
 tr.changed {
   border-top: 3px solid #aaa;
 }
@@ -616,10 +664,6 @@ tr.changed {
 .centered {
   text-align:  center;
   vertical-align: middle !important;
-}
-li.nav-item:hover {
-  transition: all ease-out 0.6s;
-  padding-left: 5px;
 }
 
 li.nav-item {

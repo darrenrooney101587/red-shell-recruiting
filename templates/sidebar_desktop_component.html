@@ -2,32 +2,35 @@
     <div class="sidebar-content">
         <ul class="nav flex-column" style="height: 100vh">
             <li>
-                <a href="/" type="submit" class="nav-link btn btn-link" style="height: 59px">
-                                    <span class="sidebar-icon">
-                                        {% include 'red_shell_recruiting/components/svg_components.html' with type='sidebar' %}
-                                    </span>
-                    <span class="sidebar-text ellipsis">Red Shell Recruiting</span>
-                </a>
+                <div class="flex-display vertical-align hamburger space-between" style="position: relative;cursor: pointer;">
+                    <span id="sidebar-hamburger" class="flex-display justify-center vertical-align" style="width: 60px; height: 40px;">
+                        {% include 'red_shell_recruiting/components/svg_components.html' with type='menu' %}
+                    </span>
+                    <span id="sidebar-chevron" style="position: relative; top: 2px; display: none; transform: rotate(180deg)">
+                        {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-right' %}
+                    </span>
+                </div>
                 <div style="border-bottom: 1px solid rgba(255,255,255,0.3); margin-bottom: 10px"></div>
             </li>
             <li class="nav-item nav-dropdown-container">
                 <a class="nav-link flex-display space-between" style="justify-content: space-between;">
                     <div class="flex-display" style="display: flex; flex-direction: row">
-                                        <span class="sidebar-icon">
-                                            {% include 'red_shell_recruiting/components/svg_components.html' with type='quick-add'%}
-                                        </span>
+                        <span class="sidebar-icon">
+                            {% include 'red_shell_recruiting/components/svg_components.html' with type='quick-add' %}
+                        </span>
                         <span class="sidebar-text">Candidates</span>
                     </div>
                     <div class="flex-display flex-end">
-                                        <span class="chevron-down">
-                                            {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}
-                                        </span>
+                        <span class="chevron-down">
+                            {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}
+                        </span>
                         <span class="chevron-up" style="display: none;">
-                                            {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}
-                                        </span>
+                            {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}
+                        </span>
                     </div>
                 </a>
-                <ul class="flex-display column nav-dropdown-submenu" style="display: none; margin-left:1rem; padding: 0;">
+                <ul class="flex-display column nav-dropdown-submenu"
+                    style="display: none; margin-left:1rem; padding: 0;">
                     <li class="nav-item sub">
                         <a href="{% url 'candidate-submit' %}" class="nav-link">Enter Candidates</a>
                     </li>
@@ -39,21 +42,22 @@
             <li class="nav-item nav-dropdown-container">
                 <a class="nav-link flex-display space-between" style="justify-content: space-between;">
                     <div class="flex-display" style="display: flex; flex-direction: row">
-                                        <span class="sidebar-icon">
-                                            {% include 'red_shell_recruiting/components/svg_components.html' with type='cog'%}
-                                        </span>
+                        <span class="sidebar-icon">
+                            {% include 'red_shell_recruiting/components/svg_components.html' with type='cog' %}
+                        </span>
                         <span class="sidebar-text">Self Service</span>
                     </div>
                     <div class="flex-display flex-end">
-                                        <span class="chevron-down">
-                                            {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}
-                                        </span>
+                        <span class="chevron-down">
+                            {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}
+                        </span>
                         <span class="chevron-up" style="display: none;">
-                                            {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}
-                                        </span>
+                            {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}
+                        </span>
                     </div>
                 </a>
-                <ul class="flex-display column nav-dropdown-submenu" style="display: none; margin-left:1rem; padding: 0;">
+                <ul class="flex-display column nav-dropdown-submenu"
+                    style="display: none; margin-left:1rem; padding: 0;">
                     <li class="nav-item sub">
                         <a href="{% url 'setup-2fa' %}" class="nav-link">Setup 2FA</a>
                     </li>
@@ -71,17 +75,17 @@
             {% if user.is_superuser %}
                 <li class="nav-item">
                     <a href="{% url 'mechanic-index' %}" class="nav-link" style="display: flex; align-items: center;">
-                                        <span class="sidebar-icon">
-                                            {% include 'red_shell_recruiting/components/svg_components.html' with type='plug-and-play'%}
-                                        </span>
+                        <span class="sidebar-icon">
+                            {% include 'red_shell_recruiting/components/svg_components.html' with type='plug-and-play' %}
+                        </span>
                         <span class="sidebar-text">Mechanic</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="{% url 'admin:index' %}" class="nav-link" style="display: flex; align-items: center;">
-                                        <span class="sidebar-icon">
-                                            {% include 'red_shell_recruiting/components/svg_components.html' with type='cog'%}
-                                        </span>
+                        <span class="sidebar-icon">
+                            {% include 'red_shell_recruiting/components/svg_components.html' with type='cog' %}
+                        </span>
                         <span class="sidebar-text">Django Admin</span>
                     </a>
                 </li>
@@ -89,12 +93,12 @@
             <div style="border-bottom: 1px solid rgba(255,255,255,0.3); margin-bottom: 10px; margin-top: 10px"></div>
             <li class="nav-item" style="margin-top: auto">
                 <div style="border-bottom: 1px solid rgba(255,255,255,0.3); margin-bottom: 10px; margin-top: 10px"></div>
-                <form  action="{% url 'logout' %}" method="post" style="padding: 10px 10px 20px 10px;">
+                <form action="{% url 'logout' %}" method="post" style="padding: 10px 10px 20px 10px;">
                     {% csrf_token %}
                     <button type="submit" class="nav-link btn btn-link" style="display: flex; align-items: center; background: none; border: none; padding: 0;">
-                                        <span class="sidebar-icon">
-                                            {% include 'red_shell_recruiting/components/svg_components.html' with type='logout' %}
-                                        </span>
+                        <span class="sidebar-icon">
+                            {% include 'red_shell_recruiting/components/svg_components.html' with type='logout' %}
+                        </span>
                         <div class="sidebar-text" style="display: flex; flex-direction: row">
                             <span>Logout</span>
                         </div>
@@ -103,7 +107,8 @@
             </li>
         </ul>
     </div>
-    <div class="sidebar-text" style="display: flex; justify-content: center; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 10px;">
+    <div class="sidebar-text"
+         style="display: flex; justify-content: center; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 10px;">
         <span style="color: #767A84;">Version: {{ git_tag }}</span>
     </div>
 </nav>
