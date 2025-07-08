@@ -5,6 +5,7 @@ from botocore.exceptions import ClientError
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import EmptyResultSet
 from pip._internal.resolution.resolvelib.base import Candidate
 from user_agents import parse
 from django.db.models import F, Count, Q
@@ -208,6 +209,7 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
         request = self.request
 
         all_titles = CandidateProfileTitle.objects.all().order_by("display_name")
+        all_sources = CandidateProfileSource.objects.all().order_by("display_name")
         all_ownerships = CandidateOwnership.objects.all().order_by("display_name")
 
         toggle_filters = {
@@ -220,6 +222,7 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
 
         title_id = request.GET.get("title_id")
         ownership_id = request.GET.get("ownership_id")
+        source_id = request.GET.get("source_id")
         query = request.GET.get("q", "").strip()
         candidates = CandidateProfile.objects.all()
 
@@ -233,6 +236,9 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
 
             if ownership_id:
                 candidates = candidates.filter(ownership_id=ownership_id)
+
+            if source_id:
+                candidates = candidates.filter(source_id=source_id)
 
             if query:
                 candidates = (
@@ -278,7 +284,7 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
                     .distinct()
                 )
 
-            elif not (toggles_active or title_id or ownership_id):
+            elif not (toggles_active or title_id or ownership_id or source_id):
                 candidates = CandidateProfile.objects.none()
 
             if toggle_filters["actively_looking"]:
@@ -298,6 +304,7 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
         context["total_count_profile"] = CandidateProfile.objects.count()
         context["total_count_resume"] = CandidateResume.objects.count()
         context["all_titles"] = all_titles
+        context["all_sources"] = all_sources
         context["selected_title_id"] = title_id
         context["all_ownerships"] = all_ownerships
         context["selected_ownership_id"] = ownership_id

@@ -13,7 +13,6 @@ the code in agency mode.  Agency mode
 - **Python Version:** All code must be written for Python 3.10.
 - **No Emojis:** Emojis are prohibited in comments and logging.
 - **Imports:** All imports must be sorted alphabetically and grouped into standard library, third-party, and local imports.
-- **Logging:** Use the `logging` module for all logging needs. Do not use print statements.
 - **Error Handling:** Use exceptions for error handling. Do not use return codes or other non-exception mechanisms.
 - **Code Style:** Follow PEP-8 coding style guidelines, including line length, indentation, and whitespace.
 - **Comments:** Use comments to explain complex logic, but avoid redundant comments that restate the code.

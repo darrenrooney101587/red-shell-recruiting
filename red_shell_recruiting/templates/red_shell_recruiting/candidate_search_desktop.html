@@ -64,9 +64,7 @@
                                 </label>
                             </div>
                             <div style="height: 75px; border-right: 1px solid rgba(0,0,0,.1); margin-right: 1rem;"></div>
-                            <div class="flex-display column align-baseline search-dropdown">
-                                {% include 'red_shell_recruiting/components/candidate_search_dropdowns.html' %}
-                            </div>
+                            {% include 'red_shell_recruiting/components/candidate_search_dropdowns.html' %}
                         </div>
                     </div>
                 </div>
@@ -128,10 +126,4 @@
             {% endif %}
         {% endif %}
     </div>
-    <script>
-        $(document).ready(function() {
-
-
-        });
-    </script>
 {% endblock %}
