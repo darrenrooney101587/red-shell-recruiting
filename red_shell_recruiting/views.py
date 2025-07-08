@@ -28,8 +28,9 @@ from red_shell_recruiting.models import (
     CandidateClientPlacement,
     CandidateClientPlacementHistory,
     CandidateProfileTitle,
-    CandidateOwnerShip,
+    CandidateOwnership,
     CandidateCulinaryPortfolio,
+    CandidateProfileSource,
 )
 
 
@@ -60,8 +61,14 @@ def candidate_title_list(request):
     return JsonResponse(data, safe=False)
 
 
+def candidate_source_list(request):
+    titles = CandidateProfileSource.objects.all().order_by("display_name")
+    data = [{"id": t.id, "name": t.display_name} for t in titles]
+    return JsonResponse(data, safe=False)
+
+
 def candidate_ownership_list(request):
-    titles = CandidateOwnerShip.objects.all().order_by("display_name")
+    titles = CandidateOwnership.objects.all().order_by("display_name")
     data = [{"id": t.id, "name": t.display_name} for t in titles]
     return JsonResponse(data, safe=False)
 
@@ -89,6 +96,12 @@ class CandidateInput(LoginRequiredMixin, View):
             if title_id
             else None
         )
+        source_id = request.POST.get("candidate-source-id")
+        source_obj = (
+            CandidateProfileSource.objects.filter(id=source_id).first()
+            if source_id
+            else None
+        )
         phone_number = request.POST.get("candidate-phone-number")
         email = request.POST.get("candidate-email")
         compensation_from = (
@@ -114,7 +127,7 @@ class CandidateInput(LoginRequiredMixin, View):
 
         ownership_id = request.POST.get("candidate-ownership-id")
         ownership_obj = (
-            CandidateOwnerShip.objects.filter(id=ownership_id).first()
+            CandidateOwnership.objects.filter(id=ownership_id).first()
             if ownership_id
             else None
         )
@@ -137,6 +150,7 @@ class CandidateInput(LoginRequiredMixin, View):
                     currently_working=currently_working,
                     actively_looking=actively_looking,
                     linkedin_url=linkedin_url,
+                    source=source_obj,
                 )
 
                 if (
@@ -194,7 +208,7 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
         request = self.request
 
         all_titles = CandidateProfileTitle.objects.all().order_by("display_name")
-        all_ownerships = CandidateOwnerShip.objects.all().order_by("display_name")
+        all_ownerships = CandidateOwnership.objects.all().order_by("display_name")
 
         toggle_filters = {
             "actively_looking": request.GET.get("actively_looking"),
@@ -356,7 +370,7 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
 
         owner_id = request.POST.get("candidate-ownership-id")
         if owner_id:
-            owner_obj = CandidateOwnerShip.objects.filter(id=owner_id).first()
+            owner_obj = CandidateOwnership.objects.filter(id=owner_id).first()
             if owner_obj:
                 candidate.ownership = owner_obj
 

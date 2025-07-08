@@ -55,6 +55,11 @@ urlpatterns = [
         "api/candidate-titles/", views.candidate_title_list, name="candidate-title-list"
     ),
     path(
+        "api/candidate-sources/",
+        views.candidate_source_list,
+        name="candidate-source-list",
+    ),
+    path(
         "api/candidate-ownership/",
         views.candidate_ownership_list,
         name="candidate-ownership-list",

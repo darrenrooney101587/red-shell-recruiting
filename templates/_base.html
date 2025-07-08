@@ -97,6 +97,7 @@
                 },
                 { selector: '#candidate-ownership-hidden', name: 'Ownership', msg: 'Please select an ownership.' },
                 { selector: '#candidate-title-hidden', name: 'Title', msg: 'Please select a title.' },
+                { selector: '#candidate-source-hidden', name: 'Source', msg: 'Please select a source.' },
                 {
                     selector: '#candidate-phone-number',
                     name: 'Phone',
@@ -209,6 +210,19 @@
             });
         }
 
+        function populateCandidateSources() {
+            const list = $('#candidate-source-list');
+            list.empty();
+
+            $.get("{% url 'candidate-source-list' %}", function(data) {
+                data.forEach(function(item) {
+                    list.append(`<li class="option" data-value="${item.id}">${item.name}</li>`);
+                });
+            }).fail(function() {
+                addClientMessage('Error fetching sourcees.');
+            });
+        }
+
         function populateCandidateOwners() {
             const list = $('#candidate-ownership-list');
             list.empty();
@@ -286,6 +300,7 @@
 
             populateClientPlacements();
             populateCandidateTitles();
+            populateCandidateSources();
             populateCandidateOwners();
 
             $.ajaxSetup({

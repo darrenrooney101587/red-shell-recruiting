@@ -39,6 +39,18 @@ class CandidateProfileTitle(models.Model):
         verbose_name = "Candidate Profile Title"
 
 
+class CandidateProfileSource(models.Model):
+    display_name = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "candidate_profile_source"
+        managed = True
+        verbose_name_plural = "Candidate Profile Sources"
+        verbose_name = "Candidate Profile Source"
+
+
 class CandidateClientPlacement(models.Model):
     display_name = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -51,7 +63,7 @@ class CandidateClientPlacement(models.Model):
         verbose_name = "Candidate Placement"
 
 
-class CandidateOwnerShip(models.Model):
+class CandidateOwnership(models.Model):
     display_name = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -76,7 +88,7 @@ class CandidateProfile(models.Model):
         related_name="candidates",
     )
     ownership = models.ForeignKey(
-        CandidateOwnerShip,
+        CandidateOwnership,
         on_delete=models.PROTECT,
         default=None,
         null=True,
@@ -93,6 +105,13 @@ class CandidateProfile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     search_document = SearchVectorField(null=True)
+    source = models.ForeignKey(
+        CandidateProfileSource,
+        on_delete=models.PROTECT,
+        related_name="sources",
+        null=True,
+        blank=True,
+    )
     candidate_placement_history = models.ForeignKey(
         "CandidateClientPlacementHistory",
         on_delete=models.SET_NULL,

@@ -5,12 +5,19 @@ from .models import (
     SearchVectorProcessingLog,
     CandidateClientPlacement,
     CandidateProfileTitle,
-    CandidateOwnerShip,
+    CandidateOwnership,
+    CandidateProfileSource,
 )
 
 
 @admin.register(CandidateProfileTitle)
 class CandidateProfileTitleAdmin(admin.ModelAdmin):
+    list_display = ("display_name",)
+    search_fields = ("display_name",)
+
+
+@admin.register(CandidateProfileSource)
+class CandidateProfileSourceAdmin(admin.ModelAdmin):
     list_display = ("display_name",)
     search_fields = ("display_name",)
 
@@ -21,6 +28,7 @@ class CandidateProfileAdmin(admin.ModelAdmin):
         "first_name",
         "last_name",
         "get_title",
+        "get_source",
         "get_ownership",
         "email",
         "city",
@@ -36,8 +44,8 @@ class CandidateProfileAdmin(admin.ModelAdmin):
     def get_ownership(self, obj):
         return obj.ownership.display_name if obj.ownership else "-"
 
-    get_title.short_description = "Title"
-    get_title.admin_order_field = "title__display_name"
+    def get_source(self, obj):
+        return obj.source.display_name if obj.ownership else "-"
 
 
 @admin.register(CandidateResume)
@@ -90,7 +98,7 @@ class CandidateClientPlacementAdmin(admin.ModelAdmin):
     ordering = ("display_name",)
 
 
-@admin.register(CandidateOwnerShip)
+@admin.register(CandidateOwnership)
 class CandidateOwnerShipAdmin(admin.ModelAdmin):
     list_display = ("display_name", "created_at", "updated_at")
     search_fields = ("display_name",)
