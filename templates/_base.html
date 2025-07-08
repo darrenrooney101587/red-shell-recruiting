@@ -468,6 +468,18 @@
                 $(this).css({'background-color': '', 'cursor': ''});
             });
 
+            // Mobile sidebar menu logic
+            var hamburger = document.getElementById('hamburger-button');
+            var mobileMenu = document.getElementById('mobile-menu');
+            var closeBtn = document.getElementById('close-mobile-menu');
+            if (hamburger && mobileMenu && closeBtn) {
+                hamburger.addEventListener('click', function() {
+                    mobileMenu.classList.add('active');
+                });
+                closeBtn.addEventListener('click', function() {
+                    mobileMenu.classList.remove('active');
+                });
+            }
         });
 
     </script>
