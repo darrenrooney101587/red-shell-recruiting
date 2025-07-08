@@ -19,6 +19,7 @@ the code in agency mode.  Agency mode
 - **Preferred File Construction:** Prefer class-based design for application logic rather than standalone scripts. Each class should include a `main` block to allow it to be run directly.
 - **Testing:** All test files must be written as `unittest.TestCase` classes with a `main` block for execution.
 - **Imports:** All imports should be at the top of the py file.
+- **Javascript:** Always leverage JQuery  for all javascript functionality.
 -
 You should avoid defining functions inside other functions. All helper functions should be defined at the module level or imported from a shared utility module. This will be added to your Copilot Coding Instructions for future work.
 

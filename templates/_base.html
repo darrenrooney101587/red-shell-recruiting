@@ -542,6 +542,16 @@
             }
         });
 
+        $(function () {
+            $('.candidate-card .small-title[data-created-at]').each(function () {
+                var utc = $(this).data('created-at');
+                if (utc) {
+                    var local = new Date(utc);
+                    $(this).find('.created-at-local').text(local.toLocaleString());
+                }
+            });
+        });
+
     </script>
     {% endblock %}
 </html>
