@@ -332,6 +332,20 @@
                 $(this).closest('.custom-dropdown').find('.chevron-up').hide();
             });
 
+            // source click handler
+            $('#candidate-source-list').on('click', '.option', function (event) {
+                event.stopPropagation();
+                const titleId = $(this).data('value');
+                const titleText = $(this).text();
+
+                $('#candidate-source-dropdown').text(titleText);
+                $('#candidate-source-hidden').val(titleId);
+
+                $(this).closest('.dropdown-list').hide();
+                $(this).closest('.custom-dropdown').find('.chevron-down').show();
+                $(this).closest('.custom-dropdown').find('.chevron-up').hide();
+            });
+
             // ownership click handler
             $('#candidate-ownership-list').on('click', '.option', function (event) {
                 event.stopPropagation();
@@ -365,6 +379,37 @@
                 $dropdown.find('.chevron-down').show();
                 $dropdown.find('.chevron-up').hide();
             });
+
+            // state click handler
+            $('#state-list').on('click', '.option', function(event) {
+                event.stopPropagation();
+                const state = $(this).data('value');
+                const stateName = $(this).data('fullname');
+
+                $('#state-dropdown').text(stateName);
+                $('#state-hidden').val(state);
+
+                $(this).closest('.dropdown-list').hide();
+                $(this).closest('.custom-dropdown').find('.chevron-down').show();
+                $(this).closest('.custom-dropdown').find('.chevron-up').hide();
+
+                populateCities(state);
+            });
+
+            // city click handler
+            $('#city-list').on('click', '.option', function(event) {
+                event.stopPropagation();
+                const city = $(this).data('value');
+                const cityName = $(this).text();
+
+                $('#city-dropdown').text(cityName);
+                $('#city-hidden').val(city);
+
+                $(this).closest('.dropdown-list').hide();
+                $(this).closest('.custom-dropdown').find('.chevron-down').show();
+                $(this).closest('.custom-dropdown').find('.chevron-up').hide();
+            });
+
 
             // general dropdown show/hide
             $(document).on('click', '.custom-dropdown', function (event) {
