@@ -45,7 +45,7 @@ class CandidateProfileAdmin(admin.ModelAdmin):
         return obj.ownership.display_name if obj.ownership else "-"
 
     def get_source(self, obj):
-        return obj.source.display_name if obj.ownership else "-"
+        return obj.source.display_name if obj.source else "-"
 
 
 @admin.register(CandidateResume)

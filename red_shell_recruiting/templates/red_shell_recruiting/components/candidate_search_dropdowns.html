@@ -1,5 +1,5 @@
 <div class="flex-display column align-baseline search-dropdown">
-    <div style="width: 100%; height: 25px; margin-bottom: 1rem;" class="custom-dropdown" id="title-search-dropdown-wrapper">
+    <div style="width: 100%; height: 25px;" class="custom-dropdown" id="title-search-dropdown-wrapper">
         <div class="flex-display space-between">
             <div class="selected-option ellipsis" id="candidate-title-dropdown">
                 {% with selected=request.GET.title_id|default:'' %}
@@ -43,7 +43,7 @@
         </ul>
         <input type="hidden" name="ownership_id" id="candidate-ownership-hidden" value="{{ request.GET.ownership_id }}">
     </div>
-    <div style="width: 100%; height: 25px; margin-bottom: 1rem;" class="custom-dropdown" id="source-search-dropdown-wrapper">
+    <div style="width: 100%; height: 25px;" class="custom-dropdown" id="source-search-dropdown-wrapper">
         <div class="flex-display space-between">
             <div class="selected-option ellipsis" id="candidate-source-dropdown">
                 {% with selected=request.GET.source_id|default:'' %}
@@ -52,7 +52,7 @@
                             {{ source.display_name }}
                         {% endif %}
                     {% endfor %}
-                    {% if not selected %}Select a source{% endif %}
+                    {% if not selected %}Select a Source{% endif %}
                 {% endwith %}
             </div>
             <span class="chevron-down">{% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}</span>

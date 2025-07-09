@@ -106,11 +106,15 @@ input {
 .form-select {
   line-height: 24px;
   border: none;
-  font-size: 16px;
+  font-size: 14px;
   height: 30px;
   outline: 0;
   width: 100%;
   background-color: unset;
+}
+.text-input::placeholder {
+  color: black;
+  opacity: 1;
 }
 h1 {
   font-size: 28px;
@@ -355,6 +359,7 @@ h6 {
   position: relative;
   vertical-align: middle;
   transition: background 0.25s;
+  top: 1px;
 }
 .toggle-switch:before, .toggle-switch:after {
   content: "";
@@ -406,6 +411,9 @@ h6 {
   transition: all .3s cubic-bezier(.4,0,.2,1);
   font-size: var(--font-size-button);
   font-family: var(--font-famiy);
+}
+.button > span {
+  font-size: var(--font-size-button);
 }
 .btn {
   font-family: var(--font-famiy);
@@ -462,6 +470,13 @@ h6 {
 }
 .flex-display.align-baseline {
   align-items: baseline;
+}
+
+.grid-cols-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, auto);
+  gap: 0.5rem;
 }
 
 /*
@@ -994,7 +1009,7 @@ li.nav-item.sub {
 }
 
 .message-text {
-  padding: 0.5rem;
+  /* padding: 0.5rem; */
   height: 101%;
 }
 

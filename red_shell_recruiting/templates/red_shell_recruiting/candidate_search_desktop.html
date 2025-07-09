@@ -32,12 +32,12 @@
                         <div class="flex-display vertical-align space-between" style="width: 100%;">
                             <input style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" type="text" class="text-input" name="q" value="{{ query }}" placeholder="Search candidates..." />
                             <div class="flex-display vertical-align">
-                                <button class="button" type="submit">Search</button>
+                                <button style="width: 60px;" class="button" type="submit">Search</button>
                                 <div style="margin-left: 0.5rem;" class="flex-display vertical-align justify-center">
-                                    <a href="{% url 'candidate-search' %}" class="button">Clear</a>
+                                    <a style="width: 60px; text-align: center" href="{% url 'candidate-search' %}" class="button">Clear</a>
                                 </div>
                                 <div style="width: auto; margin-left: 0.5rem;" class="flex-display vertical-align justify-center">
-                                    <a href="{% url 'candidate-search' %}?q=all" class="button">All</a>
+                                    <a style="width: 60px; text-align: center" href="{% url 'candidate-search' %}?q=all" class="button">All</a>
                                 </div>
                             </div>
                         </div>
@@ -58,10 +58,12 @@
                 {% for candidate in candidates %}
                     <div class="candidate-card section" data-candidate-id="{{ candidate.id }}" style="width: 400px">
                         <div class="flex-display space-between vertical-align">
-                            <h2>{{ candidate.first_name }} {{ candidate.last_name }}</h2>
-                            <h2 class="small-title" data-created-at="{{ candidate.created_at|date:'c' }}">
-                                Added <span class="created-at-local"></span>
-                            </h2>
+                            <div class="flex-display vertical-align">
+                                <h4>{{ candidate.first_name }} {{ candidate.last_name }}</h4>
+                            </div>
+                            <h3 style="font-size: 12px;" class="small-title" data-created-at="{{ candidate.created_at|date:'c' }}">
+                                Added <span style="font-size: 12px;" class="created-at-local"></span>
+                            </h3>
                         </div>
                         <hr style="margin-top: 0.5rem; margin-bottom: 0.5rem;">
                         <div class="flex-display space-between">
@@ -96,15 +98,11 @@
                             </div>
                             <div class="flex-display">
                                 <div style="height: 100%; border: 0; border-left: 1px solid rgba(0,0,0,.1); margin-left: 1rem; margin-right: 1rem;"></div>
-                                {% if candidate.linkedin_url %}
-                                    <div>
-                                        <div style="height: 100%; border: 0; border-left: 1px solid rgba(0,0,0,.1); margin-left: 1rem; margin-right: 1rem;"></div>
-                                        <span style="font-size: 9px; color: var(--faded-gray-color)">Has LinkedIn</span>
-                                        {% include 'red_shell_recruiting/components/svg_components.html' with type='linkedin' %}
-                                    </div>
-                                {% endif %}
-                                <div class="flex-display vertical-align justify-center">
+                                <div class="flex-display column space-between align-end">
                                     <span style="text-align: center">{{ candidate.resumes.count }} Resume(s)</span>
+                                    {% if candidate.linkedin_url %}
+                                        {% include 'red_shell_recruiting/components/svg_components.html' with type='linkedin' %}
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>

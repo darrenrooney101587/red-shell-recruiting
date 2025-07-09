@@ -1,20 +1,22 @@
-<label class="toggle flex-display vertical-align justify-center" style="margin-right: 1rem;">
-    <input type="checkbox" name="actively_looking" {% if request.GET.actively_looking %}checked{% endif %} class="toggle-checkbox">
-    <div class="toggle-switch"></div>
-    <span>Actively Looking</span>
-</label>
-<label class="toggle flex-display vertical-align justify-center" style="margin-right: 1rem;">
-    <input type="checkbox" name="open_to_relocation" {% if request.GET.open_to_relocation %}checked{% endif %} class="toggle-checkbox">
-    <div class="toggle-switch"></div>
-    <span>Open to Relocation</span>
-</label>
-<label class="toggle flex-display vertical-align justify-center" style="margin-right: 1rem;">
-    <input type="checkbox" name="currently_working" {% if request.GET.currently_working %}checked{% endif %} class="toggle-checkbox">
-    <div class="toggle-switch"></div>
-    <span>Currently Working</span>
-</label>
-<label class="toggle flex-display vertical-align justify-center" style="margin-right: 1rem;">
-    <input  type="checkbox" name="previously_placed" {% if request.GET.previously_placed %}checked{% endif %} class="toggle-checkbox">
-    <div class="toggle-switch"></div>
-    <span>Previously Placed</span>
-</label>
+<div class="grid grid-cols-2 gap-2">
+    <label class="toggle flex-display vertical-align align-start" style="margin-right: 1rem;">
+        <input type="checkbox" name="actively_looking" {% if request.GET.actively_looking %}checked{% endif %} class="toggle-checkbox">
+        <div class="toggle-switch"></div>
+        <span>Actively Looking</span>
+    </label>
+    <label class="toggle flex-display vertical-align align-start" style="margin-right: 1rem;">
+        <input type="checkbox" name="open_to_relocation" {% if request.GET.open_to_relocation %}checked{% endif %} class="toggle-checkbox">
+        <div class="toggle-switch"></div>
+        <span>Open to Relocation</span>
+    </label>
+    <label class="toggle flex-display vertical-align align-start" style="margin-right: 1rem;">
+        <input type="checkbox" name="currently_working" {% if request.GET.currently_working %}checked{% endif %} class="toggle-checkbox">
+        <div class="toggle-switch"></div>
+        <span>Currently Working</span>
+    </label>
+    <label class="toggle flex-display vertical-align align-start" style="margin-right: 1rem;">
+        <input  type="checkbox" name="previously_placed" {% if request.GET.previously_placed %}checked{% endif %} class="toggle-checkbox">
+        <div class="toggle-switch"></div>
+        <span>Previously Placed</span>
+    </label>
+</div>

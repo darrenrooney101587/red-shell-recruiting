@@ -9,11 +9,11 @@
     <link rel="stylesheet" href="{% static 'css/candidate.css' %}?n={% css_invalidate_int %}">
 {% endblock %}
 {% block content %}
-    <div style="max-width:1000px; width: 50%; margin: 4rem auto 0;">
-        <div id="candidate-view-mode" class="section">
-            <form>
-                <div class="field-set flex-display" style="column-gap: 2rem; min-height: 280px;">
-                    <div style="width: 50%; position: relative">
+    <div style="max-width:1400px; width: 80%; margin: 4rem auto 0;">
+        <div class="section">
+            <form id="candidate-view-mode">
+                <div class="field-set flex-display" style="column-gap: 2rem; position:relative;">
+                    <div style="width: 33%; position: relative">
                         <div>
                             <span style="color: var(--faded-gray-color)" class="small-title">First Name</span>
                             <input type="text" value="{{ candidate.first_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
@@ -36,7 +36,7 @@
                         </div>
                         {% include 'red_shell_recruiting/components/candidate_linked_in_url.html' %}
                     </div>
-                    <div style="width: 50%; position: relative">
+                    <div style="width: 33%; position: relative">
                         <div>
                             <span style="color: var(--faded-gray-color)" class="small-title">Phone Number</span>
                             <input type="tel" value="{{ candidate.phone_number }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
@@ -60,157 +60,170 @@
                             <span style="color: var(--faded-gray-color)" class="small-title">Source</span>
                             <input type="text" value="{{ candidate.source.display_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
                         </div>
-                        <div class="align-baseline column flex-display flex-start toggle-container" style="margin-top: 1rem; margin-bottom: 1rem;">
-                            <label class="toggle flex-display vertical-align justify-center" style="margin-bottom: 1rem;">
+                        <div class="grid-cols-2 gap-2 toggle-container" style="margin-top: 1rem; margin-bottom: 1rem;">
+                            <label class="toggle flex-display vertical-align align-start" style="margin-bottom: 1rem;">
                                 <input class="toggle-checkbox" type="checkbox" {% if candidate.actively_looking %}checked{% endif %} disabled>
                                 <div class="toggle-switch"></div>
                                 <span>Actively Looking</span>
                             </label>
-                            <label class="toggle flex-display vertical-align justify-center" style="margin-bottom: 1rem;">
+                            <label class="toggle flex-display vertical-align align-start" style="margin-bottom: 1rem;">
                                 <input class="toggle-checkbox" type="checkbox" {% if candidate.open_to_relocation %}checked{% endif %} disabled>
                                 <div class="toggle-switch"></div>
                                 <span>Open to Relocation</span>
                             </label>
-                            <label class="toggle flex-display vertical-align justify-center" style="margin-bottom: 1rem;">
+                            <label class="toggle flex-display vertical-align align-start" style="margin-bottom: 1rem;">
                                 <input class="toggle-checkbox" type="checkbox" {% if candidate.currently_working %}checked{% endif %} disabled>
                                 <div class="toggle-switch"></div>
                                 <span>Currently Working</span>
                             </label>
                         </div>
                     </div>
+                    <div style="width: 33%; position: relative">
+                        <div style="margin-bottom: 1rem;">
+                            <span style="color: var(--faded-gray-color)" class="small-title">Notes</span>
+                            <textarea class="text-input" style="border: 1px solid var(--ui-support-element-color); height: 300px; padding: 0.5rem;" disabled>{{ candidate.notes }}</textarea>
+                        </div>
+                        <div>
+                            <div class="flex-display vertical-align">
+                                <h3 style="color: var(--faded-gray-color)" class="small-title">Candidate Placement</h3>
+                            </div>
+                            <div class="flex-display column" style="margin-bottom: 1rem;">
+                                {% if candidate.placement_record.all %}
+                                    <ul style="margin-top: 0.5rem;">
+                                        {% for record in candidate.placement_record.all %}
+                                            <li style="margin-bottom: 0.25rem; font-size: 14px;">
+                                                {{ record.placement.display_name }} - {{ record.month }}/{{ record.year }} - {{ record.compensation }}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <span class="small-title" style="opacity: 0.6;">No placements recorded.</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-display flex-end" style="width: 100%;">
+                    <button class="button flex-display vertical-align space-between" id="edit-button">
+                        <span style="margin-left: 3px;">Edit Candidate</span>
+                    </button>
                 </div>
             </form>
             <hr>
-            <div class="flex-display column">
-                <div class="flex-display vertical-align" style="margin-bottom: 1rem;">
-                    <h3>Candidate Placement</h3>
+            <div class="flex-display space-between">
+                <div>
+                    <div style="margin-bottom: 1rem;">
+                        <span style="color: var(--faded-gray-color)" class="small-title">Resumes</span>
+                    </div>
+                    <ul style="margin-bottom: 1rem;">
+                        {% for resume in resumes %}
+                            <li style="margin-bottom: 0.5rem;">
+                                <a href="{{ resume.get_signed_url }}" download>{{ resume.file.name|filename }}</a>
+                                <span style="font-size: 9px; color: var(--accent-text-color)">
+                                        (Uploaded {{ resume.created_at|date:'c' }})
+                                    </span>
+                                <form method="post" action="{% url 'archive-resume' resume.id %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button class="button" type="submit" style="margin-left: 0.5rem; padding: 0;">
+                                        <div style="position: relative; top: 2px">
+                                            {% include 'red_shell_recruiting/components/svg_components.html' with type='close' %}
+                                        </div>
+                                    </button>
+                                </form>
+                            </li>
+                        {% empty %}
+                            <li class="small-title" style="opacity: 0.6">No resumes uploaded yet.</li>
+                        {% endfor %}
+                    </ul>
+                    <hr>
+                    <div class="flex-display vertical-align" style="margin-right:3rem; margin-top: 1rem;">
+                        <input required style="display: none;" type="file" id="candidate-resume" name="candidate_resume" accept=".pdf, .doc, .docx">
+                        <button id="trigger-resume-upload" class="button flex-display vertical-align space-between">
+                            <span style="margin-left: 3px;">Add Resume</span>
+                        </button>
+                        <div style="margin-left: 1rem;" id="file-name"></div>
+                        <button id="add-resume-button" class="button flex-display vertical-align space-between" style="display:none; margin-left: 1rem;">
+                            {% include 'red_shell_recruiting/components/svg_components.html' with type='download' %}
+                            <span style="margin-left: 3px;">Upload</span>
+                        </button>
+                    </div>
                 </div>
-                <div class="flex-display column" style="margin-bottom: 1rem;">
-                    {% if candidate.placement_record.all %}
-                        <ul style="margin-top: 0.5rem;">
-                            {% for record in candidate.placement_record.all %}
-                                <li style="margin-bottom: 0.25rem; font-size: 14px;">
-                                    {{ record.placement.display_name }} - {{ record.month }}/{{ record.year }} - {{ record.compensation }}
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <span class="small-title" style="opacity: 0.6;">No placements recorded.</span>
-                    {% endif %}
+                <div style="height: 125px; border-right: 1px solid rgba(0,0,0,.1); margin-right: 1rem; margin-left: 1rem;"></div>
+                <div>
+                    <div style="margin-bottom: 1rem;">
+                        <span style="color: var(--faded-gray-color)" class="small-title">Culinary Portfolios</span>
+                    </div>
+                    <ul style="margin-bottom: 1rem;">
+                        {% for portfolio in portfolios %}
+                            <li style="margin-bottom: 0.5rem;">
+                                <a href="{{ portfolio.get_signed_url }}" download>{{ portfolio.file.name|filename }}</a>
+                                <span style="font-size: 9px; color: var(--accent-text-color)">
+                                    (Uploaded {{ portfolio.created_at|date:"Y-m-d H:i" }})
+                                </span>
+                                <form method="post" action="{% url 'archive-culinary-portfolio' portfolio.id %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button class="button" type="submit" style="margin-left: 0.5rem; padding: 0;">
+                                        <div style="position: relative; top: 2px">
+                                            {% include 'red_shell_recruiting/components/svg_components.html' with type='close' %}
+                                        </div>
+                                    </button>
+                                </form>
+                            </li>
+                        {% empty %}
+                            <li  class="small-title" style="opacity: 0.6">No portfolios uploaded yet.</li>
+                        {% endfor %}
+                    </ul>
+                    <hr>
+                    <div class="flex-display vertical-align" style="margin-right:3rem; margin-top: 1rem;">
+                        <input style="display: none;" type="file" id="candidate-culinary-portfolio" name="candidate_culinary_portfolio" accept=".pdf, .doc, .docx">
+                        <button id="trigger-portfolio-upload" class="button flex-display vertical-align space-between">
+                            <span style="margin-left: 3px;">Add Portfolio</span>
+                        </button>
+                        <div style="margin-left: 1rem;" id="portfolio-file-name"></div>
+                        <button id="add-portfolio-button" class="button flex-display vertical-align space-between" style="display:none; margin-left: 1rem;">
+                            {% include 'red_shell_recruiting/components/svg_components.html' with type='download' %}
+                            <span style="margin-left: 3px;">Upload</span>
+                        </button>
+                    </div>
                 </div>
-            </div>
-            <hr>
-            <div style="margin-bottom: 1rem;">
-                <span style="color: var(--faded-gray-color)" class="small-title">Notes</span>
-                <textarea class="text-input" style="border: 1px solid var(--ui-support-element-color); height: 200px; padding: 0.5rem;" disabled>{{ candidate.notes }}</textarea>
-            </div>
-            <div class="flex-display flex-end" style="width: 100%;">
-                <button class="button flex-display vertical-align space-between" id="edit-button">
-                    {% include 'red_shell_recruiting/components/svg_components.html' with type='edit' %}
-                    <span style="margin-left: 3px;">Edit Candidate</span>
-                </button>
-            </div>
-            <hr>
-            <span style="color: var(--faded-gray-color)" class="small-title">Resumes</span>
-            <ul>
-                {% for resume in resumes %}
-                    <li style="margin-bottom: 0.5rem;">
-                        <a href="{{ resume.get_signed_url }}" download>{{ resume.file.name|filename }}</a>
-                        <span style="font-size: 9px; color: var(--accent-text-color)">
-                            (Uploaded {{ resume.created_at|date:"Y-m-d H:i" }})
-                        </span>
-                        <form method="post" action="{% url 'archive-resume' resume.id %}" style="display: inline;">
-                            {% csrf_token %}
-                            <button class="button" type="submit" style="margin-left: 0.5rem; padding: 0;">
-                                <div style="position: relative; top: 2px">
-                                    {% include 'red_shell_recruiting/components/svg_components.html' with type='close' %}
-                                </div>
-                            </button>
-                        </form>
-                    </li>
-                {% empty %}
-                    <li class="small-title" style="opacity: 0.6">No resumes uploaded yet.</li>
-                {% endfor %}
-            </ul>
-            <div class="flex-display vertical-align" style="margin-right:3rem; margin-top: 1rem;">
-                <input required style="display: none;" type="file" id="candidate-resume" name="candidate_resume" accept=".pdf, .doc, .docx">
-                <button id="trigger-resume-upload" class="button flex-display vertical-align space-between">
-                    {% include 'red_shell_recruiting/components/svg_components.html' with type='quick-add' %}
-                    <span style="margin-left: 3px;">Add Resume</span>
-                </button>
-                <div style="margin-left: 1rem;" id="file-name"></div>
-                <button id="add-resume-button" class="button flex-display vertical-align space-between" style="display:none; margin-left: 1rem;">
-                    {% include 'red_shell_recruiting/components/svg_components.html' with type='download' %}
-                    <span style="margin-left: 3px;">Upload</span>
-                </button>
-            </div>
-            <hr>
-            <span style="color: var(--faded-gray-color)" class="small-title">Culinary Portfolios</span>
-            <ul>
-                {% for portfolio in portfolios %}
-                    <li style="margin-bottom: 0.5rem;">
-                        <a href="{{ portfolio.get_signed_url }}" download>{{ portfolio.file.name|filename }}</a>
-                        <span style="font-size: 9px; color: var(--accent-text-color)">
-                            (Uploaded {{ portfolio.created_at|date:"Y-m-d H:i" }})
-                        </span>
-                        <form method="post" action="{% url 'archive-culinary-portfolio' portfolio.id %}" style="display: inline;">
-                            {% csrf_token %}
-                            <button class="button" type="submit" style="margin-left: 0.5rem; padding: 0;">
-                                <div style="position: relative; top: 2px">
-                                    {% include 'red_shell_recruiting/components/svg_components.html' with type='close' %}
-                                </div>
-                            </button>
-                        </form>
-                    </li>
-                {% empty %}
-                    <li  class="small-title" style="opacity: 0.6">No portfolios uploaded yet.</li>
-                {% endfor %}
-            </ul>
-            <div class="flex-display vertical-align" style="margin-right:3rem; margin-top: 1rem;">
-                <input style="display: none;" type="file" id="candidate-culinary-portfolio" name="candidate_culinary_portfolio" accept=".pdf, .doc, .docx">
-                <button id="trigger-portfolio-upload" class="button flex-display vertical-align space-between">
-                    {% include 'red_shell_recruiting/components/svg_components.html' with type='quick-add' %}
-                    <span style="margin-left: 3px;">Add Portfolio</span>
-                </button>
-                <div style="margin-left: 1rem;" id="portfolio-file-name"></div>
-                <button id="add-portfolio-button" class="button flex-display vertical-align space-between" style="display:none; margin-left: 1rem;">
-                    {% include 'red_shell_recruiting/components/svg_components.html' with type='download' %}
-                    <span style="margin-left: 3px;">Upload</span>
-                </button>
-            </div>
-            <hr>
-            <span style="color: var(--faded-gray-color)" class="small-title">Documents</span>
-            <ul>
-                {% for document in documents %}
-                    <li style="margin-bottom: 0.5rem;">
-                        <a href="{{ document.get_signed_url }}" download>{{ document.file.name|filename }}</a>
-                        <span style="font-size: 9px; color: var(--accent-text-color)">
-                            (Uploaded {{ document.created_at|date:"Y-m-d H:i" }})
-                        </span>
-                        <form method="post" action="{% url 'archive-document' document.id %}" style="display: inline;">
-                            {% csrf_token %}
-                            <button class="button" type="submit" style="margin-left: 0.5rem; padding: 0;">
-                                <div style="position: relative; top: 2px">
-                                    {% include 'red_shell_recruiting/components/svg_components.html' with type='close' %}
-                                </div>
-                            </button>
-                        </form>
-                    </li>
-                {% empty %}
-                    <li  class="small-title" style="opacity: 0.6">No document uploaded yet.</li>
-                {% endfor %}
-            </ul>
-            <div class="flex-display vertical-align" style="margin-top: 1rem;">
-                <input type="file" id="candidate-document" name="candidate_document" style="display: none;" accept=".pdf,.doc,.docx">
-                <button type="button" id="trigger-document-upload" class="button flex-display vertical-align space-between">
-                    {% include 'red_shell_recruiting/components/svg_components.html' with type='quick-add' %}
-                    <span style="margin-left: 3px;">Add Document</span>
-                </button>
-                <div id="document-file-name" style="margin-left: 1rem;"></div>
-                <button id="add-document-button" class="button flex-display vertical-align space-between" style="display: none; margin-left: 1rem;">
-                    {% include 'red_shell_recruiting/components/svg_components.html' with type='download' %}
-                    <span style="margin-left: 3px;">Upload</span>
-                </button>
+                <div style="height: 125px; border-right: 1px solid rgba(0,0,0,.1); margin-right: 1rem; margin-left: 1rem;"></div>
+                <div>
+                    <div style="margin-bottom: 1rem;">
+                        <span style="color: var(--faded-gray-color)" class="small-title">Documents</span>
+                    </div>
+                    <ul style="margin-bottom: 1rem;">
+                        {% for document in documents %}
+                            <li style="margin-bottom: 0.5rem;">
+                                <a href="{{ document.get_signed_url }}" download>{{ document.file.name|filename }}</a>
+                                <span style="font-size: 9px; color: var(--accent-text-color)">
+                                    (Uploaded {{ document.created_at|date:"Y-m-d H:i" }})
+                                </span>
+                                <form method="post" action="{% url 'archive-document' document.id %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button class="button" type="submit" style="margin-left: 0.5rem; padding: 0;">
+                                        <div style="position: relative; top: 2px">
+                                            {% include 'red_shell_recruiting/components/svg_components.html' with type='close' %}
+                                        </div>
+                                    </button>
+                                </form>
+                            </li>
+                        {% empty %}
+                            <li  class="small-title" style="opacity: 0.6">No document uploaded yet.</li>
+                        {% endfor %}
+                    </ul>
+                    <hr>
+                    <div class="flex-display vertical-align" style="margin-top: 1rem;">
+                        <input type="file" id="candidate-document" name="candidate_document" style="display: none;" accept=".pdf,.doc,.docx">
+                        <button type="button" id="trigger-document-upload" class="button flex-display vertical-align space-between">
+                            <span style="margin-left: 3px;">Add Document</span>
+                        </button>
+                        <div id="document-file-name" style="margin-left: 1rem;"></div>
+                        <button id="add-document-button" class="button flex-display vertical-align space-between" style="display: none; margin-left: 1rem;">
+                            {% include 'red_shell_recruiting/components/svg_components.html' with type='download' %}
+                            <span style="margin-left: 3px;">Upload</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
         <div id="candidate-edit-mode" class="section" style="display: none;">
@@ -280,7 +293,7 @@
                             <span style="color: var(--faded-gray-color)" class="small-title">Source</span>
                             {% include 'red_shell_recruiting/components/source_dropdown_component.html' with selected_source=candidate.source %}
                         </div>
-                        <div class="align-baseline column flex-display flex-start toggle-container" style="margin-top: 1rem; margin-bottom: 1rem;">
+                        <div class="toggle-container grid-cols-2" style="margin-top: 1rem; margin-bottom: 1rem;">
                             <label class="toggle flex-display vertical-align justify-center" style="margin-bottom: 1rem;">
                                 <input name="candidate-actively-looking" id="candidate-looking" class="toggle-checkbox" type="checkbox" {% if candidate.actively_looking %}checked{% endif %}>
                                 <div class="toggle-switch"></div>
@@ -303,7 +316,7 @@
                 <div class="client-placement-section">
                     <div class="flex-display vertical-align" style="margin-bottom: 1rem;">
                         <div style="margin-right: 1rem;">
-                            <h3>Candidate Placement</h3>
+                            <h3 style="color: var(--faded-gray-color)" class="small-title">Candidate Placement</h3>
                         </div>
                         {% if candidate.placement_record.exists %}
                             <div class="flex-display vertical-align">
@@ -393,6 +406,4 @@
 
         });
     </script>
-
-
 {% endblock %}
