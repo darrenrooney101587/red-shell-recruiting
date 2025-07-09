@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="{% static 'css/candidate.css' %}?n={% css_invalidate_int %}">
 {% endblock %}
 {% block content %}
-    <div class="section" style="max-width:1400px; width: 80%; margin: 4rem auto 0;">
+    <div class="section" style="width: 80%; margin: 2rem auto 0;">
         <div id="candidate-view-mode">
                 <div class="field-set flex-display" style="column-gap: 2rem; position:relative;">
                     <div style="width: 33%; position: relative">
@@ -200,9 +200,25 @@
                         </div>
                         <div>
                             <div class="flex-display vertical-align" style="margin-bottom: 1rem;">
-                                <h3 style="color: var(--faded-gray-color)" class="small-title">Candidate Placement</h3>
+                                <div style="margin-right: 1rem;">
+                                    <h3 style="color: var(--faded-gray-color)" class="small-title">Candidate Placement</h3>
+                                </div>
+                                {% if candidate.placement_record.exists %}
+                                    <div class="flex-display vertical-align">
+                                        <label class="toggle flex-display vertical-align justify-center" style="margin-right: 1rem;">
+                                            <input name="client-placement" id="edit-client-placement-toggle" class="toggle-checkbox" type="checkbox">
+                                            <div class="toggle-switch"></div>
+                                            <span>Remove All Previously Placed</span>
+                                        </label>
+                                        <input type="hidden" name="remove_all_placements" id="remove-all-placements-flag" value="false">
+                                    </div>
+                                {% endif %}
                             </div>
-                            <div class="flex-display column" style="margin-bottom: 1rem;">
+                            <div id="remove-placement-warning" class="placement-warning"
+                                 style="display: none; margin-bottom: 1rem;border-radius: var(--std-border-radius);padding-left: 0.25rem;padding-right: 0.25rem;background-color: var(--full-warning-color);color: var(--full-light-orange-color);padding-top: 0.25rem;padding-bottom: .5rem;text-align: center;">
+                                <span>All placement records will be removed when saved.</span>
+                            </div>
+                            <div id="placement-records-wrapper-edit" class="flex-display column" style="margin-bottom: 1rem;">
                                 {% for record in candidate.placement_record.all %}
                                     <div class="placement-line-item" data-index="{{ forloop.counter }}" data-placement-id="{{ record.id }}">
                                         <div style="margin-bottom: 1rem;">
@@ -252,9 +268,9 @@
                     {% for resume in resumes %}
                         <li style="margin-bottom: 0.5rem;">
                             <a href="{{ resume.get_signed_url }}" download>{{ resume.file.name|filename }}</a>
-                            <span style="font-size: 9px; color: var(--accent-text-color)">
-                                        (Uploaded {{ resume.created_at|date:'c' }})
-                                    </span>
+                            <span style="font-size: 12px; color: var(--accent-text-color)" data-created-at="{{ resume.created_at|date:'c' }}">
+                                (Uploaded <span style="font-size: 12px;" class="created-at-local"></span>)
+                            </span>
                             <form method="post" action="{% url 'archive-resume' resume.id %}" style="display: inline;">
                                 {% csrf_token %}
                                 <button class="button" type="submit" style="margin-left: 0.5rem; padding: 0;">
@@ -274,9 +290,9 @@
                     <button id="trigger-resume-upload" class="button flex-display vertical-align space-between">
                         <span style="margin-left: 3px;">Add Resume</span>
                     </button>
-                    <div class="file-name"  style="margin-left: 1rem;" id="file-name"></div>
+                    <div class="file-name ellipsis" style="margin-left: 1rem;" id="file-name"></div>
                     <button id="add-resume-button" class="button flex-display vertical-align space-between" style="display:none; margin-left: 1rem;">
-                        <span style="margin-left: 3px;">Upload</span>
+                        <span>Upload</span>
                     </button>
                 </div>
             </div>
@@ -289,9 +305,9 @@
                     {% for portfolio in portfolios %}
                         <li style="margin-bottom: 0.5rem;">
                             <a href="{{ portfolio.get_signed_url }}" download>{{ portfolio.file.name|filename }}</a>
-                            <span style="font-size: 9px; color: var(--accent-text-color)">
-                                    (Uploaded {{ portfolio.created_at|date:"Y-m-d H:i" }})
-                                </span>
+                            <span style="font-size: 12px; color: var(--accent-text-color)" data-created-at="{{ portfolio.created_at|date:'c' }}">
+                                (Uploaded <span style="font-size: 12px;" class="created-at-local"></span>)
+                            </span>
                             <form method="post" action="{% url 'archive-culinary-portfolio' portfolio.id %}" style="display: inline;">
                                 {% csrf_token %}
                                 <button class="button" type="submit" style="margin-left: 0.5rem; padding: 0;">
@@ -311,9 +327,9 @@
                     <button id="trigger-portfolio-upload" class="button flex-display vertical-align space-between">
                         <span style="margin-left: 3px;">Add Portfolio</span>
                     </button>
-                    <div class="file-name" style="margin-left: 1rem;" id="portfolio-file-name"></div>
+                    <div class="file-name ellipsis" style="margin-left: 1rem;" id="portfolio-file-name"></div>
                     <button id="add-portfolio-button" class="button flex-display vertical-align space-between" style="display:none; margin-left: 1rem;">
-                        <span style="margin-left: 3px;">Upload</span>
+                        <span>Upload</span>
                     </button>
                 </div>
             </div>
@@ -326,9 +342,9 @@
                     {% for document in documents %}
                         <li style="margin-bottom: 0.5rem;">
                             <a href="{{ document.get_signed_url }}" download>{{ document.file.name|filename }}</a>
-                            <span style="font-size: 9px; color: var(--accent-text-color)">
-                                    (Uploaded {{ document.created_at|date:"Y-m-d H:i" }})
-                                </span>
+                            <span style="font-size: 12px; color: var(--accent-text-color)" data-created-at="{{ document.created_at|date:'c' }}">
+                                (Uploaded <span style="font-size: 12px;" class="created-at-local"></span>)
+                            </span>
                             <form method="post" action="{% url 'archive-document' document.id %}" style="display: inline;">
                                 {% csrf_token %}
                                 <button class="button" type="submit" style="margin-left: 0.5rem; padding: 0;">
@@ -348,9 +364,9 @@
                     <button type="button" id="trigger-document-upload" class="button flex-display vertical-align space-between">
                         <span style="margin-left: 3px;">Add Document</span>
                     </button>
-                    <div id="document-file-name" style="margin-left: 1rem;"></div>
+                    <div class="file-name ellipsis"  id="document-file-name" style="margin-left: 1rem;"></div>
                     <button id="add-document-button" class="button flex-display vertical-align space-between" style="display: none; margin-left: 1rem;">
-                        <span style="margin-left: 3px;">Upload</span>
+                        <span>Upload</span>
                     </button>
                 </div>
             </div>

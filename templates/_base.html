@@ -543,7 +543,7 @@
         });
 
         $(function () {
-            $('.candidate-card .small-title[data-created-at]').each(function () {
+            $('[data-created-at]').each(function () {
                 var utc = $(this).data('created-at');
                 if (utc) {
                     var local = new Date(utc);

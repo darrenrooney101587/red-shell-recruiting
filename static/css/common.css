@@ -1031,3 +1031,8 @@ li.nav-item.sub {
   position: relative;
   /*top: 1px;*/
 }
+
+.file-name {
+  max-width: 200px;
+  font-size: 12px;
+}
