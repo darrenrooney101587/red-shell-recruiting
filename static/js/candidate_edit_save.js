@@ -182,7 +182,7 @@ function PlacementEditSaveActions(mobile = false) {
 
     $('#add-placement-line-edit').click(function () {
         placementIndex++;
-
+        console.log('Hello World')
         let newLine;
 
         if(mobile) {
@@ -220,31 +220,33 @@ function PlacementEditSaveActions(mobile = false) {
                 `;
         } else {
             newLine = `
-                    <div class="placement-line-item flex-display align-center" data-index="${placementIndex}" style="margin-bottom: 1rem;">
-                        <div class="custom-dropdown" style="border-bottom: 1px solid var(--ui-support-element-color);">
-                            <div class="flex-display space-between">
-                                <div class="selected-option client-placement-dropdown">Select a Client</div>
-                                <span class="chevron-down">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" aria-hidden="true">
-                                        <path fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m16 10-4 4-4-4"/>
-                                    </svg>
-                                </span>
-                                <span class="chevron-up" style="display: none;">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" aria-hidden="true" style="transform: rotate(180deg);">
-                                        <path fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m16 10-4 4-4-4"/>
-                                    </svg>
-                                </span>
-                            </div>
-                            <ul class="dropdown-list client-placement-list"></ul>
-                            <input class="client-placement-hidden" type="hidden" name="placement_id_${placementIndex}" value="">
+                <div class="placement-line-item" data-index="${placementIndex}" style="margin-bottom: 1rem;">
+                    <div class="custom-dropdown" style="border-bottom: 1px solid var(--ui-support-element-color);">
+                        <div class="flex-display space-between">
+                            <div class="selected-option client-placement-dropdown">Select a Client</div>
+                            <span class="chevron-down">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" aria-hidden="true">
+                                    <path fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m16 10-4 4-4-4"/>
+                                </svg>
+                            </span>
+                            <span class="chevron-up" style="display: none;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" aria-hidden="true" style="transform: rotate(180deg);">
+                                    <path fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m16 10-4 4-4-4"/>
+                                </svg>
+                            </span>
                         </div>
+                        <ul class="dropdown-list client-placement-list"></ul>
+                        <input class="client-placement-hidden" type="hidden" name="placement_id_${placementIndex}" value="">
+                    </div>
+                    <div class="flex-display align-center">
                         <input name="placement_month_${placementIndex}" placeholder="Month" class="text-input" style="margin-left: 1rem; width: 80px; border-bottom: 1px solid var(--ui-support-element-color);">
                         <input name="placement_year_${placementIndex}" placeholder="Year" class="text-input" style="margin-left: 1rem; width: 100px; border-bottom: 1px solid var(--ui-support-element-color);">
                         <input name="placement_compensation_${placementIndex}" placeholder="Amount" class="text-input" type="number" style="margin-left: 1rem; width: 150px; border-bottom: 1px solid var(--ui-support-element-color);">
                         <input type="hidden" name="delete_placement_${placementIndex}" value="false" class="delete-marker">
                         ${removePlacementButton}
                     </div>
-                `;
+                </div>
+            `;
         }
 
         $('#placement-records-wrapper-edit').append(newLine);

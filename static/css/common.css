@@ -84,7 +84,7 @@
   --std-item-height: 30px;
   --font-size-button: 12px;
   --homepage-matrix-cell-width: 150px;
-  --theme-base-color: #333;
+  --theme-base-color: black;
   --chart-lines: rgba(0,0,0,.1);
   --font-famiy: 'Spectral', serif;;
 }
