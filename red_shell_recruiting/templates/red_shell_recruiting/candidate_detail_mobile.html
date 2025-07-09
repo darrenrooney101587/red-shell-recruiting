@@ -34,6 +34,10 @@
                         <input type="text" value="{{ candidate.title.display_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
                     </div>
                     <div>
+                        <span style="color: var(--faded-gray-color)" class="small-title">Source</span>
+                        <input type="text" value="{{ candidate.source.display_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                    </div>
+                    <div>
                         <span style="color: var(--faded-gray-color)" class="small-title">Ownership</span>
                         <input type="text" value="{{ candidate.ownership.display_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
                     </div>
@@ -51,6 +55,10 @@
                             <input type="text" value="{{ candidate.compensation_from }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" disabled>
                             <input type="text" value="{{ candidate.compensation_to }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
                         </div>
+                    </div>
+                    <div>
+                        <span style="color: var(--faded-gray-color)" class="small-title">Source</span>
+                        <input type="text" value="{{ candidate.source.display_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
                     </div>
                     {% include 'red_shell_recruiting/components/candidate_linked_in_url.html' %}
                     <hr>
@@ -208,18 +216,50 @@
                 {% csrf_token %}
                 <div class="field-set flex-display" style="column-gap: 2rem; min-height: 280px;">
                     <div>
-                        <input type="text" name="candidate-first_name" class="text-input" placeholder="First Name" value="{{ candidate.first_name }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
-                        <input type="text" name="candidate-last_name" class="text-input" placeholder="Last Name" value="{{ candidate.last_name }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
-                        {% include 'red_shell_recruiting/components/state_dropdown_component.html' %}
-                        {% include 'red_shell_recruiting/components/city_dropdown_component.html' %}
-                        {% include 'red_shell_recruiting/components/title_dropdown_component.html' with selected_title=candidate.title %}
-                        {% if user|in_groups:"Site Admin" or user.is_superuser or user|has_perm:required_permission %}
-                            {% include 'red_shell_recruiting/components/ownership_dropdown_component.html' with selected_owner=candidate.ownership %}
-                        {% else %}
-                            {% include 'red_shell_recruiting/components/ownership_dropdown_component.html' with selected_owner=candidate.ownership disabled=True %}
-                        {% endif %}
-                        <input type="tel" name="candidate-phone_number" class="text-input" placeholder="Phone Number" value="{{ candidate.phone_number }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
-                        <input type="email" name="candidate-email" class="text-input" placeholder="Email" value="{{ candidate.email }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                        <div>
+                            <span style="color: var(--faded-gray-color)" class="small-title">First Name</span>
+                            <input type="text" name="candidate-first_name" class="text-input" placeholder="First Name" value="{{ candidate.first_name }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                        </div>
+                        <div>
+                            <span style="color: var(--faded-gray-color)" class="small-title">Last Name</span>
+                            <input type="text" name="candidate-last_name" class="text-input" placeholder="Last Name" value="{{ candidate.last_name }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                        </div>
+                        <div>
+                            <span style="color: var(--faded-gray-color)" class="small-title">State</span>
+                            {% include 'red_shell_recruiting/components/state_dropdown_component.html' %}
+                        </div>
+                        <div>
+                            <span style="color: var(--faded-gray-color)" class="small-title">City</span>
+                            {% include 'red_shell_recruiting/components/city_dropdown_component.html' %}
+                        </div>
+                        <div>
+                            <span style="color: var(--faded-gray-color)" class="small-title">Job Title</span>
+                            {% include 'red_shell_recruiting/components/title_dropdown_component.html' with selected_title=candidate.title %}
+                        </div>
+                        <div>
+                            <span style="color: var(--faded-gray-color)" class="small-title">Source</span>
+                            {% include 'red_shell_recruiting/components/source_dropdown_component.html' with selected_source=candidate.source %}
+                        </div>
+                        <div>
+                            <span style="color: var(--faded-gray-color)" class="small-title">Ownership</span>
+                            {% if user|in_groups:"Site Admin" or user.is_superuser or user|has_perm:required_permission %}
+                                {% include 'red_shell_recruiting/components/ownership_dropdown_component.html' with selected_owner=candidate.ownership %}
+                            {% else %}
+                                {% include 'red_shell_recruiting/components/ownership_dropdown_component.html' with selected_owner=candidate.ownership disabled=True %}
+                            {% endif %}
+                        </div>
+                        <div>
+                            <span style="color: var(--faded-gray-color)" class="small-title">Source</span>
+                            {% include 'red_shell_recruiting/components/source_dropdown_component.html' with selected_source=candidate.source %}
+                        </div>
+                        <div>
+                            <span style="color: var(--faded-gray-color)" class="small-title">Phone Number</span>
+                            <input type="tel" name="candidate-phone_number" class="text-input" placeholder="Phone Number" value="{{ candidate.phone_number }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                        </div>
+                        <div>
+                            <span style="color: var(--faded-gray-color)" class="small-title">Email</span>
+                            <input type="email" name="candidate-email" class="text-input" placeholder="Email" value="{{ candidate.email }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                        </div>
                         <div>
                             <span style="color: var(--faded-gray-color)" class="small-title">Compensation range</span>
                             <div class="flex-display">
@@ -227,7 +267,10 @@
                                 <input type="text" name="candidate-compensation-to" value="{{ candidate.compensation_to }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)">
                             </div>
                         </div>
-                        <input type="text" name="candidate-linkedin-url" class="text-input" placeholder="Linkedin URL" value="{{ candidate.linkedin_url|default_if_none:"" }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                        <div>
+                            <span style="color: var(--faded-gray-color)" class="small-title">Linkedin URL</span>
+                            <input type="text" name="candidate-linkedin-url" class="text-input" placeholder="Linkedin URL" value="{{ candidate.linkedin_url|default_if_none:"" }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                        </div>
                         <div class="align-baseline column flex-display flex-start toggle-container">
                             <label class="toggle flex-display vertical-align justify-center" style="margin-bottom: 1rem;">
                                 <input name="candidate-actively-looking" id="candidate-looking" class="toggle-checkbox" type="checkbox" {% if candidate.actively_looking %}checked{% endif %}>

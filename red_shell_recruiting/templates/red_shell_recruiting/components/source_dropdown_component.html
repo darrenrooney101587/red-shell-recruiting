@@ -1,7 +1,7 @@
 <div class="custom-dropdown" style="border-bottom: 1px solid var(--ui-support-element-color); margin-bottom: 1rem;" id="candidate-source-dropdown-wrapper">
     <div class="flex-display space-between">
         <div class="selected-option" id="candidate-source-dropdown">
-            {{ source.display_name|default:"Select a Source" }}
+            {{ selected_source.display_name|default:"Select a Source" }}
         </div>
         <span class="chevron-down">
             {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}
@@ -15,5 +15,5 @@
             <li class="option {% if selected_source and selected_source.id == source.id %}selected{% endif %}" data-value="{{ source.id }}">{{ source.display_name }}</li>
         {% endfor %}
     </ul>
-    <input type="hidden" name="candidate-source-id" id="candidate-source-hidden" value="{{ source.id|default:'' }}">
+    <input type="hidden" name="candidate-source-id" id="candidate-source-hidden" value="{{ selected_source.id|default:'' }}">
 </div>

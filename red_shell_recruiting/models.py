@@ -85,7 +85,6 @@ class CandidateProfile(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="candidates",
     )
     ownership = models.ForeignKey(
         CandidateOwnership,
@@ -108,7 +107,6 @@ class CandidateProfile(models.Model):
     source = models.ForeignKey(
         CandidateProfileSource,
         on_delete=models.PROTECT,
-        related_name="sources",
         null=True,
         blank=True,
     )
@@ -117,7 +115,6 @@ class CandidateProfile(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="currently_active_for",
     )
     linkedin_url = models.URLField(null=True)
 
@@ -125,30 +122,9 @@ class CandidateProfile(models.Model):
     def previously_placed(self):
         return self.placement_record.exists()
 
-    def __str__(self):
-        return (
-            f"CandidateProfile("
-            f"id={self.id}, "
-            f"first_name={self.first_name}, "
-            f"last_name={self.last_name}, "
-            f"state={self.state}, "
-            f"city={self.city}, "
-            f"title={self.title.display_name if self.title else 'None'}, "
-            f"ownership={self.ownership.display_name if self.ownership else 'None'}, "
-            f"phone={self.phone_number}, "
-            f"email={self.email}, "
-            f"comp_from={self.compensation_from}, "
-            f"comp_to={self.compensation_to}, "
-            f"notes={(self.notes[:30] + '...') if self.notes and len(self.notes) > 30 else self.notes}, "
-            f"open_to_relocation={self.open_to_relocation}, "
-            f"currently_working={self.currently_working}, "
-            f"actively_looking={self.actively_looking}, "
-            f"created_at={self.created_at}, "
-            f"updated_at={self.updated_at}, "
-            f"linkedin_url={self.linkedin_url}, "
-            f"placement_history_id={self.candidate_placement_history_id}"
-            f")"
-        )
+    def __str__(self) -> str:
+        """Return a concise string representation of the CandidateProfile."""
+        return f"{self.first_name} {self.last_name} ({self.email})"
 
     def update_search_document(self):
         self.search_document = (

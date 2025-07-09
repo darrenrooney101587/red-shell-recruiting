@@ -381,6 +381,12 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
             if owner_obj:
                 candidate.ownership = owner_obj
 
+        source_id = request.POST.get("candidate-source-id")
+        if source_id:
+            source_obj = CandidateProfileSource.objects.filter(id=source_id).first()
+            if source_obj:
+                candidate.source = source_obj
+
         candidate.save()
 
         # ----- Portfolio upload (if applicable) -----
