@@ -33,14 +33,7 @@
                         <span style="color: var(--faded-gray-color)" class="small-title">Job Title</span>
                         <input type="text" value="{{ candidate.title.display_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
                     </div>
-                    <div>
-                        <span style="color: var(--faded-gray-color)" class="small-title">Source</span>
-                        <input type="text" value="{{ candidate.source.display_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
-                    </div>
-                    <div>
-                        <span style="color: var(--faded-gray-color)" class="small-title">Ownership</span>
-                        <input type="text" value="{{ candidate.ownership.display_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
-                    </div>
+                    <br>
                     <div>
                         <span style="color: var(--faded-gray-color)" class="small-title">Phone Number</span>
                         <input type="tel" value="{{ candidate.phone_number }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
@@ -57,11 +50,14 @@
                         </div>
                     </div>
                     <div>
+                        <span style="color: var(--faded-gray-color)" class="small-title">Ownership</span>
+                        <input type="text" value="{{ candidate.ownership.display_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                    </div>
+                    <div>
                         <span style="color: var(--faded-gray-color)" class="small-title">Source</span>
                         <input type="text" value="{{ candidate.source.display_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
                     </div>
                     {% include 'red_shell_recruiting/components/candidate_linked_in_url.html' %}
-                    <hr>
                     <div class="align-baseline column flex-display align-center flex-start toggle-container" style="margin-top: 2rem; ">
                         <div class="flex-display vertical-align space-between" style="width: 150px; margin-bottom: 1rem">
                             <h4 style="margin-right: 0.5rem; color: var(--theme-base-color); opacity: 0.7;">Actively Looking</h4>
@@ -144,8 +140,8 @@
                     <li style="margin-bottom: 0.5rem;">
                         <a href="{{ portfolio.get_signed_url }}" download>{{ portfolio.file.name|filename }}</a>
                         <span style="font-size: 9px; color: var(--accent-text-color)">
-                            (Uploaded {{ portfolio.created_at|date:"Y-m-d H:i" }})
-                        </span>
+                        (Uploaded {{ portfolio.created_at|date:"Y-m-d H:i" }})
+                    </span>
                         <form method="post" action="{% url 'archive-culinary-portfolio' portfolio.id %}" style="display: inline;">
                             {% csrf_token %}
                             <button class="button" type="submit" style="margin-left: 0.5rem; padding: 0;">
@@ -179,8 +175,8 @@
                         <li style="margin-bottom: 0.5rem;">
                             <a href="{{ resume.get_signed_url }}" download>{{ document.file.name|filename }}</a>
                             <span style="font-size: 9px; color: var(--accent-text-color)">
-                                (Uploaded {{ document.created_at|date:"Y-m-d H:i" }})
-                            </span>
+                            (Uploaded {{ document.created_at|date:"Y-m-d H:i" }})
+                        </span>
                             <form method="post" action="{% url 'archive-document' document.id %}" style="display: inline;">
                                 {% csrf_token %}
                                 <button class="button" type="submit" style="margin-left: 0.5rem; padding: 0;">
