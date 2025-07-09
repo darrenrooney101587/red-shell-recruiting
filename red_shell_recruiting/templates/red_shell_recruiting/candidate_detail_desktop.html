@@ -59,18 +59,18 @@
                             <span style="color: var(--faded-gray-color)" class="small-title">Source</span>
                             <input type="text" value="{{ candidate.source.display_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
                         </div>
-                        <div class="grid-cols-2 gap-2 toggle-container" style="margin-top: 1rem; margin-bottom: 1rem;">
-                            <label class="toggle flex-display vertical-align align-start" style="margin-bottom: 1rem;">
+                        <div class="grid-cols-2 gap-2 toggle-container" style="margin-top: 1rem;">
+                            <label class="toggle flex-display vertical-align align-start">
                                 <input class="toggle-checkbox" type="checkbox" {% if candidate.actively_looking %}checked{% endif %} disabled>
                                 <div class="toggle-switch"></div>
                                 <span>Actively Looking</span>
                             </label>
-                            <label class="toggle flex-display vertical-align align-start" style="margin-bottom: 1rem;">
+                            <label class="toggle flex-display vertical-align align-start">
                                 <input class="toggle-checkbox" type="checkbox" {% if candidate.open_to_relocation %}checked{% endif %} disabled>
                                 <div class="toggle-switch"></div>
                                 <span>Open to Relocation</span>
                             </label>
-                            <label class="toggle flex-display vertical-align align-start" style="margin-bottom: 1rem;">
+                            <label class="toggle flex-display vertical-align align-start">
                                 <input class="toggle-checkbox" type="checkbox" {% if candidate.currently_working %}checked{% endif %} disabled>
                                 <div class="toggle-switch"></div>
                                 <span>Currently Working</span>
@@ -82,15 +82,15 @@
                             <span style="color: var(--faded-gray-color)" class="small-title">Notes</span>
                             <textarea class="text-input" style="border: 1px solid var(--ui-support-element-color); height: 300px; padding: 0.5rem;" disabled>{{ candidate.notes }}</textarea>
                         </div>
-                        <div>
+                        <div style="margin-bottom: 1rem; border: 1px solid rgba(0,0,0,.12); padding: 0.5rem; border-radius: var(--std-border-radius);">
                             <div class="flex-display vertical-align">
-                                <h3 style="color: var(--faded-gray-color)" class="small-title">Candidate Placement</h3>
+                                <h3 style="color: var(--faded-gray-color)" class="small-title">Candidate Placement Records</h3>
                             </div>
                             <div class="flex-display column" style="margin-bottom: 1rem;">
                                 {% if candidate.placement_record.all %}
                                     <ul style="margin-top: 0.5rem;">
                                         {% for record in candidate.placement_record.all %}
-                                            <li style="margin-bottom: 0.25rem; font-size: 14px;">
+                                            <li style="padding-left: 5px; padding-top: 5px; padding-bottom: 5px; margin-bottom: 0.25rem; font-size: 14px; {% if forloop.counter|divisibleby:2 %}background-color: var(--ui-support-element-color);{% endif %}">
                                                 {{ record.placement.display_name }} - {{ record.month }}/{{ record.year }} - {{ record.compensation }}
                                             </li>
                                         {% endfor %}
