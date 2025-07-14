@@ -220,7 +220,7 @@ function PlacementEditSaveActions(mobile = false) {
                 `;
         } else {
             newLine = `
-                <div class="placement-line-item" data-index="${placementIndex}" style="margin-top: 1rem;">
+                <div class="placement-line-item" data-index="${placementIndex}" style="">
                     <div style="margin-bottom: 1rem;">
                         <div class="custom-dropdown" style="border-bottom: 1px solid var(--ui-support-element-color);">
                             <div class="flex-display space-between">
