@@ -90,7 +90,7 @@
                                 {% if candidate.placement_record.all %}
                                     <ul style="margin-top: 0.5rem;">
                                         {% for record in candidate.placement_record.all %}
-                                            <li style="padding-left: 5px; padding-top: 5px; padding-bottom: 5px; margin-bottom: 0.25rem; font-size: 14px; {% if forloop.counter|divisibleby:2 %}background-color: var(--ui-support-element-color);{% endif %}">
+                                            <li style="padding-left: 5px; padding-top: 5px; padding-bottom: 5px; margin-bottom: 0.25rem; font-size: 14px; {% if forloop.counter|divisibleby:2 %} border-top: 1px solid rgba(0,0,0,.1){% endif %}">
                                                 {{ record.placement.display_name }} - {{ record.month }}/{{ record.year }} - {{ record.compensation }}
                                             </li>
                                         {% endfor %}
@@ -102,6 +102,7 @@
                         </div>
                     </div>
                 </div>
+                <hr>
                 <div class="flex-display flex-end" style="width: 100%;">
                     <button class="button flex-display vertical-align space-between" id="edit-button">
                         <span style="margin-left: 3px;">Edit Candidate</span>
@@ -258,19 +259,16 @@
                 </div>
             </form>
         </div>
-        <hr>
-        <div class="flex-display space-between">
-            <div>
+    </div>
+    <div class="section flex-display space-between" style="width: 80%; margin: 2rem auto 0;">
+            <div style="width: 33%; height: 100%; border-right: 1px solid rgba(0,0,0,.1); margin-right: 1rem; padding-right: 1rem;">
                 <div style="margin-bottom: 1rem;">
                     <span style="color: var(--faded-gray-color)" class="small-title">Resumes</span>
                 </div>
-                <ul style="margin-bottom: 1rem;">
+                <ul style="margin-bottom: 1rem; padding: 0.5rem; min-height: 100px;">
                     {% for resume in resumes %}
-                        <li style="margin-bottom: 0.5rem;">
+                        <li class="flex-display space-between vertical-align" style="padding: 5px 0 5px 5px;{% if forloop.counter|divisibleby:2 %} border-top: 1px solid rgba(0,0,0,.1){% endif %}">
                             <a href="{{ resume.get_signed_url }}" download>{{ resume.file.name|filename }}</a>
-                            <span style="font-size: 12px; color: var(--accent-text-color)" data-created-at="{{ resume.created_at|date:'c' }}">
-                                (Uploaded <span style="font-size: 12px;" class="created-at-local"></span>)
-                            </span>
                             <form method="post" action="{% url 'archive-resume' resume.id %}" style="display: inline;">
                                 {% csrf_token %}
                                 <button class="button" type="submit" style="margin-left: 0.5rem; padding: 0;">
@@ -296,18 +294,17 @@
                     </button>
                 </div>
             </div>
-            <div style="height: 125px; border-right: 1px solid rgba(0,0,0,.1); margin-right: 1rem; margin-left: 1rem;"></div>
-            <div>
+            <div style="width: 33%; border-right: 1px solid rgba(0,0,0,.1); margin-right: 1rem; padding-right: 1rem; ">
                 <div style="margin-bottom: 1rem;">
                     <span style="color: var(--faded-gray-color)" class="small-title">Culinary Portfolios</span>
                 </div>
-                <ul style="margin-bottom: 1rem;">
+                <ul style="margin-bottom: 1rem; min-height: 100px;">
                     {% for portfolio in portfolios %}
-                        <li style="margin-bottom: 0.5rem;">
+                        <li class="flex-display space-between vertical-align"  style="padding: 5px 0 5px 5px;{% if forloop.counter|divisibleby:2 %} border-top: 1px solid rgba(0,0,0,.1){% endif %}">
                             <a href="{{ portfolio.get_signed_url }}" download>{{ portfolio.file.name|filename }}</a>
-                            <span style="font-size: 12px; color: var(--accent-text-color)" data-created-at="{{ portfolio.created_at|date:'c' }}">
-                                (Uploaded <span style="font-size: 12px;" class="created-at-local"></span>)
-                            </span>
+                            {#                            <span style="font-size: 12px; color: var(--accent-text-color)" data-created-at="{{ portfolio.created_at|date:'c' }}">#}
+                            {#                                (Uploaded <span style="font-size: 12px;" class="created-at-local"></span>)#}
+                            {#                            </span>#}
                             <form method="post" action="{% url 'archive-culinary-portfolio' portfolio.id %}" style="display: inline;">
                                 {% csrf_token %}
                                 <button class="button" type="submit" style="margin-left: 0.5rem; padding: 0;">
@@ -333,18 +330,17 @@
                     </button>
                 </div>
             </div>
-            <div style="height: 125px; border-right: 1px solid rgba(0,0,0,.1); margin-right: 1rem; margin-left: 1rem;"></div>
-            <div>
+            <div style="width: 33%; ">
                 <div style="margin-bottom: 1rem;">
                     <span style="color: var(--faded-gray-color)" class="small-title">Documents</span>
                 </div>
-                <ul style="margin-bottom: 1rem;">
+                <ul style="margin-bottom: 1rem; padding: 0.5rem; min-height: 100px;">
                     {% for document in documents %}
-                        <li style="margin-bottom: 0.5rem;">
+                        <li class="flex-display space-between vertical-align"  style="padding: 5px 0 5px 5px;{% if not forloop.first %} border-top: 1px solid rgba(0,0,0,.1);{% endif %}">
                             <a href="{{ document.get_signed_url }}" download>{{ document.file.name|filename }}</a>
-                            <span style="font-size: 12px; color: var(--accent-text-color)" data-created-at="{{ document.created_at|date:'c' }}">
-                                (Uploaded <span style="font-size: 12px;" class="created-at-local"></span>)
-                            </span>
+                            {#                            <span style="font-size: 12px; color: var(--accent-text-color)" data-created-at="{{ document.created_at|date:'c' }}">#}
+                            {#                                (Uploaded <span style="font-size: 12px;" class="created-at-local"></span>)#}
+                            {#                            </span>#}
                             <form method="post" action="{% url 'archive-document' document.id %}" style="display: inline;">
                                 {% csrf_token %}
                                 <button class="button" type="submit" style="margin-left: 0.5rem; padding: 0;">
@@ -371,7 +367,6 @@
                 </div>
             </div>
         </div>
-    </div>
     <script type="text/template" id="remove-placement-button-template">
         {% include 'red_shell_recruiting/components/candidate_remove_placement_button.html' %}
     </script>

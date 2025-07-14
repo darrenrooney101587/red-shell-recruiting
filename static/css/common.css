@@ -582,6 +582,12 @@ pre {
   margin-left: 0;
 }
 
+#sidebar .nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  color:white !important;
+}
+
 #sidebar:hover .sidebar-icon {
   margin-right: 0;
 }
@@ -743,7 +749,7 @@ li.nav-item.sub {
   padding-left: 3px;
   outline: 0;
   line-height: 24px;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 300;
   font-family: var(--font-famiy);
 }
@@ -766,7 +772,7 @@ li.nav-item.sub {
   cursor: pointer;
   color: var(--theme-base-color);
   line-height: 24px;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 300;
 }
 
