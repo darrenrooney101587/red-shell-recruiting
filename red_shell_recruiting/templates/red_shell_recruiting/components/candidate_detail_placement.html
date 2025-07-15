@@ -1,0 +1,18 @@
+<div style="margin-bottom: 1rem; border: 1px solid rgba(0,0,0,.12); padding: 0.5rem; border-radius: var(--std-border-radius);">
+    <div class="flex-display vertical-align">
+        <h3 style="color: var(--faded-gray-color)" class="small-title">Candidate Placement Records</h3>
+    </div>
+    <div class="flex-display column" {% if not forloop.first %}style="}margin-bottom: 1rem;"{% endif %}>
+        {% if candidate.placement_record.all %}
+            <ul style="margin-top: 0.5rem;">
+                {% for record in candidate.placement_record.all %}
+                    <li style="padding-left: 5px; padding-top: 5px; padding-bottom: 5px; margin-bottom: 0.25rem; font-size: 14px; {% if forloop.counter|divisibleby:2 %} border-top: 1px solid rgba(0,0,0,.1){% endif %}">
+                        {{ record.placement.display_name }} - {{ record.month }}/{{ record.year }} - {{ record.compensation }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <span class="small-title" style="opacity: 0.6;">No placements recorded.</span>
+        {% endif %}
+    </div>
+</div>

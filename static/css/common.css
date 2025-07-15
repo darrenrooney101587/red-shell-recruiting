@@ -412,6 +412,12 @@ h6 {
   font-size: var(--font-size-button);
   font-family: var(--font-famiy);
 }
+.button.green {
+  background-color: var(--accent-green-color);
+}
+.button.red {
+  background-color: var(--accent-red-color);
+}
 .button > span {
   font-size: var(--font-size-button);
 }
@@ -886,6 +892,55 @@ li.nav-item.sub {
   background: var(--faded-cyan-color-hover);
 }
 
+.main-body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding-left: 60px;
+}
+
+@media (max-width: 768px) {
+  .main-body {
+    padding-left: 0;
+  }
+}
+
+.footer {
+  width: 100%;
+  padding: 20px 0;
+  font-size: 0.9rem;
+  color: #666;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer-row {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.footer__separator {
+  margin-right: 0.5rem;
+  font-family: var(--font-famiy);
+}
+
+@media (max-width: 768px) {
+  .footer-row {
+    flex-direction: row;
+    align-items: center;
+    text-align: center;
+  }
+
+  .footer__separator {
+    margin-right: 0;
+  }
+}
+
+
 @media (max-width: 768px) {
   #sidebar {
     display: none !important;
@@ -958,53 +1013,8 @@ li.nav-item.sub {
 }
 
 
-.main-body {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  padding-left: 60px;
-}
 
-@media (max-width: 768px) {
-  .main-body {
-    padding-left: 0;
-  }
-}
 
-.footer {
-  width: 100%;
-  padding: 20px 0;
-  font-size: 0.9rem;
-  color: #666;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-.footer-row {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.footer__separator {
-  margin-right: 0.5rem;
-  font-family: var(--font-famiy);
-}
-
-@media (max-width: 768px) {
-  .footer-row {
-    flex-direction: row;
-    align-items: center;
-    text-align: center;
-  }
-
-  .footer__separator {
-    margin-right: 0;
-  }
-}
 @media (max-width: 768px) {
   width: 100%
 }
@@ -1040,5 +1050,24 @@ li.nav-item.sub {
 
 .file-name {
   max-width: 200px;
+  font-size: 12px;
+}
+
+
+.placement-line-item {
+  border-left: 1px solid black;
+  margin-bottom: 0.3rem;
+  padding-left: 0.5rem;
+}
+
+.toggle-container > label > span,
+.toggle > span {
+  padding-left: 0.5rem;
+}
+
+.candidate-card {
+  cursor: pointer;
+}
+.small-title {
   font-size: 12px;
 }

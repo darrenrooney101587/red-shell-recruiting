@@ -10,8 +10,8 @@
 {% endblock %}
 {% block content %}
     <div id="candidate-view-mode">
-        <div class="field-set flex-display" style="column-gap: 2rem">
-            <div style="width: 100%; position: relative">
+        <div style="width: 100%; position: relative">
+            <div class="section" style="margin-bottom: 1rem;">
                 <div>
                     <span style="color: var(--faded-gray-color)" class="small-title">First Name</span>
                     <input type="text" value="{{ candidate.first_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
@@ -32,7 +32,9 @@
                     <span style="color: var(--faded-gray-color)" class="small-title">Job Title</span>
                     <input type="text" value="{{ candidate.title.display_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
                 </div>
-                <br>
+            </div>
+            <hr>
+            <div class="section" style="margin-bottom: 1rem;">
                 <div>
                     <span style="color: var(--faded-gray-color)" class="small-title">Phone Number</span>
                     <input type="tel" value="{{ candidate.phone_number }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
@@ -56,37 +58,40 @@
                     <span style="color: var(--faded-gray-color)" class="small-title">Source</span>
                     <input type="text" value="{{ candidate.source.display_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
                 </div>
-                {% include 'red_shell_recruiting/components/candidate_linked_in_url.html' %}
-                <div class="align-baseline column flex-display align-center flex-start toggle-container" style="margin-top: 2rem; ">
-                    <div class="flex-display vertical-align space-between" style="width: 150px; margin-bottom: 1rem">
-                        <h4 style="margin-right: 0.5rem; color: var(--theme-base-color); opacity: 0.7;">Actively Looking</h4>
-                        {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.actively_looking %}
-                    </div>
-                    <div class="flex-display vertical-align space-between" style="width: 150px; margin-bottom: 1rem">
-                        <h4 style="margin-right: 0.5rem; color: var(--theme-base-color); opacity: 0.7;">Open to Relocation</h4>
-                        {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.open_to_relocation %}
-                    </div>
-                    <div class="flex-display vertical-align space-between" style="width: 150px; margin-bottom: 1rem">
-                        <h4 style="margin-right: 0.5rem; color: var(--theme-base-color); opacity: 0.7;">Currently Working</h4>
-                        {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.currently_working %}
-                    </div>
-                </div>
                 <hr>
-                {% include 'red_shell_recruiting/components/candidate_detail_placement.html' %}
+                {% include 'red_shell_recruiting/components/candidate_linked_in_url.html' %}
+            </div>
+            <hr>
+            <div class="section column grid-cols-2 gap-2 toggle-container toggle-container">
+                <div class="flex-display vertical-align space-between" style="width: 150px; margin-bottom: 1rem">
+                    <h4 style="margin-right: 0.5rem; color: var(--theme-base-color); opacity: 0.7;">Actively Looking</h4>
+                    {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.actively_looking %}
+                </div>
+                <div class="flex-display vertical-align space-between" style="width: 150px; margin-bottom: 1rem">
+                    <h4 style="margin-right: 0.5rem; color: var(--theme-base-color); opacity: 0.7;">Open to Relocation</h4>
+                    {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.open_to_relocation %}
+                </div>
+                <div class="flex-display vertical-align space-between" style="width: 150px; margin-bottom: 1rem">
+                    <h4 style="margin-right: 0.5rem; color: var(--theme-base-color); opacity: 0.7;">Currently Working</h4>
+                    {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.currently_working %}
+                </div>
+            </div>
+            <hr>
+            {% include 'red_shell_recruiting/components/candidate_detail_placement.html' %}
+            <hr>
+            <div class="section" style="margin-bottom: 1rem;">
+                <span style="color: var(--faded-gray-color)" class="small-title">Notes</span>
+                <textarea class="text-input" style="border: 1px solid var(--ui-support-element-color); height: 200px; padding: 0.5rem;" disabled>{{ candidate.notes }}</textarea>
+            </div>
+            <hr>
+            <div class="flex-display flex-end" style="width: 100%; margin-bottom: 1rem;">
+                <button class="button red flex-display vertical-align justify-center" id="edit-button" style="width: 100%; height: 50px;">
+                    <span style="margin-left: 3px; font-size: 18px;;">Edit Candidate</span>
+                </button>
             </div>
         </div>
-        <hr>
-        <div class="section" style="margin-bottom: 1rem;">
-            <span style="color: var(--faded-gray-color)" class="small-title">Notes</span>
-            <textarea class="text-input" style="border: 1px solid var(--ui-support-element-color); height: 200px; padding: 0.5rem;" disabled>{{ candidate.notes }}</textarea>
-        </div>
-        <div class="flex-display flex-end" style="width: 100%;">
-            <button class="button red flex-display vertical-align space-between" id="edit-button">
-                {% include 'red_shell_recruiting/components/svg_components.html' with type='edit' %}
-                <span style="margin-left: 3px;">Edit Candidate</span>
-            </button>
-        </div>
     </div>
+    <hr>
     <div id="candidate-edit-mode" class="section" style="display: none;">
         <form method="post">
             {% csrf_token %}
@@ -255,15 +260,16 @@
             <hr>
             <div class="section-actions">
                 <input required type="file" id="candidate-resume" name="candidate_resume" accept=".pdf, .doc, .docx">
-                <button id="trigger-resume-upload" class="button flex-display vertical-align space-between">
-                    <span style="margin-left: 3px;">Attach Resume</span>
+                <button id="trigger-resume-upload" class="button flex-display vertical-align space-between" style="height: 45px;">
+                    <span style="margin-left: 3px; font-size: 18px;">Attach Resume</span>
                 </button>
                 <div class="file-name ellipsis" id="file-name"></div>
-                <button id="add-resume-button" class="button flex-display vertical-align space-between" style="display:none; margin-left: 1rem;">
+                <button id="add-resume-button" class="button green flex-display vertical-align space-between" style="display:none; margin-left: 1rem;">
                     <span>Upload</span>
                 </button>
             </div>
         </div>
+        <hr>
         <div class="section" style="margin-bottom: 1rem;">
             <div class="section-title">Culinary Portfolios</div>
             <hr>
@@ -287,8 +293,8 @@
             <hr>
             <div class="section-actions">
                 <input type="file" id="candidate-culinary-portfolio" name="candidate_culinary_portfolio" accept=".pdf, .doc, .docx">
-                <button id="trigger-portfolio-upload" class="button flex-display vertical-align space-between">
-                    <span style="margin-left: 3px;">Attach Portfolio</span>
+                <button id="trigger-portfolio-upload" class="button flex-display vertical-align space-between" style="height: 45px;">
+                    <span style="margin-left: 3px; font-size: 18px;">Attach Portfolio</span>
                 </button>
                 <div class="file-name ellipsis" id="portfolio-file-name"></div>
                 <button id="add-portfolio-button" class="button green flex-display vertical-align space-between" style="display:none; margin-left: 1rem;">
@@ -296,6 +302,7 @@
                 </button>
             </div>
         </div>
+        <hr>
         <div class="section">
             <div class="section-title">Documents</div>
             <hr>
@@ -319,11 +326,11 @@
             <hr>
             <div class="section-actions">
                 <input type="file" id="candidate-document" name="candidate_document" accept=".pdf,.doc,.docx">
-                <button type="button" id="trigger-document-upload" class="button flex-display vertical-align space-between">
-                    <span style="margin-left: 3px;">Attach Document</span>
+                <button type="button" id="trigger-document-upload" class="button flex-display vertical-align space-between" style="height: 45px;">
+                    <span style="margin-left: 3px;; font-size: 20px">Attach Document</span>
                 </button>
                 <div class="file-name ellipsis" id="document-file-name"></div>
-                <button id="add-document-button" class="button flex-display vertical-align space-between" style="display: none; margin-left: 1rem;">
+                <button id="add-document-button" class="button green flex-display vertical-align space-between" style="display: none; margin-left: 1rem;">
                     <span>Upload</span>
                 </button>
             </div>
