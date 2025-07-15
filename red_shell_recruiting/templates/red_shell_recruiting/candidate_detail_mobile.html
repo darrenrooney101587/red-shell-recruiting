@@ -85,94 +85,97 @@
             </div>
             <hr>
             <div class="flex-display flex-end" style="width: 100%; margin-bottom: 1rem;">
-                <button class="button red flex-display vertical-align justify-center" id="edit-button" style="width: 100%; height: 50px;">
+                <button class="button green flex-display vertical-align justify-center" id="edit-button" style="width: 100%; height: 50px;">
                     <span style="margin-left: 3px; font-size: 18px;;">Edit Candidate</span>
                 </button>
             </div>
         </div>
     </div>
     <hr>
-    <div id="candidate-edit-mode" class="section" style="display: none;">
+    <div id="candidate-edit-mode" style="display: none;">
         <form method="post">
             {% csrf_token %}
-            <div class="field-set flex-display" style="column-gap: 2rem; min-height: 280px;">
+            <div class="section">
                 <div>
-                    <div>
-                        <span style="color: var(--faded-gray-color)" class="small-title">First Name</span>
-                        <input type="text" name="candidate-first_name" class="text-input" placeholder="First Name" value="{{ candidate.first_name }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
-                    </div>
-                    <div>
-                        <span style="color: var(--faded-gray-color)" class="small-title">Last Name</span>
-                        <input type="text" name="candidate-last_name" class="text-input" placeholder="Last Name" value="{{ candidate.last_name }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
-                    </div>
-                    <div>
-                        <span style="color: var(--faded-gray-color)" class="small-title">State</span>
-                        {% include 'red_shell_recruiting/components/state_dropdown_component.html' %}
-                    </div>
-                    <div>
-                        <span style="color: var(--faded-gray-color)" class="small-title">City</span>
-                        {% include 'red_shell_recruiting/components/city_dropdown_component.html' %}
-                    </div>
-                    <div>
-                        <span style="color: var(--faded-gray-color)" class="small-title">Job Title</span>
-                        {% include 'red_shell_recruiting/components/title_dropdown_component.html' with selected_title=candidate.title %}
-                    </div>
-                    <div>
-                        <span style="color: var(--faded-gray-color)" class="small-title">Source</span>
-                        {% include 'red_shell_recruiting/components/source_dropdown_component.html' with selected_source=candidate.source %}
-                    </div>
-                    <div>
-                        <span style="color: var(--faded-gray-color)" class="small-title">Ownership</span>
-                        {% if user|in_groups:"Site Admin" or user.is_superuser or user|has_perm:required_permission %}
-                            {% include 'red_shell_recruiting/components/ownership_dropdown_component.html' with selected_owner=candidate.ownership %}
-                        {% else %}
-                            {% include 'red_shell_recruiting/components/ownership_dropdown_component.html' with selected_owner=candidate.ownership disabled=True %}
-                        {% endif %}
-                    </div>
-                    <div>
-                        <span style="color: var(--faded-gray-color)" class="small-title">Source</span>
-                        {% include 'red_shell_recruiting/components/source_dropdown_component.html' with selected_source=candidate.source %}
-                    </div>
-                    <div>
-                        <span style="color: var(--faded-gray-color)" class="small-title">Phone Number</span>
-                        <input type="tel" name="candidate-phone_number" class="text-input" placeholder="Phone Number" value="{{ candidate.phone_number }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
-                    </div>
-                    <div>
-                        <span style="color: var(--faded-gray-color)" class="small-title">Email</span>
-                        <input type="email" name="candidate-email" class="text-input" placeholder="Email" value="{{ candidate.email }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
-                    </div>
-                    <div>
-                        <span style="color: var(--faded-gray-color)" class="small-title">Compensation range</span>
-                        <div class="flex-display">
-                            <input type="text" name="candidate-compensation-from" value="{{ candidate.compensation_from }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;">
-                            <input type="text" name="candidate-compensation-to" value="{{ candidate.compensation_to }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)">
-                        </div>
-                    </div>
-                    <div>
-                        <span style="color: var(--faded-gray-color)" class="small-title">Linkedin URL</span>
-                        <input type="text" name="candidate-linkedin-url" class="text-input" placeholder="Linkedin URL" value="{{ candidate.linkedin_url|default_if_none:"" }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
-                    </div>
-                    <div class="align-baseline column flex-display flex-start toggle-container">
-                        <label class="toggle flex-display vertical-align justify-center" style="margin-bottom: 1rem;">
-                            <input name="candidate-actively-looking" id="candidate-looking" class="toggle-checkbox" type="checkbox" {% if candidate.actively_looking %}checked{% endif %}>
-                            <div class="toggle-switch"></div>
-                            <span>Actively Looking</span>
-                        </label>
-                        <label class="toggle flex-display vertical-align justify-center" style="margin-bottom: 1rem;">
-                            <input name="candidate-open-to-relocation" id="candidate-relocation" class="toggle-checkbox" type="checkbox" {% if candidate.open_to_relocation %}checked{% endif %}>
-                            <div class="toggle-switch"></div>
-                            <span>Open to Relocation</span>
-                        </label>
-                        <label class="toggle flex-display vertical-align justify-center"style="margin-bottom: 1rem;">
-                            <input name="candidate-currently-working" id="candidate-working" class="toggle-checkbox" type="checkbox" {% if candidate.currently_working %}checked{% endif %}>
-                            <div class="toggle-switch"></div>
-                            <span>Currently Working</span>
-                        </label>
-                    </div>
+                    <span style="color: var(--faded-gray-color)" class="small-title">First Name</span>
+                    <input type="text" name="candidate-first_name" class="text-input" placeholder="First Name" value="{{ candidate.first_name }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                </div>
+                <div>
+                    <span style="color: var(--faded-gray-color)" class="small-title">Last Name</span>
+                    <input type="text" name="candidate-last_name" class="text-input" placeholder="Last Name" value="{{ candidate.last_name }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                </div>
+                <div>
+                    <span style="color: var(--faded-gray-color)" class="small-title">State</span>
+                    {% include 'red_shell_recruiting/components/state_dropdown_component.html' %}
+                </div>
+                <div>
+                    <span style="color: var(--faded-gray-color)" class="small-title">City</span>
+                    {% include 'red_shell_recruiting/components/city_dropdown_component.html' %}
+                </div>
+                <div>
+                    <span style="color: var(--faded-gray-color)" class="small-title">Job Title</span>
+                    {% include 'red_shell_recruiting/components/title_dropdown_component.html' with selected_title=candidate.title %}
                 </div>
             </div>
             <hr>
-            <div class="client-placement-section">
+            <div class="section">
+                <div>
+                    <span style="color: var(--faded-gray-color)" class="small-title">Phone Number</span>
+                    <input type="tel" name="candidate-phone_number" class="text-input" placeholder="Phone Number" value="{{ candidate.phone_number }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                </div>
+                <div>
+                    <span style="color: var(--faded-gray-color)" class="small-title">Email</span>
+                    <input type="email" name="candidate-email" class="text-input" placeholder="Email" value="{{ candidate.email }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                </div>
+                <div>
+                    <span style="color: var(--faded-gray-color)" class="small-title">Compensation range</span>
+                    <div class="flex-display">
+                        <input type="text" name="candidate-compensation-from" value="{{ candidate.compensation_from }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;">
+                        <input type="text" name="candidate-compensation-to" value="{{ candidate.compensation_to }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                    </div>
+                </div>
+                <div>
+                    <span style="color: var(--faded-gray-color)" class="small-title">Ownership</span>
+                    {% if user|in_groups:"Site Admin" or user.is_superuser or user|has_perm:required_permission %}
+                        {% include 'red_shell_recruiting/components/ownership_dropdown_component.html' with selected_owner=candidate.ownership %}
+                    {% else %}
+                        {% include 'red_shell_recruiting/components/ownership_dropdown_component.html' with selected_owner=candidate.ownership disabled=True %}
+                    {% endif %}
+                </div>
+                <div>
+                    <span style="color: var(--faded-gray-color)" class="small-title">Source</span>
+                    {% include 'red_shell_recruiting/components/source_dropdown_component.html' with selected_source=candidate.source %}
+                </div>
+                <hr>
+                <div>
+                    <span style="color: var(--faded-gray-color)" class="small-title">Linkedin URL</span>
+                    <input type="text" name="candidate-linkedin-url" class="text-input" placeholder="Linkedin URL" value="{{ candidate.linkedin_url|default_if_none:"" }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                </div>
+            </div>
+            <hr>
+            <div class="grid-cols-2 gap-2 section toggle-container" style="margin-top: 1rem; margin-bottom: 1rem;">
+                <label class="toggle flex-display vertical-align align-start" style="margin-bottom: 1rem;">
+                    <input name="candidate-actively-looking" id="candidate-looking" class="toggle-checkbox" type="checkbox" {% if candidate.actively_looking %}checked{% endif %}>
+                    <div class="toggle-switch"></div>
+                    <span>Actively Looking</span>
+                </label>
+                <label class="toggle flex-display vertical-align align-start" style="margin-bottom: 1rem;">
+                    <input name="candidate-open-to-relocation" id="candidate-relocation" class="toggle-checkbox" type="checkbox" {% if candidate.open_to_relocation %}checked{% endif %}>
+                    <div class="toggle-switch"></div>
+                    <span>Open to Relocation</span>
+                </label>
+                <label class="toggle flex-display vertical-align align-start" style="margin-bottom: 1rem;">
+                    <input name="candidate-currently-working" id="candidate-working" class="toggle-checkbox" type="checkbox" {% if candidate.currently_working %}checked{% endif %}>
+                    <div class="toggle-switch"></div>
+                    <span>Currently Working</span>
+                </label>
+            </div>
+            <hr>
+            <div class="section">
+                <textarea name="candidate-notes" class="text-input" placeholder="Notes" style="border: 1px solid var(--ui-support-element-color); height: 200px; padding: 0.5rem;">{{ candidate.notes }}</textarea>
+            </div>
+            <hr>
+            <div class="section client-placement-section">
                 <div class="flex-display vertical-align" style="margin-bottom: 1rem;">
                     <div style="margin-right: 1rem;">
                         <h3>Candidate Placement</h3>
@@ -219,21 +222,18 @@
                     {% endfor %}
                     <input type="hidden" name="placement_total_count" value="{{ candidate.placement_record.count }}">
                 </div>
-                <button type="button" class="button" id="add-placement-line-edit">{% include 'red_shell_recruiting/components/svg_components.html' with type='plus' %} Add Placement</button>
+                <button type="button" class="button" id="add-placement-line-edit" style="font-size: 18px; height: 50px;">Add Placement</button>
             </div>
             <hr>
-            <textarea name="candidate-notes" class="text-input" placeholder="Notes" style="border: 1px solid var(--ui-support-element-color); height: 200px; padding: 0.5rem;">{{ candidate.notes }}</textarea>
-            <hr>
-            <div style="width: 100%" class="flex-display vertical-align justify-center space-between">
-                <button class="button flex-display vertical-align justify-center space-between" type="button" id="cancel-button">
-                    {% include 'red_shell_recruiting/components/svg_components.html' with type='close-basic' %}
-                    <span style="margin-left: 3px;">Cancel</span>
+            <div style="width: 100%" class="section flex-display vertical-align justify-center space-between">
+                <button class="button red flex-display vertical-align justify-center space-between" type="button" id="cancel-button" style="height: 50px;">
+                    <span style="margin-left: 3px; font-size: 18px;">Cancel</span>
                 </button>
-                <button class="button flex-display vertical-align justify-center space-between" type="submit">
-                    {% include 'red_shell_recruiting/components/svg_components.html' with type='edit' %}
-                    <span style="margin-left: 3px;">Save Changes</span>
+                <button class="button green flex-display vertical-align justify-center space-between" type="submit" style="height: 50px;">
+                    <span style="margin-left: 3px; font-size: 18px;">Save Changes</span>
                 </button>
             </div>
+            <hr>
         </form>
     </div>
     <div class="section-group">
