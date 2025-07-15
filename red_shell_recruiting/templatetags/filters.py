@@ -29,3 +29,18 @@ def in_groups(user, group_names):
 def has_perm(user, permission):
     """Checks if a user has the given permission"""
     return user.has_perm(permission)
+
+
+@register.filter
+def dict_get(d: dict, key) -> any:
+    """
+    Django template filter to get a value from a dict by key.
+    Args:
+        d (dict): The dictionary to look up.
+        key: The key to look up.
+    Returns:
+        Any: The value for the key, or None if not found.
+    """
+    if not isinstance(d, dict):
+        return None
+    return d.get(key)

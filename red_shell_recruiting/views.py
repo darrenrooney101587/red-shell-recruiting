@@ -57,20 +57,26 @@ def client_placement_list(request):
 
 
 def candidate_title_list(request):
-    titles = CandidateProfileTitle.objects.all().order_by("display_name")
-    data = [{"id": t.id, "name": t.display_name} for t in titles]
+    titles = CandidateProfileTitle.objects.annotate(
+        count=Count("candidateprofile", distinct=True)
+    ).order_by("display_name")
+    data = [{"id": t.id, "name": t.display_name, "count": t.count} for t in titles]
     return JsonResponse(data, safe=False)
 
 
 def candidate_source_list(request):
-    titles = CandidateProfileSource.objects.all().order_by("display_name")
-    data = [{"id": t.id, "name": t.display_name} for t in titles]
+    sources = CandidateProfileSource.objects.annotate(
+        count=Count("candidateprofile", distinct=True)
+    ).order_by("display_name")
+    data = [{"id": s.id, "name": s.display_name, "count": s.count} for s in sources]
     return JsonResponse(data, safe=False)
 
 
 def candidate_ownership_list(request):
-    titles = CandidateOwnership.objects.all().order_by("display_name")
-    data = [{"id": t.id, "name": t.display_name} for t in titles]
+    owners = CandidateOwnership.objects.annotate(
+        count=Count("candidateprofile", distinct=True)
+    ).order_by("display_name")
+    data = [{"id": o.id, "name": o.display_name, "count": o.count} for o in owners]
     return JsonResponse(data, safe=False)
 
 
@@ -208,7 +214,6 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         request = self.request
 
-        all_titles = CandidateProfileTitle.objects.all().order_by("display_name")
         all_sources = CandidateProfileSource.objects.all().order_by("display_name")
         all_ownerships = CandidateOwnership.objects.all().order_by("display_name")
 
@@ -303,7 +308,6 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
         context["selected_count"] = candidates.count()
         context["total_count_profile"] = CandidateProfile.objects.count()
         context["total_count_resume"] = CandidateResume.objects.count()
-        context["all_titles"] = all_titles
         context["all_sources"] = all_sources
         context["selected_title_id"] = title_id
         context["all_ownerships"] = all_ownerships

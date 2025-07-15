@@ -1,66 +1,84 @@
+<!-- HYBRID DROPDOWN APPROACH:
+     - Initial dropdown options and selected value are rendered server-side for fast load.
+     - JQuery methods supplement and update dropdowns after page load for dynamic updates.
+-->
+{% load filters %}
+{% load tags %}
 <div class="flex-display column align-baseline search-dropdown">
     <div style="width: 100%; height: 25px;" class="custom-dropdown" id="title-search-dropdown-wrapper">
         <div class="flex-display space-between">
-            <div class="selected-option ellipsis" id="candidate-title-dropdown">
+            <div class="selected-option ellipsis" id="candidate-title-dropdown" data-placeholder="Select a Title">
                 {% with selected=request.GET.title_id|default:'' %}
-                    {% for title in all_titles %}
-                        {% if title.id|stringformat:"s" == selected %}
-                            {{ title.display_name }}
-                        {% endif %}
-                    {% endfor %}
-                    {% if not selected %}Select a Title{% endif %}
+                    {% if selected %}
+                        {% for title in titles %}
+                            {% if title.id|stringformat:"s" == selected %}
+                                {{ title.display_name }} <span style='color: var(--faded-gray-color); font-size: 12px;'>({{ title.count }})</span>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        Select a Title
+                    {% endif %}
                 {% endwith %}
             </div>
             <span class="chevron-down">{% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}</span>
             <span class="chevron-up" style="display: none;">{% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}</span>
         </div>
         <ul class="dropdown-list" id="candidate-title-list">
-            {% for title in all_titles %}
-                <li class="option" data-value="{{ title.id }}">{{ title.display_name }}</li>
+            <li class="option placeholder-option" data-value="">Select a Title</li>
+            {% for title in titles %}
+                <li class="flex-display space-between option" data-value="{{ title.id }}">{{ title.display_name }} <span style='color: var(--faded-gray-color); font-size: 12px;'>({{ title.count }})</span></li>
             {% endfor %}
         </ul>
-        <input type="hidden" name="title_id" id="candidate-title-hidden" value="{{ request.GET.title_id }}">
+        <input type="hidden" name="title_id" id="candidate-title-hidden" value="{{ request.GET.title_id|default:'' }}">
     </div>
     <div style="width: 100%; height: 25px" class="custom-dropdown" id="ownership-search-dropdown-wrapper">
         <div class="flex-display space-between">
-            <div class="selected-option ellipsis" id="candidate-ownership-dropdown">
+            <div class="selected-option ellipsis" id="candidate-ownership-dropdown" data-placeholder="Select an Ownership">
                 {% with selected=request.GET.ownership_id|default:'' %}
-                    {% for owner in all_ownerships %}
-                        {% if owner.id|stringformat:"s" == selected %}
-                            {{ owner.display_name }}
-                        {% endif %}
-                    {% endfor %}
-                    {% if not selected %}Select an Ownership{% endif %}
+                    {% if selected %}
+                        {% for owner in all_ownerships %}
+                            {% if owner.id|stringformat:"s" == selected %}
+                                {{ owner.display_name }}
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        Select an Ownership
+                    {% endif %}
                 {% endwith %}
             </div>
             <span class="chevron-down">{% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}</span>
             <span class="chevron-up" style="display: none;">{% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}</span>
         </div>
         <ul class="dropdown-list" id="candidate-ownership-list">
+            <li class="option placeholder-option" data-value="">Select an Ownership</li>
             {% for owner in all_ownerships %}
-                <li class="option" data-value="{{ owner.id }}">{{ owner.display_name }}</li>
+                <li class="flex-display space-between option" data-value="{{ owner.id }}">{{ owner.display_name }}</li>
             {% endfor %}
         </ul>
         <input type="hidden" name="ownership_id" id="candidate-ownership-hidden" value="{{ request.GET.ownership_id }}">
     </div>
     <div style="width: 100%; height: 25px;" class="custom-dropdown" id="source-search-dropdown-wrapper">
         <div class="flex-display space-between">
-            <div class="selected-option ellipsis" id="candidate-source-dropdown">
+            <div class="selected-option ellipsis" id="candidate-source-dropdown" data-placeholder="Select a Source">
                 {% with selected=request.GET.source_id|default:'' %}
-                    {% for source in all_sources %}
-                        {% if source.id|stringformat:"s" == selected %}
-                            {{ source.display_name }}
-                        {% endif %}
-                    {% endfor %}
-                    {% if not selected %}Select a Source{% endif %}
+                    {% if selected %}
+                        {% for source in all_sources %}
+                            {% if source.id|stringformat:"s" == selected %}
+                                {{ source.display_name }}
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        Select a Source
+                    {% endif %}
                 {% endwith %}
             </div>
             <span class="chevron-down">{% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}</span>
             <span class="chevron-up" style="display: none;">{% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}</span>
         </div>
         <ul class="dropdown-list" id="candidate-source-list">
+            <li class="option placeholder-option" data-value="">Select a Source</li>
             {% for source in all_sources %}
-                <li class="option" data-value="{{ source.id }}">{{ source.display_name }}</li>
+                <li class="flex-display space-between option" data-value="{{ source.id }}">{{ source.display_name }}</li>
             {% endfor %}
         </ul>
         <input type="hidden" name="source_id" id="candidate-source-hidden" value="{{ request.GET.source_id }}">

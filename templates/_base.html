@@ -197,14 +197,32 @@
             validationClose();
         }
 
+        function setDropdownSelection(listSelector, hiddenSelector, displaySelector) {
+            var selectedId = $(hiddenSelector).val();
+            var $list = $(listSelector);
+            var $display = $(displaySelector);
+            var placeholder = $display.data('placeholder');
+            if (!selectedId) {
+                $display.text(placeholder);
+                return;
+            }
+            var $selectedLi = $list.find(`li.option[data-value='${selectedId}']`);
+            if ($selectedLi.length) {
+                $display.text($selectedLi.text());
+            } else {
+                $display.text(placeholder);
+            }
+        }
+
         function populateCandidateTitles() {
             const list = $('#candidate-title-list');
             list.empty();
-
+            list.append(`<li class="option placeholder-option" data-value="">Select a Title</li>`);
             $.get("{% url 'candidate-title-list' %}", function(data) {
                 data.forEach(function(item) {
-                    list.append(`<li class="option" data-value="${item.id}">${item.name}</li>`);
+                    list.append(`<li class="flex-display space-between option" data-value="${item.id}">${item.name} <span style='color: var(--faded-gray-color); font-size: 12px;'>(${item.count})</span></li>`);
                 });
+                setDropdownSelection('#candidate-title-list', '#candidate-title-hidden', '#candidate-title-dropdown');
             }).fail(function() {
                 addClientMessage('Error fetching titles.');
             });
@@ -213,11 +231,12 @@
         function populateCandidateSources() {
             const list = $('#candidate-source-list');
             list.empty();
-
+            list.append(`<li class="option placeholder-option" data-value="">Select a Source</li>`);
             $.get("{% url 'candidate-source-list' %}", function(data) {
                 data.forEach(function(item) {
-                    list.append(`<li class="option" data-value="${item.id}">${item.name}</li>`);
+                    list.append(`<li class="flex-display space-between option" data-value="${item.id}">${item.name} <span style='color: var(--faded-gray-color); font-size: 12px;'>(${item.count})</span></li>`);
                 });
+                setDropdownSelection('#candidate-source-list', '#candidate-source-hidden', '#candidate-source-dropdown');
             }).fail(function() {
                 addClientMessage('Error fetching sources.');
             });
@@ -226,11 +245,12 @@
         function populateCandidateOwners() {
             const list = $('#candidate-ownership-list');
             list.empty();
-
+            list.append(`<li class="option placeholder-option" data-value="">Select an Ownership</li>`);
             $.get("{% url 'candidate-ownership-list' %}", function(data) {
                 data.forEach(function(item) {
-                    list.append(`<li class="option" data-value="${item.id}">${item.name}</li>`);
+                    list.append(`<li class="flex-display space-between option" data-value="${item.id}">${item.name} <span style='color: var(--faded-gray-color); font-size: 12px;'>(${item.count})</span></li>`);
                 });
+                setDropdownSelection('#candidate-ownership-list', '#candidate-ownership-hidden', '#candidate-ownership-dropdown');
             }).fail(function() {
                 addClientMessage('Error fetching titles.');
             });
