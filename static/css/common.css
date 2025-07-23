@@ -1465,3 +1465,59 @@ li.nav-item.sub {
 #access-button svg {
     transition: transform 0.2s;
 }
+
+.features span {
+    font-size: 28px;
+}
+
+.hero-section p {
+    font-size: 1.25rem;
+}
+
+.slogan span {
+    font-size: 2rem;
+}
+
+@media (max-width: 768px) {
+    #hero-section .flex-display.vertical-align {
+        flex-direction: column !important;
+         gap: 2rem !important;
+         /*align-items: stretch !important;*/
+    }
+    #hero-section .flex-display.vertical-align > div {
+        width: 100% !important;
+        margin-bottom: 2rem;
+    }
+    #hero-section .flex-display.vertical-align > div:last-child {
+        margin-bottom: 0;
+    }
+    #hero-section span[style*="font-size: 40px"] {
+        font-size: 28px !important;
+    }
+    #hero-section span[style*="font-size: 2rem"] {
+        font-size: 1.1rem !important;
+    }
+    #hero-section p[style*="font-size: 1.25rem"] {
+        font-size: 1rem !important;
+    }
+    #hero-section #access-button,
+    #hero-section #request-access-button {
+        width: 100% !important;
+        /*min-width: unset !important;*/
+        height: 75px;
+        margin-right: 0 !important;
+        display: flex;
+        flex-direction: row;
+    }
+    #hero-section .flex-display.space-between {
+        flex-direction: column !important;
+        gap: 1rem !important;
+    }
+    .features span,
+    #hero-section p {
+        font-size: 22px !important;
+    }
+    .slogan span {
+        font-size: 28px !important;
+    }
+}

@@ -114,7 +114,7 @@ def custom_login_view(request):
                     )
                     return redirect("setup-2fa")
             else:
-                return redirect("red_shell_recruiting/index.html")
+                return redirect("home")
 
         else:
             LoginAttempt.record_attempt(username, client_ip, success=False)

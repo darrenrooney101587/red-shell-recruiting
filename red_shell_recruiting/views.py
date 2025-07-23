@@ -11,6 +11,7 @@ from django.db.models import F, Count, Q
 from django.db.models.expressions import RawSQL
 from django.http import JsonResponse
 from django.views.generic import TemplateView
+from django.contrib.auth.models import User
 
 from red_shell_recruiting.tasks import (
     update_resume_search_vector,
@@ -36,7 +37,13 @@ from red_shell_recruiting.models import (
 
 @login_required
 def index(request):
-    context = {}
+    """Home page for logged-in users. Shows welcome message and last 5 candidates entered by the user."""
+    context = {
+        "user_name": request.user.username,
+        "candidates": CandidateProfile.objects.filter(created_by=request.user).order_by(
+            "-created_at"
+        )[:5],
+    }
     return render(request, "red_shell_recruiting/index.html", context)
 
 
@@ -175,6 +182,7 @@ class CandidateInput(LoginRequiredMixin, View):
                     actively_looking=actively_looking,
                     linkedin_url=linkedin_url,
                     source=source_obj,
+                    created_by=request.user,
                 )
 
                 if (

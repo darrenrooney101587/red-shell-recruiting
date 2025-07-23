@@ -1,58 +1,68 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block header %}
-    {% include 'components/header.html' %}
+    {% if not request.is_mobile %}
+        {% include 'components/header.html' %}
+    {% else %}
+        <div style="padding-top: 1rem;"></div>
+    {% endif %}
 {% endblock %}
 {% block main %}
     <main style="width: 100%;">
         <section id="hero-section" class="flex-display align-center">
             <div class="flex-display vertical-align" style="max-width: 1400px; margin: 0 auto; padding: 0 16px; width: 100%; gap: 4rem;">
                 <div style="width: 50%;">
-                    <div class="flex-display vertical-align" style="margin-bottom: 1.5rem;">
+                    <div class="flex-display {% if not request.is_mobile %} vertical-align {% else %} align-center justify-center {% endif %}" style="margin-bottom: 1.5rem;">
                         <img src="{% static 'img/red_shell_cropped.png' %}" style="height: 50px;"/>
                         <span style="margin-left: 1rem; font-size: 40px; font-weight: bold">Red Shell Recruiting</span>
                     </div>
-                    <div style="margin-bottom: 1.5rem;">
-                        <span style="font-size: 2rem; font-weight: 600; color: #222; background: linear-gradient(135deg, rgb(238, 43, 59), rgb(99, 188, 233)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Multi-Tenant Hiring, Unified in One Shell</span>
+                    <div class="slogan" style="margin-bottom: 1.5rem; {% if request.is_mobile %} text-align: center; {% endif %}">
+                        <span style=" font-weight: 600; color: #222; background: linear-gradient(135deg, rgb(238, 43, 59), rgb(99, 188, 233)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Multi-Tenant Hiring, Unified in One Shell</span>
                     </div>
-                    <p style="font-size: 1.25rem; font-weight: 400; color: #6c757d; margin-bottom: 2rem;">
+                    <p style=" font-weight: 400; color: #6c757d; {% if request.is_mobile %} text-align: center; margin-bottom: 4rem; {% else %} margin-bottom: 2rem; {% endif %}">
                         Your internal recruiting center. Manage candidates, track hiring progress,
                         and coordinate with hiring managers across departments and clients efficiently.
                     </p>
                     <div class="flex-display space-between" style="gap: 1rem; margin-bottom: 2rem;">
-                        <div id="access-button" class="flex-display vertical-align justify-center" style="width: 200px; border-radius: var(--std-border-radius); padding: 0.5rem; 2rem; cursor: pointer; background-image: linear-gradient(135deg, rgb(238, 43, 59), rgb(99, 188, 233)); color: #fff;">
-                            <div class="flex-display vertical-align justify-center" style="margin-left: 0.5rem; transition: transform 0.2s; ">
+                        <div id="access-button" class="flex-display justify-center {% if request.is_mobile %} vertical-align {% endif %}" style="width: 200px; border-radius: var(--std-border-radius); padding: 0.5rem; 2rem; cursor: pointer; background-image: linear-gradient(135deg, rgb(238, 43, 59), rgb(99, 188, 233)); color: #fff;">
+                            <div class="flex-display justify-center {% if request.is_mobile %}  {% else %} vertical-align {% endif %}" style="margin-left: 0.5rem; transition: transform 0.2s; ">
                                 <span style="font-size: 18px;">Access System</span>
                                 <div style="margin-left: 0.5rem;">
                                     {% include 'red_shell_recruiting/components/svg_components.html' with type='arrow-right' %}
                                 </div>
                             </div>
                         </div>
-                        <div id="request-access-button" class="flex-display vertical-align justify-center" style="margin-right: 2rem; width: 200px; border: 1px solid black; border-radius: var(--std-border-radius); padding: 0.5rem; 2rem; background: transparent; color: #666;">
-                            <span style="font-size: 18px; color: black">Request Access</span>
-                            <div class="flex-display vertical-align justify-center" style="color: black; margin-left: 0.5rem; transition: transform 0.2s; ">
-                                {% include 'red_shell_recruiting/components/svg_components.html' with type='user' %}
+                        <div id="request-access-button" class="flex-display justify-center {% if request.is_mobile %} vertical-align {% endif %}" style="margin-right: 2rem; width: 200px; border: 1px solid black; border-radius: var(--std-border-radius); padding: 0.5rem; 2rem; background: transparent; color: #666;">
+                            <div class="flex-display justify-center {% if request.is_mobile %}  {% else %} vertical-align {% endif %}" style="margin-left: 0.5rem; transition: transform 0.2s; ">
+                                <span style="font-size: 18px; color: black">Request Access</span>
+                                <div class="flex-display vertical-align justify-center" style="color: black; margin-left: 0.5rem; transition: transform 0.2s; ">
+                                    {% include 'red_shell_recruiting/components/svg_components.html' with type='user' %}
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div style="display: flex; gap: 1.5rem; color: #6c757d;">
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            {% include 'red_shell_recruiting/components/svg_components.html' with type='users' %}
-                            <span style="font-size: 0.875rem;">{{ profile_count }} profiles</span>
+                    {% if not request.is_mobile %}
+                        <div style="display: flex; gap: 1.5rem; color: #6c757d;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                {% include 'red_shell_recruiting/components/svg_components.html' with type='users' %}
+                                <span>{{ profile_count }} profiles</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                {% include 'red_shell_recruiting/components/svg_components.html' with type='briefcase' %}
+                                <span>{{ resume_count }} resumes</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                {% include 'red_shell_recruiting/components/svg_components.html' with type='chef_hat' %}
+                                <span>{{ portfolio_count }} culinary portfolios</span>
+                            </div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            {% include 'red_shell_recruiting/components/svg_components.html' with type='briefcase' %}
-                            <span style="font-size: 0.875rem;">{{ resume_count }} resumes</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            {% include 'red_shell_recruiting/components/svg_components.html' with type='chef_hat' %}
-                            <span style="font-size: 0.875rem;">{{ portfolio_count }} culinary portfolios</span>
-                        </div>
-                    </div>
+                    {% endif %}
                 </div>
-                <div class="flex-display" style="width: 50%">
+                {% if not request.is_mobile %}
+                    <div class="flex-display" style="width: 50%">
                     <img src="{% static 'img/hero.png' %}" style="border-radius: 12px; box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(238, 43, 59, 0.2) 0px 10px 30px -10px"/>
                 </div>
+                {% endif %}
             </div>
         </section>
     </main>
@@ -63,11 +73,8 @@
 {% block script %}
     <script>
         $(document).ready(function() {
-            /**
-             * Handles click event for access button and redirects to /candidate.
-             */
             $('#access-button').on('click', function() {
-                window.location.href = '/candidate';
+                window.location.href = "{% url 'home' %}";
             });
         });
     </script>

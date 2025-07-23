@@ -17,7 +17,7 @@ from red_shell_recruiting.views import (
 urlpatterns = [
     path("svg-showcase/", svg_showcase, name="svg_showcase"),
     path(
-        "",
+        "candidate-submit/",
         views.CandidateInput.as_view(),
         name="candidate-submit",
     ),

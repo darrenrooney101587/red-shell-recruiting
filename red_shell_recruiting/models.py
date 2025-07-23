@@ -7,6 +7,7 @@ from django.db.models import ForeignKey
 from django.utils.timezone import now
 from django.contrib.postgres.search import SearchVectorField, SearchVector
 from django.contrib.postgres.indexes import GinIndex
+from django.contrib.auth import get_user_model
 
 
 def resume_upload_path(instance, filename):
@@ -117,6 +118,13 @@ class CandidateProfile(models.Model):
         blank=True,
     )
     linkedin_url = models.URLField(null=True)
+    created_by = models.ForeignKey(
+        get_user_model(),
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="candidates_created",
+    )
 
     @property
     def previously_placed(self):

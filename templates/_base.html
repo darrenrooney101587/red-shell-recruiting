@@ -2,7 +2,11 @@
 {% load static %}
 {% load tags %}
 {% block header %}
-    {% include 'components/header.html' %}
+    {% if not request.is_mobile %}
+        {% include 'components/header.html' %}
+    {% else %}
+        <div style="padding-top: 1rem;"></div>
+    {% endif %}
 {% endblock %}
 {% block sidebar %}
     {% if request.user.is_authenticated %}

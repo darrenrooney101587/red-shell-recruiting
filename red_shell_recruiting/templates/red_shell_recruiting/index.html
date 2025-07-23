@@ -1,4 +1,14 @@
 {% extends '_base.html' %}
 {% block title %}Home{% endblock %}
 {% block content %}
+    <h2>Welcome, {{ user_name }}</h2>
+    {% if candidates %}
+        <div class="flex-display flex-wrap" style="gap: 2rem; margin-top: 2rem;">
+            {% for candidate in candidates %}
+                {% include 'red_shell_recruiting/components/candidate_card.html' with candidate=candidate %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <p style="margin-top: 2rem;">No recent candidates found.</p>
+    {% endif %}
 {% endblock %}

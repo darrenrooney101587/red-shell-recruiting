@@ -22,7 +22,7 @@ sitemaps_dict = {
 }
 
 urlpatterns = [
-    path("/home", index, name="home"),
+    path("home", index, name="home"),
     path("", LandingPageView.as_view(), name="landing"),
     path("admin/", admin.site.urls),
     path("healthz/", healthcheck),
