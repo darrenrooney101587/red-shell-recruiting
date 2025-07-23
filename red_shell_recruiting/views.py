@@ -1,12 +1,11 @@
-import traceback
+import os
+import re
 
 import boto3
 from botocore.exceptions import ClientError
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import EmptyResultSet
-from pip._internal.resolution.resolvelib.base import Candidate
 from user_agents import parse
 from django.db.models import F, Count, Q
 from django.db.models.expressions import RawSQL
@@ -39,6 +38,24 @@ from red_shell_recruiting.models import (
 def index(request):
     context = {}
     return render(request, "red_shell_recruiting/index.html", context)
+
+
+def svg_showcase(request):
+    template_path = os.path.join(
+        settings.BASE_DIR,
+        "red_shell_recruiting",
+        "templates",
+        "red_shell_recruiting",
+        "components",
+        "svg_components.html",
+    )
+    with open(template_path, "r", encoding="utf-8") as f:
+        content = f.read()
+    svg_types = re.findall(r"elif type == ['\"]([a-zA-Z0-9_\-]+)['\"]", content)
+
+    return render(
+        request, "red_shell_recruiting/svg_showcase.html", {"svg_types": svg_types}
+    )
 
 
 def normalize_linkedin_url(url):

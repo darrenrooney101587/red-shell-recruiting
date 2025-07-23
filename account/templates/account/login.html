@@ -20,8 +20,8 @@
     <div class="form-signin center-frame">
         <form method="post">
             {% csrf_token %}
-            <div style="margin-bottom: 1rem;position: relative;left: -3rem;">
-                <img class="" src="{% static 'img/red_shell_recruiting_length.png' %}" alt="">
+            <div class="flex-display vertical-align justify-center" style="margin-bottom: 2rem;">
+                <img class="" src="{% static 'img/red_shell_horizontal_cropped.png' %}" height="100" alt="">
             </div>
             {% if messages %}
                 {% for message in messages %}

@@ -1,0 +1,16 @@
+{% load static %}
+{% if not request.is_mobile %}
+    <header class="flex-display space-between align-center" style="height: 60px; padding-right: 3rem; padding-left: 3rem;">
+        <a class="a-suppressed" href="{% url 'landing' %}">
+            <div class="flex-display vertical-align">
+                <img src="{% static 'img/red_shell_cropped.png' %}" style="height: 25px; width: auto; margin-right: 0.5rem;">
+                <h3 style="margin-bottom: 0;">Red Shell Recruiting</h3>
+            </div>
+        </a>
+        <div>
+            <a href="{% url 'privacy-policy' %}" class="btn btn-link" style="font-size: 12px;">About</a>
+            <a href="{% url 'privacy-policy' %}" class="btn btn-link" style="font-size: 12px;">Privacy Policy</a>
+            <a href="{% url 'terms-of-service' %}" class="btn btn-link" style="font-size: 12px;">Terms of Service</a>
+        </div>
+    </header>
+{% endif %}

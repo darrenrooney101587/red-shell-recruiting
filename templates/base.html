@@ -23,7 +23,14 @@
         <link rel="stylesheet" href="{% static 'css/bootstrap.min.css'%}" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <link rel="stylesheet" href="{% static 'css/bootstrap-icons.css'%}" crossorigin="anonymous">
         <link rel="stylesheet" href="{% static 'css/common.css'%}" crossorigin="anonymous">
-        <link rel="icon" href="{% static 'favicon.ico' %}">
+
+        <link rel="icon" type="image/png" href="{% static 'favicon/favicon-96x96.png' %}" sizes="96x96" />
+        <link rel="icon" type="image/svg+xml" href="{% static 'favicon/favicon.svg' %}" />
+        <link rel="shortcut icon" href="{% static 'favicon/favicon.ico' %}" />
+        <link rel="apple-touch-icon" sizes="180x180" href="{% static 'favicon/apple-touch-icon.png' %}" />
+        <meta name="apple-mobile-web-app-title" content="MyWebSite" />
+        <link rel="manifest" href="{% static 'favicon/site.webmanifest' %}" />
+        <script src="{% static 'js/jquery-3.3.1.js' %}" crossorigin="anonymous"></script>
         {% block css-extra %}
         {% endblock %}
         <title>
@@ -32,16 +39,17 @@
         </title>
         <script src="{% static 'js/jquery-3.3.1.js' %}" crossorigin="anonymous"></script>
     </head>
-    {% block body %}
+    <body>
         {% block header %}
         {% endblock %}
-        {% block nav %}
+        {% block sidebar %}
         {% endblock %}
         {% block main %}
         {% endblock %}
         {% block footer %}
         {% endblock %}
-    {% endblock %}
+    </body>
+
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5KWPXS4V" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->

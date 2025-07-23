@@ -12,6 +12,7 @@ from app_admin.views import (
     force_404,
     force_500,
     StaticViewSitemap,
+    LandingPageView,
 )
 from red_shell_recruiting.views import index
 
@@ -21,7 +22,8 @@ sitemaps_dict = {
 }
 
 urlpatterns = [
-    path("", index, name="home"),
+    path("/home", index, name="home"),
+    path("", LandingPageView.as_view(), name="landing"),
     path("admin/", admin.site.urls),
     path("healthz/", healthcheck),
     path("mechanic/", include("mechanic.urls")),

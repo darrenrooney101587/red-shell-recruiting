@@ -1,4 +1,5 @@
 from django.urls import path
+
 from red_shell_recruiting import views
 from red_shell_recruiting.views import (
     CandidateSearch,
@@ -10,9 +11,11 @@ from red_shell_recruiting.views import (
     client_placement_list,
     UploadCulinaryPortfolio,
     ArchiveCulinaryPortfolio,
+    svg_showcase,
 )
 
 urlpatterns = [
+    path("svg-showcase/", svg_showcase, name="svg_showcase"),
     path(
         "",
         views.CandidateInput.as_view(),

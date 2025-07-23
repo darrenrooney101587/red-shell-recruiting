@@ -1,660 +1,621 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load tags %}
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <link rel="stylesheet" href="{% static 'css/bootstrap.min.css'%}" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-        <link rel="stylesheet" href="{% static 'css/bootstrap-icons.css'%}" crossorigin="anonymous">
-        <link rel="stylesheet" href="{% static 'css/common.css'%}?n={% css_invalidate_int %}" crossorigin="anonymous">
-        <link rel="icon" href="{% static 'favicon.ico' %}">
-        {% block css-extra %}
+{% block header %}
+    {% include 'components/header.html' %}
+{% endblock %}
+{% block sidebar %}
+    {% if request.user.is_authenticated %}
+        {% if request.is_mobile %}
+            {% include 'sidebar_mobile_component.html' %}
+        {% else %}
+            {% include 'sidebar_desktop_component.html' %}
+        {% endif %}
+    {% endif %}
+{% endblock %}
+{% block main %}
+    <main style="flex: 1" class="content-container" >
+        <form id="csrf-token-form" style="display: none;">
+            {% csrf_token %}
+        </form>
+        {% block content %}
         {% endblock %}
-        <title>
-            {% block title %}
-            {% endblock %}
-        </title>
-        <script src="{% static 'js/jquery-3.3.1.js' %}" crossorigin="anonymous"></script>
-    </head>
-    {% block body %}
-        <body class="main-body">
-            <form id="csrf-token-form" style="display: none;">
-                {% csrf_token %}
-            </form>
-            {% if not request.is_mobile %}
-                <header class="page-header bg-light d-flex align-items-center justify-content-between px-3"
-                        style="height: 60px; border-bottom: 1px solid #dee2e6; box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .04);">
-                    <a class="a-suppressed" href="{% url 'home' %}">
-                        <div class="d-flex align-items-center">
-                            <span class="h5 mb-0">Red Shell Recruiting</span>
-                        </div>
-                    </a>
-                    <div>
-                        <a href="{% url 'privacy-policy' %}" class="btn btn-link" style="font-size: 0.9rem;">Privacy Policy</a>
-                        <a href="{% url 'terms-of-service' %}" class="btn btn-link" style="font-size: 0.9rem;">Terms of Service</a>
-                    </div>
-                </header>
-            {% endif %}
-            {% if request.user.is_authenticated %}
-                {% if request.is_mobile %}
-                    {% include 'sidebar_mobile_component.html' %}
-                {% else %}
-                    {% include 'sidebar_desktop_component.html' %}
-                {% endif %}
-            {% endif %}
-            <main style="flex: 1" class="content-container col-md-12 ml-sm-auto col-lg-12 pt-3 pb-5" >
-                {% block content %}
-                {% endblock %}
-            </main>
-            <footer class="footer">
-                <div class="footer-row">
-                    <div class="footer__separator">© 2025 Red Shell Recruiting. All rights reserved.</div>
-                    <div class="footer__separator">Owned and operated by Red Shell Recruiting.</div>
-                </div>
-                <div class="footer-row">
-                    <div class="footer__separator">
-                        <a href="{% url 'privacy-policy' %}">Privacy Policy</a>
-                    </div>
-                    <div>
-                        <a href="{% url 'terms-of-service' %}">Terms of Service</a>
-                    </div>
-                </div>
-            </footer>
-        </body>
-    {% endblock %}
-    {% block script %}
-    <script>
+    </main>
+{% endblock %}
+{% block footer %}
+    {% include 'components/footer.html' %}
+{% endblock %}
+{% block script %}
+<script>
 
-        function getValidations(debug=false) {
-            return [
-                { selector: '#candidate-first-name', name: 'First Name', msg: 'Please enter a valid first name.' },
-                { selector: '#candidate-last-name', name: 'Last Name', msg: 'Please enter a valid last name.' },
-                {
-                    selector: '#candidate-compensation-from',
-                    name: 'Compensation From',
-                    msg: 'Please enter a valid compensation range.',
-                    customCheck: () => {
-                        const from = $('#candidate-compensation-from').val();
-                        const to = $('#candidate-compensation-to').val();
-                        if (debug) {
-                            console.log('[DEBUG] Compensation from:', from);
-                            console.log('[DEBUG] Compensation to:', to);
-                        }
-                        return from && to ? true : '[DEBUG] Missing compensation range - blocking form submission.';
+    function getValidations(debug=false) {
+        return [
+            { selector: '#candidate-first-name', name: 'First Name', msg: 'Please enter a valid first name.' },
+            { selector: '#candidate-last-name', name: 'Last Name', msg: 'Please enter a valid last name.' },
+            {
+                selector: '#candidate-compensation-from',
+                name: 'Compensation From',
+                msg: 'Please enter a valid compensation range.',
+                customCheck: () => {
+                    const from = $('#candidate-compensation-from').val();
+                    const to = $('#candidate-compensation-to').val();
+                    if (debug) {
+                        console.log('[DEBUG] Compensation from:', from);
+                        console.log('[DEBUG] Compensation to:', to);
                     }
-                },
-                {
-                    selector: '#state-hidden',
-                    name: 'State/City',
-                    msg: 'Please select both a State and a City.',
-                    customCheck: () => {
-                        const state = $('#state-hidden').val();
-                        const city = $('#city-hidden').val();
-                        if (debug) console.log('[DEBUG] State:', state, 'City:', city);
-                        return state && city ? true : '[DEBUG] Missing state or city - blocking form submission.';
-                    }
-                },
-                { selector: '#candidate-ownership-hidden', name: 'Ownership', msg: 'Please select an ownership.' },
-                { selector: '#candidate-title-hidden', name: 'Title', msg: 'Please select a title.' },
-                {
-                    selector: '#candidate-phone-number',
-                    name: 'Phone',
-                    msg: 'Please enter a valid phone number.',
-                    customCheck: (value) => {
-                        const digits = value.replace(/\D/g, '');
-                        if (debug) console.log('[DEBUG] Phone digits only:', digits);
-                        return digits.length >= 10 && digits.length <= 15 ? true : '[DEBUG] Invalid phone number - blocking form submission.';
-                    }
-                },
-                {
-                    selector: '#candidate-email',
-                    name: 'Email',
-                    msg: 'Please enter a valid email address.',
-                    customCheck: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
-                        ? true
-                        : '[DEBUG] Invalid email address - blocking form submission.'
+                    return from && to ? true : '[DEBUG] Missing compensation range - blocking form submission.';
                 }
-            ];
-        }
-
-        function resumeChange() {
-            $('#resume').change(function() {
-                const fileName = $(this).val().split('\\').pop();
-                if (fileName) {
-                    $('#file-name').css('color', 'black').text(fileName);
+            },
+            {
+                selector: '#state-hidden',
+                name: 'State/City',
+                msg: 'Please select both a State and a City.',
+                customCheck: () => {
+                    const state = $('#state-hidden').val();
+                    const city = $('#city-hidden').val();
+                    if (debug) console.log('[DEBUG] State:', state, 'City:', city);
+                    return state && city ? true : '[DEBUG] Missing state or city - blocking form submission.';
                 }
-            });
-        }
-
-        function validationClose() {
-            $(document).on('click', '.custom-close', function() {
-                $(this).closest('.alert').fadeOut('slow');
-            });
-        }
-
-        function validateField({ selector, name, msg, customCheck }, event, debug=false) {
-            const value = $(selector).val()?.trim();
-            if (debug) console.log(`[DEBUG] ${name}:`, value);
-
-            if (typeof customCheck === 'function') {
-                const result = customCheck(value);
-                if (result !== true) {
-                    event.preventDefault();
-                    if (debug) console.log(`[DEBUG] ${result}`);
-                    addClientMessage(msg);
-                    return false;
+            },
+            { selector: '#candidate-ownership-hidden', name: 'Ownership', msg: 'Please select an ownership.' },
+            { selector: '#candidate-title-hidden', name: 'Title', msg: 'Please select a title.' },
+            {
+                selector: '#candidate-phone-number',
+                name: 'Phone',
+                msg: 'Please enter a valid phone number.',
+                customCheck: (value) => {
+                    const digits = value.replace(/\D/g, '');
+                    if (debug) console.log('[DEBUG] Phone digits only:', digits);
+                    return digits.length >= 10 && digits.length <= 15 ? true : '[DEBUG] Invalid phone number - blocking form submission.';
                 }
-            } else if (!value) {
+            },
+            {
+                selector: '#candidate-email',
+                name: 'Email',
+                msg: 'Please enter a valid email address.',
+                customCheck: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+                    ? true
+                    : '[DEBUG] Invalid email address - blocking form submission.'
+            }
+        ];
+    }
+
+    function resumeChange() {
+        $('#resume').change(function() {
+            const fileName = $(this).val().split('\\').pop();
+            if (fileName) {
+                $('#file-name').css('color', 'black').text(fileName);
+            }
+        });
+    }
+
+    function validationClose() {
+        $(document).on('click', '.custom-close', function() {
+            $(this).closest('.alert').fadeOut('slow');
+        });
+    }
+
+    function validateField({ selector, name, msg, customCheck }, event, debug=false) {
+        const value = $(selector).val()?.trim();
+        if (debug) console.log(`[DEBUG] ${name}:`, value);
+
+        if (typeof customCheck === 'function') {
+            const result = customCheck(value);
+            if (result !== true) {
                 event.preventDefault();
-                if (debug) console.log(`[DEBUG] Missing ${name} - blocking form submission.`);
+                if (debug) console.log(`[DEBUG] ${result}`);
                 addClientMessage(msg);
                 return false;
             }
-
-            return true;
+        } else if (!value) {
+            event.preventDefault();
+            if (debug) console.log(`[DEBUG] Missing ${name} - blocking form submission.`);
+            addClientMessage(msg);
+            return false;
         }
 
-        function SaveCandidate(debug=false) {
-            $('#submit-btn').click(function (event) {
-                let validations = getValidations(debug);
-                for (let field of validations) {
-                    if (!validateField(field, event)) return false;
-                }
+        return true;
+    }
 
-                if (debug) console.log('[DEBUG] Form passed all validation checks - submitting.');
-            });
-            resumeChange();
-            validationClose();
-        }
+    function SaveCandidate(debug=false) {
+        $('#submit-btn').click(function (event) {
+            let validations = getValidations(debug);
+            for (let field of validations) {
+                if (!validateField(field, event)) return false;
+            }
 
-        function SubmitCandidate(debug=false) {
+            if (debug) console.log('[DEBUG] Form passed all validation checks - submitting.');
+        });
+        resumeChange();
+        validationClose();
+    }
 
-            $('#submit-btn').click(function (event) {
+    function SubmitCandidate(debug=false) {
 
-                let validations = getValidations(debug);
-                validations.push({
-                    selector: '#resume',
-                    name: 'Resume',
-                    msg: 'Please upload a resume before submitting.',
-                    customCheck: (value) => {
-                        if (!value) {
-                            $('#file-name').css('color', 'red').text('Please upload a resume before submitting.');
-                            return '[DEBUG] No resume uploaded - blocking form submission.';
-                        }
-                        return true;
+        $('#submit-btn').click(function (event) {
+
+            let validations = getValidations(debug);
+            validations.push({
+                selector: '#resume',
+                name: 'Resume',
+                msg: 'Please upload a resume before submitting.',
+                customCheck: (value) => {
+                    if (!value) {
+                        $('#file-name').css('color', 'red').text('Please upload a resume before submitting.');
+                        return '[DEBUG] No resume uploaded - blocking form submission.';
                     }
-                })
-
-                for (let field of validations) {
-                    if (!validateField(field, event)) return false;
+                    return true;
                 }
+            })
 
-                if (debug) console.log('[DEBUG] Form passed all validation checks - submitting.');
-            });
-            resumeChange();
-            validationClose();
+            for (let field of validations) {
+                if (!validateField(field, event)) return false;
+            }
+
+            if (debug) console.log('[DEBUG] Form passed all validation checks - submitting.');
+        });
+        resumeChange();
+        validationClose();
+    }
+
+    function setDropdownSelection(listSelector, hiddenSelector, displaySelector) {
+        var selectedId = $(hiddenSelector).val();
+        var $list = $(listSelector);
+        var $display = $(displaySelector);
+        var placeholder = $display.data('placeholder');
+        if (!selectedId) {
+            $display.text(placeholder);
+            return;
         }
+        var $selectedLi = $list.find(`li.option[data-value='${selectedId}']`);
+        if ($selectedLi.length) {
+            $display.text($selectedLi.text());
+        } else {
+            $display.text(placeholder);
+        }
+    }
 
-        function setDropdownSelection(listSelector, hiddenSelector, displaySelector) {
-            var selectedId = $(hiddenSelector).val();
-            var $list = $(listSelector);
-            var $display = $(displaySelector);
-            var placeholder = $display.data('placeholder');
-            if (!selectedId) {
-                $display.text(placeholder);
+    function populateCandidateTitles() {
+        const list = $('#candidate-title-list');
+        list.empty();
+        list.append(`<li class="option placeholder-option" data-value="">Select a Title</li>`);
+        $.get("{% url 'candidate-title-list' %}", function(data) {
+            data.forEach(function(item) {
+                list.append(`<li class="flex-display space-between option" data-value="${item.id}">${item.name} <span style='color: var(--faded-gray-color); font-size: 12px;'>(${item.count})</span></li>`);
+            });
+            setDropdownSelection('#candidate-title-list', '#candidate-title-hidden', '#candidate-title-dropdown');
+        }).fail(function() {
+            addClientMessage('Error fetching titles.');
+        });
+    }
+
+    function populateCandidateSources() {
+        const list = $('#candidate-source-list');
+        list.empty();
+        list.append(`<li class="option placeholder-option" data-value="">Select a Source</li>`);
+        $.get("{% url 'candidate-source-list' %}", function(data) {
+            data.forEach(function(item) {
+                list.append(`<li class="flex-display space-between option" data-value="${item.id}">${item.name} <span style='color: var(--faded-gray-color); font-size: 12px;'>(${item.count})</span></li>`);
+            });
+            setDropdownSelection('#candidate-source-list', '#candidate-source-hidden', '#candidate-source-dropdown');
+        }).fail(function() {
+            addClientMessage('Error fetching sources.');
+        });
+    }
+
+    function populateCandidateOwners() {
+        const list = $('#candidate-ownership-list');
+        list.empty();
+        list.append(`<li class="option placeholder-option" data-value="">Select an Ownership</li>`);
+        $.get("{% url 'candidate-ownership-list' %}", function(data) {
+            data.forEach(function(item) {
+                list.append(`<li class="flex-display space-between option" data-value="${item.id}">${item.name} <span style='color: var(--faded-gray-color); font-size: 12px;'>(${item.count})</span></li>`);
+            });
+            setDropdownSelection('#candidate-ownership-list', '#candidate-ownership-hidden', '#candidate-ownership-dropdown');
+        }).fail(function() {
+            addClientMessage('Error fetching titles.');
+        });
+    }
+
+    function populateCities(state) {
+        $('.spinner-wrapper').show();
+        $('.simple-spinner').show();
+
+        $('#city-list').empty();
+        const apiKey = 'darren101587';
+        const geocodeUrl = `https://secure.geonames.org/searchJSON?formatted=true&lang=en&country=US&adminCode1=${state}&maxRows=1000&username=${apiKey}`;
+
+        $.get(geocodeUrl, function(data) {
+            const cities = data.geonames.sort(function(a, b) {
+                return a.name.localeCompare(b.name);
+            });
+
+            cities.forEach(function(city) {
+                $('#city-list').append(`<li class="option" data-value="${city.name}">${city.name}</li>`);
+            });
+
+            $('.spinner-wrapper').hide();
+            $('#city-list').show();
+            $('#city-dropdown-wrapper').show();
+        }).fail(function() {
+            addClientMessage('Error fetching cities.');
+            $('.spinner-wrapper').hide();
+        });
+    }
+
+    function populateClientPlacements() {
+        $.get("{% url 'client-placement-list' %}", function(data) {
+            $('.client-placement-list').each(function() {
+                const list = $(this);
+                list.empty();
+
+                data.forEach(function(item) {
+                    list.append(`<li class="option" data-value="${item.id}">${item.name}</li>`);
+                });
+            });
+
+            $('.custom-dropdown').show();
+        }).fail(function() {
+            addClientMessage('Error fetching clients.');
+        });
+    }
+
+    function addClientMessage(messageText, messageType = 'error') {
+        {#console.log(messageText, messageType, messageType);#}
+        $('.messages').empty();
+        const alertClass = messageType === 'success' ? 'alert-success' : 'alert-danger';
+        const messageHtml = `
+            <div class="alert ${alertClass} alert-dismissible fade show flex-display space-between vertical-align" role="alert" style="width: 100%;">
+                <span class="message-text">${messageText}</span>
+                {% include 'red_shell_recruiting/components/candidate_close_button.html' %}
+            </div>
+        `;
+        $('.messages').append(messageHtml);
+    }
+
+    function getCSRFToken() {
+        return $('#csrf-token-form input[name="csrfmiddlewaretoken"]').val();
+    }
+
+    $(document).ready(function () {
+
+        populateClientPlacements();
+        populateCandidateTitles();
+        populateCandidateSources();
+        populateCandidateOwners();
+
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", getCSRFToken());
+                }
+            }
+        });
+
+        $('.candidate-card').on('click', function() {
+            var candidateId = $(this).data('candidate-id');
+            if (candidateId) {
+                window.location.href = '/candidate/' + candidateId + '/';
+            }
+        });
+
+        // title click handler
+        $('#candidate-title-list').on('click', '.option', function (event) {
+            event.stopPropagation();
+            const titleId = $(this).data('value');
+            const titleText = $(this).text();
+
+            $('#candidate-title-dropdown').text(titleText);
+            $('#candidate-title-hidden').val(titleId);
+
+            $(this).closest('.dropdown-list').hide();
+            $(this).closest('.custom-dropdown').find('.chevron-down').show();
+            $(this).closest('.custom-dropdown').find('.chevron-up').hide();
+        });
+
+        // source click handler
+        $('#candidate-source-list').on('click', '.option', function (event) {
+            event.stopPropagation();
+            const titleId = $(this).data('value');
+            const titleText = $(this).text();
+
+            $('#candidate-source-dropdown').text(titleText);
+            $('#candidate-source-hidden').val(titleId);
+
+            $(this).closest('.dropdown-list').hide();
+            $(this).closest('.custom-dropdown').find('.chevron-down').show();
+            $(this).closest('.custom-dropdown').find('.chevron-up').hide();
+        });
+
+        // ownership click handler
+        $('#candidate-ownership-list').on('click', '.option', function (event) {
+            event.stopPropagation();
+            const titleId = $(this).data('value');
+            const titleText = $(this).text();
+
+            $('#candidate-ownership-dropdown').text(titleText);
+            $('#candidate-ownership-hidden').val(titleId);
+
+            $(this).closest('.dropdown-list').hide();
+            $(this).closest('.custom-dropdown').find('.chevron-down').show();
+            $(this).closest('.custom-dropdown').find('.chevron-up').hide();
+        });
+
+        // placement click handler
+        $(document).on('click', '.client-placement-list .option', function (event) {
+            event.stopPropagation();
+
+            const $option = $(this);
+            const clientId = $option.data('value');
+            const clientName = $option.text();
+
+            const $dropdown = $option.closest('.custom-dropdown');
+            const $display = $dropdown.find('.client-placement-dropdown');
+            const $hidden = $dropdown.find('.client-placement-hidden');
+
+            $display.text(clientName);
+            $hidden.val(clientId);
+
+            $dropdown.find('.dropdown-list').hide();
+            $dropdown.find('.chevron-down').show();
+            $dropdown.find('.chevron-up').hide();
+        });
+
+        // state click handler
+        $('#state-list').on('click', '.option', function(event) {
+            event.stopPropagation();
+            const state = $(this).data('value');
+            const stateName = $(this).data('fullname');
+
+            $('#state-dropdown').text(stateName);
+            $('#state-hidden').val(state);
+
+            $(this).closest('.dropdown-list').hide();
+            $(this).closest('.custom-dropdown').find('.chevron-down').show();
+            $(this).closest('.custom-dropdown').find('.chevron-up').hide();
+
+            populateCities(state);
+        });
+
+        // city click handler
+        $('#city-list').on('click', '.option', function(event) {
+            event.stopPropagation();
+            const city = $(this).data('value');
+            const cityName = $(this).text();
+
+            $('#city-dropdown').text(cityName);
+            $('#city-hidden').val(city);
+
+            $(this).closest('.dropdown-list').hide();
+            $(this).closest('.custom-dropdown').find('.chevron-down').show();
+            $(this).closest('.custom-dropdown').find('.chevron-up').hide();
+        });
+
+
+        // general dropdown show/hide
+        $(document).on('click', '.custom-dropdown', function (event) {
+            const dropdownList = $(this).find('.dropdown-list');
+            const chevronDown = $(this).find('.chevron-down');
+            const chevronUp = $(this).find('.chevron-up');
+
+            event.stopPropagation();
+
+            if (dropdownList.is(':visible')) {
+                dropdownList.hide();
+                chevronDown.show();
+                chevronUp.hide();
+            } else {
+                dropdownList.show();
+                chevronDown.hide();
+                chevronUp.show();
+            }
+        });
+
+        // toggle input page show placement elements
+        $('#client-placement').change(function () {
+            const isChecked = $(this).is(':checked');
+            if (isChecked) {
+                $('#client-placement-toggle-wrapper').slideDown(200);
+            } else {
+                $('#client-placement-toggle-wrapper').slideUp(200);
+                $('#client-placement-dropdown').text('Select a Client Placement');
+                $('#client-placement-hidden').val('');
+            }
+        });
+
+        $('#candidate-phone-number').on('input', function() {
+            let input = $(this).val();
+            input = input.replace(/\D/g, '');
+
+            if (input.length > 3 && input.length <= 6) {
+                input = input.slice(0,3) + '-' + input.slice(3);
+            } else if (input.length > 6) {
+                input = input.slice(0,3) + '-' + input.slice(3,6) + '-' + input.slice(6,10);
+            }
+
+            $(this).val(input);
+        });
+
+        $(document).click(function(event) {
+            if (!$(event.target).closest('.custom-dropdown').length) {
+                $('.dropdown-list').hide();
+                $('.chevron-down').show();
+                $('.chevron-up').hide();
+            }
+        });
+
+        {#// Start sidebar collapsed#}
+        {#$('#sidebar').removeClass('sidebar-expanded');#}
+        {##}
+        {#// Sidebar expand/collapse#}
+        {#function toggleSidebar() {#}
+        {#    const $sidebar = $('#sidebar');#}
+        {#    $sidebar.toggleClass('sidebar-expanded');#}
+        {#    const $chevron = $('#sidebar-chevron svg #chevron-path');#}
+        {#    if ($sidebar.hasClass('sidebar-expanded')) {#}
+        {#        $sidebar.one('transitionend webkitTransitionEnd oTransitionEnd', function() {#}
+        {#            $('#sidebar-env-label, #sidebar-chevron').css('display', 'inline-block');#}
+        {#            if ($chevron.length) $chevron.attr('d', 'M11 7L19 14L11 21');#}
+        {#        });#}
+        {#    } else {#}
+        {#        $('#sidebar-env-label, #sidebar-chevron').css('display', 'none');#}
+        {#        if ($chevron.length) $chevron.attr('d', 'M11 21L19 14L11 7');#}
+        {#        $('.nav-item.nav-dropdown-container').removeClass('open');#}
+        {#        $('.nav-dropdown-submenu').slideUp();#}
+        {#    }#}
+        {#}#}
+        {##}
+        {#// Hamburger click#}
+        {#$('.hamburger').on('click', function(e) {#}
+        {#    e.preventDefault();#}
+        {#    toggleSidebar();#}
+        {#});#}
+        {#$('#sidebar-hamburger').off('click');#}
+
+        {#// Submenu click (only when expanded)#}
+        {#$(document).on('click', '.nav-dropdown-container > .nav-link', function(e) {#}
+        {#    if (!$('#sidebar').hasClass('sidebar-expanded')) {#}
+        {#        e.preventDefault();#}
+        {#        e.stopPropagation();#}
+        {#        return;#}
+        {#    }#}
+        {#    const $container = $(this).closest('.nav-dropdown-container');#}
+        {#    // Close others#}
+        {#    $('.nav-item.nav-dropdown-container').not($container).removeClass('open')#}
+        {#        .find('.nav-dropdown-submenu').slideUp(200).end()#}
+        {#        .find('.chevron-up').hide().end()#}
+        {#        .find('.chevron-down').show();#}
+        {#    // Toggle current#}
+        {#    const $submenu = $container.find('.nav-dropdown-submenu');#}
+        {#    const $chevronDown = $container.find('.chevron-down');#}
+        {#    const $chevronUp = $container.find('.chevron-up');#}
+        {#    if ($submenu.is(':visible')) {#}
+        {#        $submenu.slideUp(200);#}
+        {#        $chevronUp.hide();#}
+        {#        $chevronDown.show();#}
+        {#        $container.removeClass('open');#}
+        {#    } else {#}
+        {#        $submenu.slideDown(200);#}
+        {#        $chevronDown.hide();#}
+        {#        $chevronUp.show();#}
+        {#        $container.addClass('open');#}
+        {#    }#}
+        {#});#}
+
+        {#// Nav-link hover effect only when expanded#}
+        {#$(document).on('mouseenter', '#sidebar.sidebar-expanded .nav-link', function () {#}
+        {#    $(this).css({'background-color': 'rgba(255, 255, 255, 0.1)', 'cursor': 'pointer'});#}
+        {#}).on('mouseleave', '#sidebar.sidebar-expanded .nav-link', function () {#}
+        {#    $(this).css({'background-color': '', 'cursor': ''});#}
+        {#});#}
+
+        var $sidebar = $('#sidebar');
+        var $dropdowns = $('.nav-item.nav-dropdown-container');
+        var expandedClass = 'sidebar-expanded';
+
+        // Ensure sidebar starts collapsed
+        $sidebar.removeClass(expandedClass);
+        $('#sidebar-env-label').hide(); // Use .hide() for fadeIn/fadeOut compatibility
+        $('.nav-dropdown-submenu').hide();
+        $dropdowns.removeClass('open');
+
+        // Expand sidebar on any click inside sidebar
+        $sidebar.on('click', function(e) {
+            if (!$sidebar.hasClass(expandedClass)) {
+                $sidebar.addClass(expandedClass);
+                $('#sidebar-env-label').fadeIn(150); // Fade in
+                $sidebar.find('li.nav-item-collapsed').removeClass('nav-item-collapsed').addClass('nav-item');
+                e.stopPropagation();
+                e.preventDefault();
                 return;
             }
-            var $selectedLi = $list.find(`li.option[data-value='${selectedId}']`);
-            if ($selectedLi.length) {
-                $display.text($selectedLi.text());
+        });
+
+        // Collapse sidebar if click outside sidebar
+        $(document).on('click', function(e) {
+            if ($sidebar.hasClass(expandedClass) && !$(e.target).closest('#sidebar').length) {
+                $sidebar.removeClass(expandedClass);
+                $('#sidebar-env-label').fadeOut(150); // Fade out
+                $dropdowns.removeClass('open');
+                $('.nav-dropdown-submenu').slideUp(200);
+                // Switch all nav-item back to nav-item-collapsed
+                $sidebar.find('li.nav-item').removeClass('nav-item').addClass('nav-item-collapsed');
+            }
+        });
+
+        // Dropdown logic: only when expanded
+        $dropdowns.find('> .nav-link').off('click').on('click', function(e) {
+            if (!$sidebar.hasClass(expandedClass)) {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+            }
+            e.preventDefault();
+            var $container = $(this).closest('.nav-dropdown-container');
+            var $submenu = $container.find('.nav-dropdown-submenu').first();
+            // Close all other dropdowns
+            $dropdowns.not($container).removeClass('open').find('.nav-dropdown-submenu').slideUp(200);
+            // Toggle this one
+            $container.toggleClass('open');
+            $submenu.stop(true, true).slideToggle(200);
+        });
+
+        // Only one dropdown open at a time
+        $(".nav-dropdown-container > .nav-link").on('click', function(e) {
+            if (!$("#sidebar").hasClass("sidebar-expanded")) {
+                e.preventDefault();
+                return;
+            }
+            e.preventDefault();
+            var $container = $(this).closest(".nav-dropdown-container");
+            var $submenu = $container.find(".nav-dropdown-submenu").first();
+
+            // Close all other dropdowns
+            $(".nav-dropdown-container").not($container).removeClass("open")
+                .find(".nav-dropdown-submenu").slideUp(200);
+            $(".nav-dropdown-container").not($container)
+                .find(".chevron-up").hide();
+            $(".nav-dropdown-container").not($container)
+                .find(".chevron-down").show();
+
+            // Toggle this one
+            var isOpen = $container.hasClass("open");
+            if (isOpen) {
+                $container.removeClass("open");
+                $submenu.stop(true, true).slideUp(200);
+                $container.find(".chevron-up").hide();
+                $container.find(".chevron-down").show();
             } else {
-                $display.text(placeholder);
-            }
-        }
-
-        function populateCandidateTitles() {
-            const list = $('#candidate-title-list');
-            list.empty();
-            list.append(`<li class="option placeholder-option" data-value="">Select a Title</li>`);
-            $.get("{% url 'candidate-title-list' %}", function(data) {
-                data.forEach(function(item) {
-                    list.append(`<li class="flex-display space-between option" data-value="${item.id}">${item.name} <span style='color: var(--faded-gray-color); font-size: 12px;'>(${item.count})</span></li>`);
-                });
-                setDropdownSelection('#candidate-title-list', '#candidate-title-hidden', '#candidate-title-dropdown');
-            }).fail(function() {
-                addClientMessage('Error fetching titles.');
-            });
-        }
-
-        function populateCandidateSources() {
-            const list = $('#candidate-source-list');
-            list.empty();
-            list.append(`<li class="option placeholder-option" data-value="">Select a Source</li>`);
-            $.get("{% url 'candidate-source-list' %}", function(data) {
-                data.forEach(function(item) {
-                    list.append(`<li class="flex-display space-between option" data-value="${item.id}">${item.name} <span style='color: var(--faded-gray-color); font-size: 12px;'>(${item.count})</span></li>`);
-                });
-                setDropdownSelection('#candidate-source-list', '#candidate-source-hidden', '#candidate-source-dropdown');
-            }).fail(function() {
-                addClientMessage('Error fetching sources.');
-            });
-        }
-
-        function populateCandidateOwners() {
-            const list = $('#candidate-ownership-list');
-            list.empty();
-            list.append(`<li class="option placeholder-option" data-value="">Select an Ownership</li>`);
-            $.get("{% url 'candidate-ownership-list' %}", function(data) {
-                data.forEach(function(item) {
-                    list.append(`<li class="flex-display space-between option" data-value="${item.id}">${item.name} <span style='color: var(--faded-gray-color); font-size: 12px;'>(${item.count})</span></li>`);
-                });
-                setDropdownSelection('#candidate-ownership-list', '#candidate-ownership-hidden', '#candidate-ownership-dropdown');
-            }).fail(function() {
-                addClientMessage('Error fetching titles.');
-            });
-        }
-
-        function populateCities(state) {
-            $('.spinner-wrapper').show();
-            $('.simple-spinner').show();
-
-            $('#city-list').empty();
-            const apiKey = 'darren101587';
-            const geocodeUrl = `https://secure.geonames.org/searchJSON?formatted=true&lang=en&country=US&adminCode1=${state}&maxRows=1000&username=${apiKey}`;
-
-            $.get(geocodeUrl, function(data) {
-                const cities = data.geonames.sort(function(a, b) {
-                    return a.name.localeCompare(b.name);
-                });
-
-                cities.forEach(function(city) {
-                    $('#city-list').append(`<li class="option" data-value="${city.name}">${city.name}</li>`);
-                });
-
-                $('.spinner-wrapper').hide();
-                $('#city-list').show();
-                $('#city-dropdown-wrapper').show();
-            }).fail(function() {
-                addClientMessage('Error fetching cities.');
-                $('.spinner-wrapper').hide();
-            });
-        }
-
-        function populateClientPlacements() {
-            $.get("{% url 'client-placement-list' %}", function(data) {
-                $('.client-placement-list').each(function() {
-                    const list = $(this);
-                    list.empty();
-
-                    data.forEach(function(item) {
-                        list.append(`<li class="option" data-value="${item.id}">${item.name}</li>`);
-                    });
-                });
-
-                $('.custom-dropdown').show();
-            }).fail(function() {
-                addClientMessage('Error fetching clients.');
-            });
-        }
-
-        function addClientMessage(messageText, messageType = 'error') {
-            {#console.log(messageText, messageType, messageType);#}
-            $('.messages').empty();
-            const alertClass = messageType === 'success' ? 'alert-success' : 'alert-danger';
-            const messageHtml = `
-                <div class="alert ${alertClass} alert-dismissible fade show flex-display space-between vertical-align" role="alert" style="width: 100%;">
-                    <span class="message-text">${messageText}</span>
-                    {% include 'red_shell_recruiting/components/candidate_close_button.html' %}
-                </div>
-            `;
-            $('.messages').append(messageHtml);
-        }
-
-        function getCSRFToken() {
-            return $('#csrf-token-form input[name="csrfmiddlewaretoken"]').val();
-        }
-
-        $(document).ready(function () {
-
-            populateClientPlacements();
-            populateCandidateTitles();
-            populateCandidateSources();
-            populateCandidateOwners();
-
-            $.ajaxSetup({
-                beforeSend: function(xhr, settings) {
-                    if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-                        xhr.setRequestHeader("X-CSRFToken", getCSRFToken());
-                    }
-                }
-            });
-
-            $('.candidate-card').on('click', function() {
-                var candidateId = $(this).data('candidate-id');
-                if (candidateId) {
-                    window.location.href = '/candidate/' + candidateId + '/';
-                }
-            });
-
-            // title click handler
-            $('#candidate-title-list').on('click', '.option', function (event) {
-                event.stopPropagation();
-                const titleId = $(this).data('value');
-                const titleText = $(this).text();
-
-                $('#candidate-title-dropdown').text(titleText);
-                $('#candidate-title-hidden').val(titleId);
-
-                $(this).closest('.dropdown-list').hide();
-                $(this).closest('.custom-dropdown').find('.chevron-down').show();
-                $(this).closest('.custom-dropdown').find('.chevron-up').hide();
-            });
-
-            // source click handler
-            $('#candidate-source-list').on('click', '.option', function (event) {
-                event.stopPropagation();
-                const titleId = $(this).data('value');
-                const titleText = $(this).text();
-
-                $('#candidate-source-dropdown').text(titleText);
-                $('#candidate-source-hidden').val(titleId);
-
-                $(this).closest('.dropdown-list').hide();
-                $(this).closest('.custom-dropdown').find('.chevron-down').show();
-                $(this).closest('.custom-dropdown').find('.chevron-up').hide();
-            });
-
-            // ownership click handler
-            $('#candidate-ownership-list').on('click', '.option', function (event) {
-                event.stopPropagation();
-                const titleId = $(this).data('value');
-                const titleText = $(this).text();
-
-                $('#candidate-ownership-dropdown').text(titleText);
-                $('#candidate-ownership-hidden').val(titleId);
-
-                $(this).closest('.dropdown-list').hide();
-                $(this).closest('.custom-dropdown').find('.chevron-down').show();
-                $(this).closest('.custom-dropdown').find('.chevron-up').hide();
-            });
-
-            // placement click handler
-            $(document).on('click', '.client-placement-list .option', function (event) {
-                event.stopPropagation();
-
-                const $option = $(this);
-                const clientId = $option.data('value');
-                const clientName = $option.text();
-
-                const $dropdown = $option.closest('.custom-dropdown');
-                const $display = $dropdown.find('.client-placement-dropdown');
-                const $hidden = $dropdown.find('.client-placement-hidden');
-
-                $display.text(clientName);
-                $hidden.val(clientId);
-
-                $dropdown.find('.dropdown-list').hide();
-                $dropdown.find('.chevron-down').show();
-                $dropdown.find('.chevron-up').hide();
-            });
-
-            // state click handler
-            $('#state-list').on('click', '.option', function(event) {
-                event.stopPropagation();
-                const state = $(this).data('value');
-                const stateName = $(this).data('fullname');
-
-                $('#state-dropdown').text(stateName);
-                $('#state-hidden').val(state);
-
-                $(this).closest('.dropdown-list').hide();
-                $(this).closest('.custom-dropdown').find('.chevron-down').show();
-                $(this).closest('.custom-dropdown').find('.chevron-up').hide();
-
-                populateCities(state);
-            });
-
-            // city click handler
-            $('#city-list').on('click', '.option', function(event) {
-                event.stopPropagation();
-                const city = $(this).data('value');
-                const cityName = $(this).text();
-
-                $('#city-dropdown').text(cityName);
-                $('#city-hidden').val(city);
-
-                $(this).closest('.dropdown-list').hide();
-                $(this).closest('.custom-dropdown').find('.chevron-down').show();
-                $(this).closest('.custom-dropdown').find('.chevron-up').hide();
-            });
-
-
-            // general dropdown show/hide
-            $(document).on('click', '.custom-dropdown', function (event) {
-                const dropdownList = $(this).find('.dropdown-list');
-                const chevronDown = $(this).find('.chevron-down');
-                const chevronUp = $(this).find('.chevron-up');
-
-                event.stopPropagation();
-
-                if (dropdownList.is(':visible')) {
-                    dropdownList.hide();
-                    chevronDown.show();
-                    chevronUp.hide();
-                } else {
-                    dropdownList.show();
-                    chevronDown.hide();
-                    chevronUp.show();
-                }
-            });
-
-            // toggle input page show placement elements
-            $('#client-placement').change(function () {
-                const isChecked = $(this).is(':checked');
-                if (isChecked) {
-                    $('#client-placement-toggle-wrapper').slideDown(200);
-                } else {
-                    $('#client-placement-toggle-wrapper').slideUp(200);
-                    $('#client-placement-dropdown').text('Select a Client Placement');
-                    $('#client-placement-hidden').val('');
-                }
-            });
-
-            $('#candidate-phone-number').on('input', function() {
-                let input = $(this).val();
-                input = input.replace(/\D/g, '');
-
-                if (input.length > 3 && input.length <= 6) {
-                    input = input.slice(0,3) + '-' + input.slice(3);
-                } else if (input.length > 6) {
-                    input = input.slice(0,3) + '-' + input.slice(3,6) + '-' + input.slice(6,10);
-                }
-
-                $(this).val(input);
-            });
-
-            $(document).click(function(event) {
-                if (!$(event.target).closest('.custom-dropdown').length) {
-                    $('.dropdown-list').hide();
-                    $('.chevron-down').show();
-                    $('.chevron-up').hide();
-                }
-            });
-
-            {#// Start sidebar collapsed#}
-            {#$('#sidebar').removeClass('sidebar-expanded');#}
-            {##}
-            {#// Sidebar expand/collapse#}
-            {#function toggleSidebar() {#}
-            {#    const $sidebar = $('#sidebar');#}
-            {#    $sidebar.toggleClass('sidebar-expanded');#}
-            {#    const $chevron = $('#sidebar-chevron svg #chevron-path');#}
-            {#    if ($sidebar.hasClass('sidebar-expanded')) {#}
-            {#        $sidebar.one('transitionend webkitTransitionEnd oTransitionEnd', function() {#}
-            {#            $('#sidebar-env-label, #sidebar-chevron').css('display', 'inline-block');#}
-            {#            if ($chevron.length) $chevron.attr('d', 'M11 7L19 14L11 21');#}
-            {#        });#}
-            {#    } else {#}
-            {#        $('#sidebar-env-label, #sidebar-chevron').css('display', 'none');#}
-            {#        if ($chevron.length) $chevron.attr('d', 'M11 21L19 14L11 7');#}
-            {#        $('.nav-item.nav-dropdown-container').removeClass('open');#}
-            {#        $('.nav-dropdown-submenu').slideUp();#}
-            {#    }#}
-            {#}#}
-            {##}
-            {#// Hamburger click#}
-            {#$('.hamburger').on('click', function(e) {#}
-            {#    e.preventDefault();#}
-            {#    toggleSidebar();#}
-            {#});#}
-            {#$('#sidebar-hamburger').off('click');#}
-
-            {#// Submenu click (only when expanded)#}
-            {#$(document).on('click', '.nav-dropdown-container > .nav-link', function(e) {#}
-            {#    if (!$('#sidebar').hasClass('sidebar-expanded')) {#}
-            {#        e.preventDefault();#}
-            {#        e.stopPropagation();#}
-            {#        return;#}
-            {#    }#}
-            {#    const $container = $(this).closest('.nav-dropdown-container');#}
-            {#    // Close others#}
-            {#    $('.nav-item.nav-dropdown-container').not($container).removeClass('open')#}
-            {#        .find('.nav-dropdown-submenu').slideUp(200).end()#}
-            {#        .find('.chevron-up').hide().end()#}
-            {#        .find('.chevron-down').show();#}
-            {#    // Toggle current#}
-            {#    const $submenu = $container.find('.nav-dropdown-submenu');#}
-            {#    const $chevronDown = $container.find('.chevron-down');#}
-            {#    const $chevronUp = $container.find('.chevron-up');#}
-            {#    if ($submenu.is(':visible')) {#}
-            {#        $submenu.slideUp(200);#}
-            {#        $chevronUp.hide();#}
-            {#        $chevronDown.show();#}
-            {#        $container.removeClass('open');#}
-            {#    } else {#}
-            {#        $submenu.slideDown(200);#}
-            {#        $chevronDown.hide();#}
-            {#        $chevronUp.show();#}
-            {#        $container.addClass('open');#}
-            {#    }#}
-            {#});#}
-
-            {#// Nav-link hover effect only when expanded#}
-            {#$(document).on('mouseenter', '#sidebar.sidebar-expanded .nav-link', function () {#}
-            {#    $(this).css({'background-color': 'rgba(255, 255, 255, 0.1)', 'cursor': 'pointer'});#}
-            {#}).on('mouseleave', '#sidebar.sidebar-expanded .nav-link', function () {#}
-            {#    $(this).css({'background-color': '', 'cursor': ''});#}
-            {#});#}
-
-            var $sidebar = $('#sidebar');
-            var $dropdowns = $('.nav-item.nav-dropdown-container');
-            var expandedClass = 'sidebar-expanded';
-
-            // Ensure sidebar starts collapsed
-            $sidebar.removeClass(expandedClass);
-            $('#sidebar-env-label').hide(); // Use .hide() for fadeIn/fadeOut compatibility
-            $('.nav-dropdown-submenu').hide();
-            $dropdowns.removeClass('open');
-
-            // Expand sidebar on any click inside sidebar
-            $sidebar.on('click', function(e) {
-                if (!$sidebar.hasClass(expandedClass)) {
-                    $sidebar.addClass(expandedClass);
-                    $('#sidebar-env-label').fadeIn(150); // Fade in
-                    $sidebar.find('li.nav-item-collapsed').removeClass('nav-item-collapsed').addClass('nav-item');
-                    e.stopPropagation();
-                    e.preventDefault();
-                    return;
-                }
-            });
-
-            // Collapse sidebar if click outside sidebar
-            $(document).on('click', function(e) {
-                if ($sidebar.hasClass(expandedClass) && !$(e.target).closest('#sidebar').length) {
-                    $sidebar.removeClass(expandedClass);
-                    $('#sidebar-env-label').fadeOut(150); // Fade out
-                    $dropdowns.removeClass('open');
-                    $('.nav-dropdown-submenu').slideUp(200);
-                    // Switch all nav-item back to nav-item-collapsed
-                    $sidebar.find('li.nav-item').removeClass('nav-item').addClass('nav-item-collapsed');
-                }
-            });
-
-            // Dropdown logic: only when expanded
-            $dropdowns.find('> .nav-link').off('click').on('click', function(e) {
-                if (!$sidebar.hasClass(expandedClass)) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return;
-                }
-                e.preventDefault();
-                var $container = $(this).closest('.nav-dropdown-container');
-                var $submenu = $container.find('.nav-dropdown-submenu').first();
-                // Close all other dropdowns
-                $dropdowns.not($container).removeClass('open').find('.nav-dropdown-submenu').slideUp(200);
-                // Toggle this one
-                $container.toggleClass('open');
-                $submenu.stop(true, true).slideToggle(200);
-            });
-
-            // Only one dropdown open at a time
-            $(".nav-dropdown-container > .nav-link").on('click', function(e) {
-                if (!$("#sidebar").hasClass("sidebar-expanded")) {
-                    e.preventDefault();
-                    return;
-                }
-                e.preventDefault();
-                var $container = $(this).closest(".nav-dropdown-container");
-                var $submenu = $container.find(".nav-dropdown-submenu").first();
-
-                // Close all other dropdowns
-                $(".nav-dropdown-container").not($container).removeClass("open")
-                    .find(".nav-dropdown-submenu").slideUp(200);
-                $(".nav-dropdown-container").not($container)
-                    .find(".chevron-up").hide();
-                $(".nav-dropdown-container").not($container)
-                    .find(".chevron-down").show();
-
-                // Toggle this one
-                var isOpen = $container.hasClass("open");
-                if (isOpen) {
-                    $container.removeClass("open");
-                    $submenu.stop(true, true).slideUp(200);
-                    $container.find(".chevron-up").hide();
-                    $container.find(".chevron-down").show();
-                } else {
-                    $container.addClass("open");
-                    $submenu.stop(true, true).slideDown(200);
-                    $container.find(".chevron-down").hide();
-                    $container.find(".chevron-up").show();
-                }
-            });
-
-            // Mobile sidebar menu logic
-            var hamburger = document.getElementById('hamburger-button');
-            var mobileMenu = document.getElementById('mobile-menu');
-            var closeBtn = document.getElementById('close-mobile-menu');
-            if (hamburger && mobileMenu && closeBtn) {
-                hamburger.addEventListener('click', function() {
-                    mobileMenu.classList.add('active');
-                });
-                closeBtn.addEventListener('click', function() {
-                    mobileMenu.classList.remove('active');
-                });
+                $container.addClass("open");
+                $submenu.stop(true, true).slideDown(200);
+                $container.find(".chevron-down").hide();
+                $container.find(".chevron-up").show();
             }
         });
 
-        $(function () {
-            $('[data-created-at]').each(function () {
-                var utc = $(this).data('created-at');
-                if (utc) {
-                    var local = new Date(utc);
-                    $(this).find('.created-at-local').text(local.toLocaleString());
-                }
+        // Mobile sidebar menu logic
+        var hamburger = document.getElementById('hamburger-button');
+        var mobileMenu = document.getElementById('mobile-menu');
+        var closeBtn = document.getElementById('close-mobile-menu');
+        if (hamburger && mobileMenu && closeBtn) {
+            hamburger.addEventListener('click', function() {
+                mobileMenu.classList.add('active');
             });
-        });
+            closeBtn.addEventListener('click', function() {
+                mobileMenu.classList.remove('active');
+            });
+        }
+    });
 
-    </script>
-    {% endblock %}
-</html>
+    $(function () {
+        $('[data-created-at]').each(function () {
+            var utc = $(this).data('created-at');
+            if (utc) {
+                var local = new Date(utc);
+                $(this).find('.created-at-local').text(local.toLocaleString());
+            }
+        });
+    });
+
+</script>
+{% endblock %}

@@ -38,7 +38,7 @@ class RestrictSSOAccessMiddleware:
                 request,
                 "You have successfully logged in via SSO, but an administrator must assign permissions before you can access anything.",
             )
-            return redirect("home")
+            return redirect("landing")
 
         return self.get_response(request)
 
@@ -173,7 +173,7 @@ class OTPRequiredMiddleware(MiddlewareMixin):
                 request,
                 "Two-Factor Authentication is required. Please enable 2FA in your profile.",
             )
-            return redirect("home")
+            return redirect("landing")
 
         if not otp_verified_key:
             messages.warning(

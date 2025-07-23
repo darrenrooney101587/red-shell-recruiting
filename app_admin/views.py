@@ -1,10 +1,20 @@
+import os
+import re
 import traceback
 
+from django.conf import settings
 from django.http import JsonResponse, Http404
 from django.shortcuts import render
 from django.contrib import messages
 from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
+from django.views.generic import TemplateView
+
+from red_shell_recruiting.models import (
+    CandidateProfile,
+    CandidateResume,
+    CandidateCulinaryPortfolio,
+)
 
 
 def privacy_policy(request):
@@ -17,6 +27,22 @@ def terms_of_service(request):
 
 def healthcheck(request):
     return JsonResponse({"status": "ok"})
+
+
+class LandingPageView(TemplateView):
+    """
+    Landing page view for the recruitment application.
+    """
+
+    template_name = "landing.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["profile_count"] = CandidateProfile.objects.count()
+        context["resume_count"] = CandidateResume.objects.count()
+        context["portfolio_count"] = CandidateCulinaryPortfolio.objects.count()
+
+        return context
 
 
 def custom_403_view(request, exception=None):
@@ -55,7 +81,7 @@ class StaticViewSitemap(Sitemap):
     changefreq = "monthly"
 
     def items(self):
-        return ["home", "privacy-policy", "terms-of-service"]
+        return ["landing", "privacy-policy", "terms-of-service"]
 
     def location(self, item):
         return reverse(item)

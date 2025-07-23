@@ -1,0 +1,14 @@
+{% extends '_base.html' %}
+{% block content %}
+<h1>SVG Components Showcase</h1>
+<div style="display: flex; flex-wrap: wrap; gap: 2rem;">
+    {% for svg_type in svg_types %}
+        <div style="width: 180px; text-align: center; padding: 1rem; border: 1px solid #eee; background: #fafafa;">
+            <div style="margin-bottom: 0.5rem; font-weight: bold;">{{ svg_type }}</div>
+            <div style="height: 48px; display: flex; align-items: center; justify-content: center;">
+                {% include 'red_shell_recruiting/components/svg_components.html' with type=svg_type %}
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
