@@ -1,3 +1,4 @@
+{% load static %}
 <div class="mobile-header d-md-none d-flex justify-content-between align-items-center px-3 py-2 bg-light">
     <div id="hamburger-button">
         <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -10,7 +11,14 @@
             </g>
         </svg>
     </div>
-    <span class="h5 mb-0" style="font-family: var(--font-famiy)">Red Shell Recruiting</span>
+    <div class="flex-display vertical-align">
+        <h2>Red Shell Recruiting</h2>
+    </div>
+    <div>
+        <a href="{% url 'home' %}" class="nav-link">
+            <img height="32" src="{% static 'img/red_shell_cropped.png' %}">
+        </a>
+    </div>
 </div>
 
 <div id="mobile-menu" class="mobile-menu d-md-none">
@@ -20,8 +28,6 @@
         <ul class="mobile-menu-list">
             <li><a href="{% url 'candidate-submit' %}">Enter Candidates</a></li>
             <li><a href="{% url 'candidate-search' %}">Search Candidates</a></li>
-            <li><a href="{% url 'setup-2fa' %}">Setup 2FA</a></li>
-            <li><a href="{% url 'backup-tokens' %}">Backup Codes</a></li>
             <li><a href="{% url 'password-change' %}">Change Password</a></li>
             {% if user.is_superuser %}
                 <li><a href="{% url 'mechanic-index' %}">Mechanic</a></li>

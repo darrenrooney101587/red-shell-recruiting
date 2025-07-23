@@ -14,7 +14,7 @@
     {% endif %}
 {% endblock %}
 {% block main %}
-    <main style="flex: 1" class="content-container" >
+    <main style="flex: 1" class="content-container {% if request.is_mobile %}mobile{% else %}desktop{% endif %}">
         <form id="csrf-token-form" style="display: none;">
             {% csrf_token %}
         </form>

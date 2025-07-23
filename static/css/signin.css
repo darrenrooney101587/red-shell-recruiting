@@ -1,17 +1,24 @@
 
-.form-signin.center-frame {
+form {
+  width: 100%
+}
+
+
+
+.form-signin {
   max-width: 330px;
 }
-.backup-codes.center-frame {
+.backup-codes {
   max-width: 450px;
 }
-.qr-codes.center-frame {
+.qr-codes {
+  max-width: 550px;
+
+}
+.opt-check {
   max-width: 550px;
 }
-.opt-check.center-frame {
-  max-width: 550px;
-}
-.disable-2fa.center-frame {
+.disable-2fa {
   max-width: 550px;
 }
 .form-signin .checkbox {

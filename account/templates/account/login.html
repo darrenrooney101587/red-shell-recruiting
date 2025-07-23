@@ -3,25 +3,15 @@
 {% block css-extra %}
     <link rel="stylesheet" href="{% static 'css/signin.css' %}">
     <link rel="stylesheet" href="{% static 'css/common.css' %}">
-    <style>
-        html,
-        body {
-            height: 100%;
-        }
-        body {
-            display: flex;
-            align-items: center;
-        }
-    </style>
 {% endblock %}
 {% block title %}Login{% endblock %}
 {% block body-class %}text-center{% endblock %}
-{% block body %}
-    <div class="form-signin center-frame">
+{% block main %}
+    <div class="form-signin center-frame flex-display vertical-align">
         <form method="post">
             {% csrf_token %}
             <div class="flex-display vertical-align justify-center" style="margin-bottom: 2rem;">
-                <img class="" src="{% static 'img/red_shell_horizontal_cropped.png' %}" height="100" alt="">
+                <img class="" src="{% static 'img/red_shell_horizontal_cropped.png' %}" height="50" alt="">
             </div>
             {% if messages %}
                 {% for message in messages %}

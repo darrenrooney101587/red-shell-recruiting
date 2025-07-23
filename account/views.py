@@ -32,6 +32,7 @@ from account.utilities import get_client_ip_address
 logger = logging.getLogger(__name__)
 
 
+@login_required
 def change_password_view(request):
     if request.method == "POST":
         form = PasswordChangeForm(request.user, request.POST)
@@ -113,7 +114,7 @@ def custom_login_view(request):
                     )
                     return redirect("setup-2fa")
             else:
-                return redirect("/")
+                return redirect("red_shell_recruiting/index.html")
 
         else:
             LoginAttempt.record_attempt(username, client_ip, success=False)
@@ -128,7 +129,7 @@ def custom_logout_view(request):
     request.session.pop(otp_verified_key, None)
     request.session.pop(otp_timestamp_key, None)
     logout(request)
-    return redirect("login")
+    return redirect("/")
 
 
 @login_required

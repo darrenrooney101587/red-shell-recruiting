@@ -172,6 +172,8 @@
     --chart-lines: rgba(0, 0, 0, .1);
     /*--font-famiy: 'Montserrat';*/
     --font-family: 'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"';
+    --header-height: 64px;
+    --fooder-height: 94px
 }
 
 .body {
@@ -236,6 +238,7 @@ pre,
 label {
     font-size: 12px;
     font-family: var(--font-famiy), sans-serif;
+    font-weight: 600;
 }
 
 a:hover {
@@ -267,9 +270,12 @@ h6 {
 }
 
 .center-frame {
-    width: 100%;
-    padding: 15px;
+    height: calc(100vh - var(--header-height) - var(--fooder-height));
     margin: auto;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    flex-direction: row;
 }
 
 .overlay {
@@ -282,9 +288,10 @@ h6 {
     z-index: 1;
 }
 
-.hero-section {
-    background: linear-gradient(135deg, #f8fafc 0%, #e0e7ef 100%);
+#hero-section {
+    min-height: calc(100vh - var(--header-height) - var(--fooder-height)); background: linear-gradient(135deg, #f8fafc 0%, #e0e7ef 100%);
 }
+
 .logo-img {
     height: 64px;
 }
@@ -1372,6 +1379,10 @@ li.nav-item.sub {
     width: 100%
 }
 
+#change-password-container {
+    height: calc(100vh - var(--header-height) - var(--fooder-height))
+}
+
 #change-password {
     width: 400px;
     margin: 0 auto;
@@ -1407,6 +1418,14 @@ li.nav-item.sub {
 }
 
 
+.content-container.desktop {
+    padding-left: 75px;
+}
+
+.content-container.mobile {
+    padding: 1rem;
+}
+
 .content-container {
     flex: 1;
     width: 100%;
@@ -1415,6 +1434,7 @@ li.nav-item.sub {
     padding-top: 1.5rem;
     padding-bottom: 3rem;
     box-sizing: border-box;
+    min-height: calc(100vh - var(--header-height) - var(--fooder-height));
 }
 
 .placement-line-item {

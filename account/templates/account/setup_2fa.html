@@ -6,9 +6,9 @@
     <link rel="stylesheet" href="{% static 'css/signin.css' %}">
 {% endblock %}
 {% is_mobile_device as is_mobile %}
-{% block content %}
-    <div class="theme">
-        <div class="qr-codes center-frame section">
+{% block main %}
+    <div class="center-frame flex-display">
+        <div class="qr-codes section">
             <h2 class="natural-header">Setup Two-Factor Authentication</h2>
             <hr>
             {% if already_setup %}
