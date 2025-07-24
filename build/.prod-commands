@@ -1,0 +1,11 @@
+# copy ssh key to ec2 to pull from github
+scp -i /Users/darren.rooney/Documents/personal/red-shell-recruiting/red-shell-recruiting-prod.pem ~/.ssh/id_red_shell_recruiting ec2-user@3.21.170.36:~/.ssh/id_red_shell_recruiting
+
+# get cert
+docker-compose run --rm certbot certonly \
+  --webroot \
+  --webroot-path=/var/www/certbot \
+  --email darren.rooney101587@outlook.com\
+  --agree-tos \
+  --no-eff-email \
+  -d redshellrecruiting.com -d www.redshellrecruiting.com

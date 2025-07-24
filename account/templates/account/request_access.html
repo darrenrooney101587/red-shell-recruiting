@@ -1,0 +1,41 @@
+{% extends '_base.html' %}
+{% load static %}
+{% block title %}Request Access{% endblock %}
+{% block main %}
+    <div class="center-frame">
+        <form id="request-access" class="section" method="post">
+            <h2>Request Access</h2>
+            <hr>
+            {% csrf_token %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+            <table>
+                <tr>
+                    <td><label for="first_name">First Name</label></td>
+                    <td><input type="text" id="first_name" name="first_name" maxlength="100" required class="text-input"></td>
+                </tr>
+                <tr>
+                    <td><label for="last_name">Last Name</label></td>
+                    <td><input type="text" id="last_name" name="last_name" maxlength="100" required class="text-input"></td>
+                </tr>
+                <tr>
+                    <td><label for="email">Email</label></td>
+                    <td><input type="email" id="email" name="email" required class="text-input"></td>
+                </tr>
+                <tr>
+                    <td><label for="manager">Manager</label></td>
+                    <td><input type="text" id="manager" name="manager" maxlength="100" required class="text-input"></td>
+                </tr>
+                <tr>
+                    <td><label for="reason">Reason for Access</label></td>
+                    <td><textarea id="reason" name="reason" required class="text-input"></textarea></td>
+                </tr>
+            </table>
+            <hr>
+            <button class="button large" style="font-size: 12px" type="submit">Submit Request</button>
+        </form>
+    </div>
+{% endblock %}

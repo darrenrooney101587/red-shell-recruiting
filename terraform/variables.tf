@@ -42,3 +42,17 @@ variable "rds_subnet_ids" {
   description = "List of subnet IDs for RDS subnet group"
   type        = list(string)
 }
+
+variable "aws_region" {
+  type    = string
+  default = "us-east-2"
+}
+
+variable "aws_profile" {
+  type = string
+}
+
+variable "public_subnet_id" {
+  description = "The subnet ID for the public EC2 instance."
+  type        = string
+}

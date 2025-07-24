@@ -1,5 +1,6 @@
 provider "aws" {
-  region = "us-east-2"
+  region  = var.aws_region
+  profile = var.aws_profile
 }
 
 data "aws_vpc" "default" {
@@ -59,19 +60,6 @@ resource "aws_security_group" "red_shell_prod_sg" {
   }
 }
 
-resource "aws_instance" "web" {
-  ami                         = var.ami_id
-  instance_type               = "t2.micro"
-  subnet_id                   = data.aws_subnet.public_2b.id
-  vpc_security_group_ids      = [aws_security_group.red_shell_prod_sg.id]
-  key_name                    = var.key_name
-  associate_public_ip_address = true
-
-  tags = {
-    Name = var.instance_name
-  }
-}
-
 resource "aws_eip_association" "eip_attach" {
   instance_id   = aws_instance.web.id
   allocation_id = var.eip_allocation_id
@@ -88,14 +76,40 @@ output "instance_id" {
 resource "aws_instance" "web" {
   ami                    = var.ami_id
   instance_type          = "t2.micro"
-  subnet_id              = data.aws_subnet.public_2b.id
+  subnet_id              = var.public_subnet_id
   vpc_security_group_ids = [aws_security_group.red_shell_prod_sg.id]
   key_name               = var.key_name
   associate_public_ip_address = true
 
-  user_data = file("${path.module}/user_data.sh")
+  root_block_device {
+    delete_on_termination = false
+  }
+
+  user_data = file("${path.module}/web_app_startup.sh")
 
   tags = {
     Name = var.instance_name
+  }
+}
+
+resource "aws_s3_bucket" "red_shell_recruiting_prod" {
+  bucket = "red-shell-recruiting-prod"
+}
+
+resource "aws_s3_bucket_versioning" "red_shell_recruiting_prod_versioning" {
+  bucket = aws_s3_bucket.red_shell_recruiting_prod.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket" "red_shell_recruiting_dev" {
+  bucket = "red-shell-recruiting-dev"
+}
+
+resource "aws_s3_bucket_versioning" "red_shell_recruiting_dev_versioning" {
+  bucket = aws_s3_bucket.red_shell_recruiting_dev.id
+  versioning_configuration {
+    status = "Enabled"
   }
 }

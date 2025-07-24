@@ -28,6 +28,9 @@ from django.contrib.auth.models import Group, User
 
 from account.models import LoginAttempt
 from account.utilities import get_client_ip_address
+from django.core.mail import send_mail
+from django.urls import reverse
+from account.forms import RequestAccessForm
 
 logger = logging.getLogger(__name__)
 
@@ -450,3 +453,76 @@ class CustomSAMLBackend(Saml2Backend):
         user.save()
 
         return user
+
+
+def request_access_view(request):
+    """Handle user access requests and notify admin."""
+    if request.method == "POST":
+        first_name = request.POST.get("first_name", "").strip()
+        last_name = request.POST.get("last_name", "").strip()
+        email = request.POST.get("email", "").strip()
+        reason = request.POST.get("reason", "").strip()
+        manager = request.POST.get("manager", "").strip()
+        if not (first_name and last_name and email and reason and manager):
+            messages.error(request, "All fields are required.")
+            return render(request, "account/request_access.html")
+        username = f"{first_name.lower()}.{last_name.lower()}"
+        admin_email = getattr(settings, "REQUEST_ACCESS_ADMIN_EMAIL", None)
+        if not admin_email:
+            messages.error(request, "Admin email not configured.")
+            return render(request, "account/request_access.html")
+        approval_url = request.build_absolute_uri(
+            reverse("approve-access") + f"?username={username}&email={email}"
+        )
+        subject = "New Access Request"
+        message = (
+            f"A new user has requested access.\n\n"
+            f"Name: {first_name} {last_name}\n"
+            f"Email: {email}\n"
+            f"Manager: {manager}\n"
+            f"Reason: {reason}\n"
+            f"Username: {username}\n\n"
+            f"Approve or deny: {approval_url}"
+        )
+        send_mail(subject, message, None, [admin_email])
+        messages.success(request, "Your request has been submitted.")
+        return redirect("login")
+    return render(request, "account/request_access.html")
+
+
+from django.views.decorators.csrf import csrf_exempt
+
+
+@csrf_exempt
+def approve_access_view(request):
+    """Admin approval/denial for access requests."""
+    from django.contrib.auth.models import User
+    from django.utils.crypto import get_random_string
+    from django.core.mail import send_mail
+
+    username = request.GET.get("username")
+    email = request.GET.get("email")
+    approved = request.POST.get("approve")
+    denied = request.POST.get("deny")
+    context = {"username": username, "email": email}
+
+    if request.method == "POST":
+        if approved:
+            # Generate random password
+            password = get_random_string(12)
+            user, created = User.objects.get_or_create(
+                username=username, defaults={"email": email}
+            )
+            user.set_password(password)
+            user.save()
+            # Email credentials to user
+            subject = "Your Access Has Been Approved"
+            message = f"Your account has been approved.\n\nUsername: {username}\nPassword: {password}\nLogin at: {request.build_absolute_uri(reverse('login'))}"
+            send_mail(subject, message, None, [email])
+            context["approved"] = True
+        elif denied:
+            subject = "Your Access Request Was Denied"
+            message = "Your request for access has been denied. Please contact your administrator for more information."
+            send_mail(subject, message, None, [email])
+            context["denied"] = True
+    return render(request, "account/approve_access.html", context)

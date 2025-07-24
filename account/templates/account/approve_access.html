@@ -1,0 +1,21 @@
+{% extends '_base.html' %}
+{% block title %}Approve Access Request{% endblock %}
+{% block main %}
+<div class="center-frame">
+    <form id="approve-access" class="section" method="post">
+        <h2>Approve or Deny Access</h2>
+        <hr>
+        {% csrf_token %}
+        <p><strong>Username:</strong> {{ username }}</p>
+        <p><strong>Email:</strong> {{ email }}</p>
+        {% if approved %}
+            <div class="general-success-bg alert">Access approved and credentials sent to user.</div>
+        {% elif denied %}
+            <div class="general-failed-bg alert">Access request denied and user notified.</div>
+        {% else %}
+            <button class="button green" name="approve" value="1" type="submit">Approve</button>
+            <button class="button red" name="deny" value="1" type="submit">Deny</button>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}

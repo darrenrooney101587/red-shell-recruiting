@@ -1,4 +1,4 @@
-red-shell-recruiting-dev.pem
+red-shell-recruiting-prod.pem
 /.commands
 .env
 /.idea/
@@ -6,3 +6,7 @@ red-shell-recruiting.iml
 .env.prod
 /staticfiles/
 /reporting-sync-server.sock
+terraform.tfstate.backup
+terraform.tfstate
+.terraform.lock.hcl
+/terraform/.terraform/
