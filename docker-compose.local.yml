@@ -63,14 +63,15 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./nginx_local/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx_local/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx_local/conf.d:/etc/nginx/conf.d:ro
       - .:/app
       - static_volume:/app/staticfiles
     depends_on:
       - web
     networks:
       - red-shell-recruiting_red-shell-recruiting
-
+      -
 volumes:
   postgres_data:
   static_volume:
