@@ -225,7 +225,7 @@ if os.getenv("SETUP_SSO"):
         "xmlsec_binary": os.getenv(
             "XMLSEC_BINARY", shutil.which("xmlsec1") or "/usr/bin/xmlsec1"
         ),
-        "entityid": f"sp-bms-admin-local",
+        "entityid": f"sp-red-shell-recruiting-local",
         "metadata": {"local": [SAML_OUTPUT_FILE]},
         "attribute_mapping": {
             "uid": ("username",),

@@ -36,5 +36,5 @@ DEPLOY_ENV="${DEPLOY_ENV:-prod}"
 if [ "$DEPLOY_ENV" = "prod" ]; then
   sudo -u ec2-user docker-compose -f docker-compose.prod.yml --env-file .env.prod --profile production up --build -d
 else
-  sudo -u ec2-user docker-compose -f docker-compose.local.yml  --env-file .env up -d
+  sudo -u ec2-user docker-compose -f docker-compose.dev.yml  --env-file .env up --build -d
 fi
