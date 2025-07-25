@@ -71,7 +71,7 @@ services:
       - web
     networks:
       - red-shell-recruiting_red-shell-recruiting
-      -
+
 volumes:
   postgres_data:
   static_volume:
