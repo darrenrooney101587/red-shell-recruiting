@@ -1,4 +1,4 @@
-red-shell-recruiting-prod.pem
+*.pem
 /.commands
 .env
 /.idea/

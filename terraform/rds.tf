@@ -1,6 +1,11 @@
 resource "aws_db_subnet_group" "rds_public" {
   name       = "rds-public-subnet-group"
-  subnet_ids = var.rds_subnet_ids
+  subnet_ids = [
+    aws_subnet.rds_pvt_3.id,
+    aws_subnet.rds_public_2a.id,
+    aws_subnet.rds_public_2b.id,
+    aws_subnet.public_2c.id
+  ]
 
   tags = {
     Name = "rds-public-subnet-group"
@@ -10,7 +15,7 @@ resource "aws_db_subnet_group" "rds_public" {
 resource "aws_db_instance" "postgres" {
   identifier              = var.db_identifier
   engine                  = "postgres"
-  engine_version          = "15.3"
+  engine_version          = "15"
   instance_class          = "db.t3.micro"
   allocated_storage       = 20
   db_name                 = "postgres"

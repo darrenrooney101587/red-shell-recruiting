@@ -1,7 +1,10 @@
 import os
 import shutil
 from pathlib import Path
+from typing import Any
 
+import boto3
+import json
 from dotenv import load_dotenv
 from django.contrib.messages import constants as messages
 
@@ -122,19 +125,54 @@ if DEBUG_TOOLBAR:
     INSTALLED_APPS.append("debug_toolbar")
     print("[STARTUP] Installed DEBUG_TOOLBAR")
 
+
+def get_aws_secret(secret_name: str, region_name: str) -> dict[str, Any]:
+    """
+    Retrieve a secret from AWS Secrets Manager.
+    Args:
+        secret_name: The name of the secret.
+        region_name: The AWS region.
+    Returns:
+        The secret as a dictionary.
+    Raises:
+        Exception: If unable to retrieve the secret.
+    """
+    session = boto3.session.Session()
+    client = session.client(service_name="secretsmanager", region_name=region_name)
+    get_secret_value_response = client.get_secret_value(SecretId=secret_name)
+    secret = get_secret_value_response["SecretString"]
+    return json.loads(secret)
+
+
+# AWS Secrets Manager integration
+try:
+    USE_AWS_SECRETS = os_env_boolean("USE_AWS_SECRETS", "false")
+    if USE_AWS_SECRETS:
+        AWS_SECRET_NAME = os.environ.get("AWS_SECRET_NAME", "red-shell-db-credentials")
+        AWS_REGION = os.environ.get("AWS_REGION", "us-east-2")
+        DB_SECRET = get_aws_secret(AWS_SECRET_NAME, AWS_REGION)
+        DB_NAME = DB_SECRET.get("dbname", "postgres")
+        DB_USER = DB_SECRET["username"]
+        DB_PASSWORD = DB_SECRET["password"]
+        DB_HOST = os.environ.get("DB_HOST", "")
+        DB_PORT = os.environ.get("DB_PORT", "5432")
+    else:
+        raise Exception("USE_AWS_SECRETS is false")
+except Exception:
+    DB_NAME = os.getenv("POSTGRES_DB", "postgres")
+    DB_USER = os.getenv("POSTGRES_USER", "postgres")
+    DB_PASSWORD = os.getenv("POSTGRES_PASSWORD", "")
+    DB_HOST = os.getenv("POSTGRES_HOST", "localhost")
+    DB_PORT = os.getenv("POSTGRES_PORT", "5432")
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("POSTGRES_DB"),
-        "USER": os.getenv("POSTGRES_USER"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-        # use localhost reference to "db" which is our docker-compose service id
-        "HOST": "db"
-        if os_env_boolean("LOCAL_DOCKER", False)
-        else os.getenv("POSTGRES_HOST"),
-        "PORT": 5432
-        if os_env_boolean("LOCAL_DOCKER", False)
-        else os.getenv("POSTGRES_PORT"),
+        "NAME": DB_NAME,
+        "USER": DB_USER,
+        "PASSWORD": DB_PASSWORD,
+        "HOST": DB_HOST,
+        "PORT": DB_PORT,
     }
 }
 

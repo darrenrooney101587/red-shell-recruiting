@@ -1,7 +1,6 @@
 variable "instance_name" {
   description = "The name tag for the EC2 instance"
   type        = string
-  default     = "red-shell-prod"
 }
 
 variable "ami_id" {
@@ -12,7 +11,6 @@ variable "ami_id" {
 variable "key_name" {
   description = "SSH key pair name to use for EC2 instance"
   type        = string
-  default     = "red-shell-recruiting-dev"
 }
 
 variable "eip_allocation_id" {
@@ -38,11 +36,6 @@ variable "db_password" {
   sensitive   = true
 }
 
-variable "rds_subnet_ids" {
-  description = "List of subnet IDs for RDS subnet group"
-  type        = list(string)
-}
-
 variable "aws_region" {
   type    = string
   default = "us-east-2"
@@ -52,7 +45,13 @@ variable "aws_profile" {
   type = string
 }
 
-variable "public_subnet_id" {
-  description = "The subnet ID for the public EC2 instance."
+variable "route53_zone_name" {
+  description = "The domain name for the Route53 hosted zone (e.g., redshellrecruiting.com or dev.redshellrecruiting.com)"
   type        = string
+}
+
+variable "deploy_env" {
+  description = "Deployment environment (dev or prod)"
+  type        = string
+  default     = "prod"
 }
