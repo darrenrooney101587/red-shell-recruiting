@@ -63,8 +63,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./nginx_local/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx_local/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx_local/nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - .:/app
       - static_volume:/app/staticfiles
     depends_on:
