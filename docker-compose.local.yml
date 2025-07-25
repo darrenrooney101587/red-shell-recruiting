@@ -15,7 +15,7 @@ services:
     environment:
       - PORT=${CONTAINER_PORT:-5000}
       - PYTHONPATH=/app/
-    entrypoint: [ "/bin/bash", "/docker-entrypoint.sh" ]
+    entrypoint: [ "/bin/bash", "/config/docker-entrypoint-local.sh" ]
     expose:
       - "${CONTAINER_PORT:-5000}"
     networks:
