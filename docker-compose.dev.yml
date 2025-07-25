@@ -10,8 +10,6 @@ services:
       - static_volume:/app/staticfiles
     env_file:
       - .env
-    depends_on:
-      - db
     environment:
       - PORT=${CONTAINER_PORT:-5000}
       - PYTHONPATH=/app/
