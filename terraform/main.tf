@@ -206,18 +206,6 @@ resource "aws_iam_user_policy_attachment" "file_uploader_attach" {
   policy_arn = aws_iam_policy.file_uploader_s3_policy.arn
 }
 
-resource "aws_route53_zone" "main" {
-  name = var.route53_zone_name
-}
-
-resource "aws_route53_record" "app" {
-  zone_id = aws_route53_zone.main.zone_id
-  name    = var.route53_zone_name
-  type    = "A"
-  ttl     = 300
-  records = [aws_eip.web_eip.public_ip]
-}
-
 resource "aws_internet_gateway" "main_gw" {
   vpc_id = aws_vpc.main.id
   tags = {
