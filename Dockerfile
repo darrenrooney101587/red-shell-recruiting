@@ -34,6 +34,7 @@ COPY . .
 
 COPY ./config/docker-entrypoint.sh /docker-entrypoint.sh
 COPY ./config/docker-entrypoint-celery.sh /docker-entrypoint-celery.sh
+COPY config/docker-entrypoint-local.sh /config/docker-entrypoint-local.sh
 RUN chmod +x /docker-entrypoint.sh /docker-entrypoint-celery.sh
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
