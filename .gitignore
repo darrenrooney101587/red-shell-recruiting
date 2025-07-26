@@ -4,6 +4,7 @@
 /.idea/
 red-shell-recruiting.iml
 .env.prod
+.env.dev
 /staticfiles/
 /reporting-sync-server.sock
 terraform.tfstate.backup

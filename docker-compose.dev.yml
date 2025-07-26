@@ -9,7 +9,7 @@ services:
       - .:/app
       - static_volume:/app/staticfiles
     env_file:
-      - .env
+      - .env.dev
     environment:
       - PORT=${CONTAINER_PORT:-5000}
       - PYTHONPATH=/app/
@@ -20,19 +20,6 @@ services:
       - red-shell-recruiting_red-shell-recruiting
     ports:
       - "5000:5000"
-
-#  db:
-#    image: postgres:15
-#    ports:
-#      - "5565:5432"
-#    environment:
-#      POSTGRES_USER: postgres
-#      POSTGRES_PASSWORD: postgres
-#      POSTGRES_DB: postgres
-#    volumes:
-#      - postgres_data:/var/lib/postgresql/data
-#    networks:
-#      - red-shell-recruiting_red-shell-recruiting
 
   redis:
     image: redis:7
@@ -48,7 +35,7 @@ services:
       - redis
       - web
     env_file:
-      - .env
+      - .env.dev
     environment:
       - DJANGO_SETTINGS_MODULE=app_admin.settings
     volumes:
