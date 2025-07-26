@@ -16,40 +16,40 @@ from red_shell_recruiting.views import (
 
 urlpatterns = [
     path("svg-showcase/", svg_showcase, name="svg_showcase"),
-    path(
-        "candidate-submit/",
-        views.CandidateInput.as_view(),
-        name="candidate-submit",
-    ),
+    path("candidate-submit/", views.CandidateInput.as_view(), name="candidate-submit"),
     path("candidate-search/", CandidateSearch.as_view(), name="candidate-search"),
-    path("<int:candidate_id>/", CandidateDetail.as_view(), name="candidate-detail"),
     path(
-        "resume/archive/<int:resume_id>/",
+        "candidate-detail/<int:candidate_id>/",
+        CandidateDetail.as_view(),
+        name="candidate-detail",
+    ),
+    path(
+        "api/resume/archive/<int:resume_id>/",
         ArchiveResume.as_view(),
         name="archive-resume",
     ),
     path(
-        "document/archive/<int:document_id>/",
+        "api/document/archive/<int:document_id>/",
         ArchiveDocument.as_view(),
         name="archive-document",
     ),
     path(
-        "candidate/culinary-portfolio/<int:portfolio_id>/archive/",
+        "api/archive/culinary-portfolio/<int:portfolio_id>/",
         ArchiveCulinaryPortfolio.as_view(),
         name="archive-culinary-portfolio",
     ),
     path(
-        "candidate/<int:candidate_id>/upload-resume/",
+        "api/<int:candidate_id>/upload-resume/",
         UploadResume.as_view(),
         name="upload-resume",
     ),
     path(
-        "candidate/<int:candidate_id>/upload-culinary-portfolio/",
+        "api/<int:candidate_id>/upload-culinary-portfolio/",
         UploadCulinaryPortfolio.as_view(),
         name="upload-culinary-portfolio",
     ),
     path(
-        "candidate/<int:candidate_id>/upload-document/",
+        "api/<int:candidate_id>/upload-document/",
         UploadDocument.as_view(),
         name="upload-document",
     ),
@@ -68,12 +68,12 @@ urlpatterns = [
         name="candidate-ownership-list",
     ),
     path(
-        "candidate/<int:candidate_id>/journal_entries/",
+        "api/journal_entries/<int:candidate_id>",
         views.JournalEntryView.as_view(),
         name="journal-entries",
     ),
     path(
-        "candidate/<int:candidate_id>/placement_records/",
+        "api/placement_records/<int:candidate_id>/",
         views.PlacementRecordView.as_view(),
         name="placement-records",
     ),

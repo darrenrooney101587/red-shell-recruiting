@@ -1402,11 +1402,6 @@ li.nav-item.sub {
     opacity: 0.5;
 }
 
-.custom-close svg {
-    position: relative;
-    top: 3px;
-}
-
 .button.remove-placement svg {
     position: relative;
     /*top: 1px;*/
@@ -1481,8 +1476,8 @@ li.nav-item.sub {
 @media (max-width: 768px) {
     #hero-section .flex-display.vertical-align {
         flex-direction: column !important;
-         gap: 2rem !important;
-         /*align-items: stretch !important;*/
+        gap: 2rem !important;
+        /*align-items: stretch !important;*/
     }
     #hero-section .flex-display.vertical-align > div {
         width: 100% !important;

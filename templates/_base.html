@@ -28,7 +28,6 @@
     {% include 'components/footer.html' %}
 {% endblock %}
 {% block script %}
-<script src="{% static 'js/candidate_edit_save.js' %}" crossorigin="anonymous"></script>
 <script>
 
     function getValidations(debug=false) {
@@ -92,11 +91,9 @@
         });
     }
 
-    function validationClose() {
-        $(document).on('click', '.custom-close', function() {
-            $(this).closest('.alert').fadeOut('slow');
-        });
-    }
+    $(document).on('click', '.custom-close', function() {
+        $(this).closest('.alert').fadeOut('slow');
+    });
 
     function validateField({ selector, name, msg, customCheck }, event, debug=false) {
         const value = $(selector).val()?.trim();
@@ -263,9 +260,26 @@
         });
     }
 
-    function addClientMessage(messageText, messageType = 'error') {
-        {#console.log(messageText, messageType, messageType);#}
-        $('.messages').empty();
+    /**
+     * Display a client message in the closest .messages container to the triggering element, or globally if no context.
+     * @param {string} messageText - The message to display.
+     * @param {string} messageType - 'success' or 'error'.
+     * @param {HTMLElement|JQuery} [contextElem] - Optional. The element relative to which the message should be shown.
+     */
+    function addClientMessage(messageText, messageType = 'error', contextElem) {
+        let $container;
+        if (contextElem) {
+            $container = $(contextElem).closest('.section, form, .placement-mobile-fields, .journal-mobile-fields').find('.messages').first();
+            if ($container.length === 0) {
+                $container = $(contextElem).closest('.messages');
+            }
+            if ($container.length === 0) {
+                $container = $('.messages').first();
+            }
+        } else {
+            $container = $('.messages').first();
+        }
+        $container.empty();
         const alertClass = messageType === 'success' ? 'alert-success' : 'alert-danger';
         const messageHtml = `
             <div class="alert ${alertClass} alert-dismissible fade show flex-display space-between vertical-align" role="alert" style="width: 100%;">
@@ -273,7 +287,7 @@
                 {% include 'red_shell_recruiting/components/candidate_close_button.html' %}
             </div>
         `;
-        $('.messages').append(messageHtml);
+        $container.append(messageHtml);
     }
 
     function getCSRFToken() {
@@ -298,7 +312,7 @@
         $('.candidate-card').on('click', function() {
             var candidateId = $(this).data('candidate-id');
             if (candidateId) {
-                window.location.href = '/candidate/' + candidateId + '/';
+                window.location.href = '/candidate/candidate-detail/' + candidateId + '/';
             }
         });
 

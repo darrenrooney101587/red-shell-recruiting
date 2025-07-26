@@ -308,7 +308,7 @@ function handleNewJournalEntry() {
         var meetingDate = $('#journal-meeting-date').val();
         var notes = $('#journal-notes').val();
         if (!meetingDate || !notes) {
-            alert('Please enter both date and notes.');
+            addClientMessage('Please enter both date and notes.', 'error', this);
             return;
         }
         $.ajax({
@@ -325,7 +325,7 @@ function handleNewJournalEntry() {
                 loadJournalEntries();
             },
             error: function(xhr) {
-                alert('Error: ' + xhr.responseText);
+                addClientMessage('Error: ' + xhr.responseText, 'error', '#add-journal-entry-btn');
             }
         });
     });
@@ -362,7 +362,7 @@ function handleAddPlacementRecord() {
         var compensation = $('#placement-compensation').val();
 
         if (!placementId || !month || !year || !compensation) {
-            alert('Please fill in all placement fields.');
+            addClientMessage('Please fill in all placement fields.', 'error', this);
             return;
         }
 
@@ -385,7 +385,7 @@ function handleAddPlacementRecord() {
                 loadPlacementRecords();
             },
             error: function(xhr) {
-                alert('Error: ' + xhr.responseText);
+                addClientMessage('Error: ' + xhr.responseText, 'error', '#add-placement-record-btn');
             }
         });
     });
@@ -426,6 +426,30 @@ function handleClientPlacementDropdown() {
             $('.dropdown-list').hide();
         }
     });
+}
+
+/**
+ * Display a client message in the closest .messages container to the triggering element.
+ * @param {string} messageText - The message to display.
+ * @param {string} messageType - 'success' or 'error'.
+ * @param {HTMLElement|JQuery} [contextElem] - Optional. The element relative to which the message should be shown.
+ */
+function addClientMessage(messageText, messageType = 'error', contextElem) {
+    let $container;
+    if (contextElem) {
+        $container = $(contextElem).closest('.section, form, .placement-mobile-fields, .journal-mobile-fields').find('.messages').first();
+    } else {
+        $container = $('.messages').first();
+    }
+    $container.empty();
+    const alertClass = messageType === 'success' ? 'alert-success' : 'alert-danger';
+    const messageHtml = `
+        <div class="alert ${alertClass} alert-dismissible fade show flex-display space-between vertical-align" role="alert" style="width: 100%;">
+            <span class="message-text">${messageText}</span>
+            {% include 'red_shell_recruiting/components/candidate_close_button.html' %}
+        </div>
+    `;
+    $container.append(messageHtml);
 }
 
 $(document).ready(function() {

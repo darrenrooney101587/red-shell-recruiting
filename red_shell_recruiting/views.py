@@ -748,7 +748,6 @@ class JournalEntryView(View):
         return HttpResponse("OK")
 
 
-@method_decorator(login_required, name="dispatch")
 class PlacementRecordView(View):
     """View for handling candidate placement records (GET for list, POST for add, DELETE for remove)."""
 
