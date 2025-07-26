@@ -98,7 +98,7 @@ class CandidateProfile(models.Model):
     email = models.EmailField(unique=True)
     compensation_from = models.DecimalField(max_digits=10, decimal_places=2)
     compensation_to = models.DecimalField(max_digits=10, decimal_places=2)
-    notes = models.TextField(null=True, blank=True)
+    entry_notes = models.TextField(null=True, blank=True)
     open_to_relocation = models.BooleanField(default=False)
     currently_working = models.BooleanField(default=True)
     actively_looking = models.BooleanField(default=False)
@@ -141,7 +141,7 @@ class CandidateProfile(models.Model):
             + SearchVector("city", weight="B")
             + SearchVector("state", weight="B")
             + SearchVector("email", weight="C")
-            + SearchVector("notes", weight="D")
+            + SearchVector("entry_notes", weight="D")
             + SearchVector("title__display_name", weight="B")
         )
         self.save(update_fields=["search_document"])
@@ -317,3 +317,29 @@ class CandidateCulinaryPortfolio(models.Model):
         ]
         verbose_name_plural = "Candidate Culinary Portfolios"
         verbose_name = "Candidate Culinary Portfolio"
+
+
+class JournalEntry(models.Model):
+    """Model for candidate journal entries (meeting notes)."""
+
+    candidate = models.ForeignKey(
+        "CandidateProfile", on_delete=models.CASCADE, related_name="journal_entries"
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="journal_entries",
+    )
+    meeting_date = models.DateField()
+    notes = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-meeting_date", "-created_at"]
+        verbose_name = "Journal Entry"
+        verbose_name_plural = "Journal Entries"
+
+    def __str__(self) -> str:
+        """Return a string representation of the journal entry."""
+        return f"JournalEntry({self.candidate}, {self.user}, {self.meeting_date})"

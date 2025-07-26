@@ -1521,3 +1521,29 @@ li.nav-item.sub {
         font-size: 28px !important;
     }
 }
+
+
+@media (max-width: 600px) {
+    .placement-mobile-fields, .journal-mobile-fields {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .placement-mobile-row {
+        display: flex;
+        flex-direction: row;
+        gap: 0.5rem;
+        width: 100%;
+    }
+    .placement-mobile-half {
+        width: 50%;
+        margin-top: 1rem;
+    }
+    .placement-mobile-full {
+        width: 100%;
+        margin-top: 1rem;
+    }
+    #add-placement-record-btn, #add-journal-entry-btn {
+        width: 100%;
+    }
+}

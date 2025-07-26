@@ -12,6 +12,12 @@ from django.db.models.expressions import RawSQL
 from django.http import JsonResponse
 from django.views.generic import TemplateView
 from django.contrib.auth.models import User
+from django.views.decorators.http import require_POST
+from django.template.loader import render_to_string
+from django.http import HttpResponse, HttpRequest
+from django.views import View
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 from red_shell_recruiting.tasks import (
     update_resume_search_vector,
@@ -19,7 +25,6 @@ from red_shell_recruiting.tasks import (
 )
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.views import View
 from django.db import IntegrityError, transaction
 
 from red_shell_recruiting.models import (
@@ -32,6 +37,7 @@ from red_shell_recruiting.models import (
     CandidateOwnership,
     CandidateCulinaryPortfolio,
     CandidateProfileSource,
+    JournalEntry,
 )
 
 
@@ -444,6 +450,8 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
             placement_month = request.POST.get(f"placement_month_{i}")
             placement_year = request.POST.get(f"placement_year_{i}")
             placement_compensation = request.POST.get(f"placement_compensation_{i}")
+            if placement_compensation is not None:
+                placement_compensation = str(placement_compensation).replace(",", "")
             record_id = request.POST.get(f"placement_record_id_{i}")
             delete_flag = request.POST.get(f"delete_placement_{i}") == "true"
 
@@ -704,3 +712,88 @@ class UploadCulinaryPortfolio(LoginRequiredMixin, View):
             return JsonResponse({"success": True})
 
         return JsonResponse({"success": False, "error": "No file uploaded"}, status=400)
+
+
+@method_decorator(login_required, name="dispatch")
+class JournalEntryView(View):
+    """View for handling candidate journal entries (GET for list, POST for add)."""
+
+    def get(self, request: HttpRequest, candidate_id: int) -> HttpResponse:
+        """Return rendered HTML of all journal entries for a candidate, newest first."""
+        candidate = get_object_or_404(CandidateProfile, id=candidate_id)
+        entries = JournalEntry.objects.filter(candidate=candidate).order_by(
+            "-meeting_date", "-created_at"
+        )
+        context = {"entries": entries}
+        html = render_to_string(
+            "red_shell_recruiting/components/journal_entries_list.html",
+            context,
+            request=request,
+        )
+        return HttpResponse(html)
+
+    def post(self, request: HttpRequest, candidate_id: int) -> HttpResponse:
+        """Create a new journal entry for a candidate via AJAX POST."""
+        candidate = get_object_or_404(CandidateProfile, id=candidate_id)
+        meeting_date = request.POST.get("meeting_date")
+        notes = request.POST.get("notes")
+        if not meeting_date or not notes:
+            return HttpResponse("Missing meeting date or notes.", status=400)
+        JournalEntry.objects.create(
+            candidate=candidate,
+            user=request.user,
+            meeting_date=meeting_date,
+            notes=notes,
+        )
+        return HttpResponse("OK")
+
+
+@method_decorator(login_required, name="dispatch")
+class PlacementRecordView(View):
+    """View for handling candidate placement records (GET for list, POST for add, DELETE for remove)."""
+
+    def get(self, request: HttpRequest, candidate_id: int) -> HttpResponse:
+        """Return rendered HTML of all placement records for a candidate, newest first."""
+        candidate = get_object_or_404(CandidateProfile, id=candidate_id)
+        placements = CandidateClientPlacementHistory.objects.filter(
+            candidate=candidate
+        ).order_by("-year", "-month", "-created_at")
+        context = {"placements": placements}
+        html = render_to_string(
+            "red_shell_recruiting/components/placement_records_list.html",
+            context,
+            request=request,
+        )
+        return HttpResponse(html)
+
+    def post(self, request: HttpRequest, candidate_id: int) -> HttpResponse:
+        """Create a new placement record for a candidate via AJAX POST."""
+        candidate = get_object_or_404(CandidateProfile, id=candidate_id)
+        placement_id = request.POST.get("placement_id")
+        month = request.POST.get("month")
+        year = request.POST.get("year")
+        compensation = request.POST.get("compensation")
+        if not (placement_id and month and year and compensation):
+            return HttpResponse("Missing placement data.", status=400)
+        CandidateClientPlacementHistory.objects.create(
+            candidate=candidate,
+            placement_id=placement_id,
+            month=month,
+            year=year,
+            compensation=compensation,
+        )
+        return HttpResponse("OK")
+
+    def delete(self, request: HttpRequest, candidate_id: int) -> HttpResponse:
+        """Remove a placement record for a candidate via AJAX DELETE."""
+        placement_history_id = request.GET.get("placement_history_id")
+        if not placement_history_id:
+            return HttpResponse("Missing placement_history_id.", status=400)
+        try:
+            placement = CandidateClientPlacementHistory.objects.get(
+                id=placement_history_id, candidate_id=candidate_id
+            )
+            placement.delete()
+            return HttpResponse("OK")
+        except CandidateClientPlacementHistory.DoesNotExist:
+            return HttpResponse("Placement record not found.", status=404)

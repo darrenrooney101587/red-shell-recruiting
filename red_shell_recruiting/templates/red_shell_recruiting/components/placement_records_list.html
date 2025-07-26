@@ -1,0 +1,20 @@
+{% load static %}
+{% load tags %}
+<ul class="placement-records-list">
+    {% for placement in placements %}
+        <li style="margin-bottom: 1rem;" class="flex-display vertical-align space-between" data-placement-history-id="{{ placement.id }}">
+            <span style="font-size:{% if request.is_mobile %}16px{% else %}12px{% endif %}">{{ placement.placement.display_name }}</span>
+            <span style="font-size:{% if request.is_mobile %}16px{% else %}12px{% endif %}">{{ placement.month }}/{{ placement.year }}</span>
+            <span style="font-size:{% if request.is_mobile %}16px{% else %}12px{% endif %}">${{ placement.compensation }}</span>
+            <span class="placement-remove-btn">
+                <button class="button remove-placement" type="button" style="margin-left: 0.5rem; padding: {% if request.is_mobile %}7px{% else %}0{% endif %}">
+                    <div style="position: relative; top: 2px">
+                        {% include 'red_shell_recruiting/components/svg_components.html' with type='close-large' %}
+                    </div>
+                </button>
+            </span>
+        </li>
+    {% empty %}
+        <li>No placement records found.</li>
+    {% endfor %}
+</ul>

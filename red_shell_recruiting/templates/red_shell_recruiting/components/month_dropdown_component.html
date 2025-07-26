@@ -1,0 +1,28 @@
+<div class="custom-dropdown month-dropdown-wrapper" style="border-bottom: 1px solid var(--ui-support-element-color);">
+    <div class="flex-display space-between">
+        <div class="selected-option month-dropdown" data-placeholder="Select Month">
+            {% if selected_month %}{{ selected_month }}{% else %}Select Month{% endif %}
+        </div>
+        <span class="chevron-down">
+            {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}
+        </span>
+        <span class="chevron-up" style="display: none;">
+            {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}
+        </span>
+    </div>
+    <ul class="dropdown-list month-list">
+        <li class="option" data-value="1">January</li>
+        <li class="option" data-value="2">February</li>
+        <li class="option" data-value="3">March</li>
+        <li class="option" data-value="4">April</li>
+        <li class="option" data-value="5">May</li>
+        <li class="option" data-value="6">June</li>
+        <li class="option" data-value="7">July</li>
+        <li class="option" data-value="8">August</li>
+        <li class="option" data-value="9">September</li>
+        <li class="option" data-value="10">October</li>
+        <li class="option" data-value="11">November</li>
+        <li class="option" data-value="12">December</li>
+    </ul>
+    <input class="month-hidden" type="hidden" name="{{ name|default:'placement-month' }}" id="placement-month" value="{{ selected_month|default:'' }}">
+</div>

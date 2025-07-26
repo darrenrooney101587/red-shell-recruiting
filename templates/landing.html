@@ -3,8 +3,6 @@
 {% block header %}
     {% if not request.is_mobile %}
         {% include 'components/header.html' %}
-    {% else %}
-        <div style="padding-top: 1rem;"></div>
     {% endif %}
 {% endblock %}
 {% block main %}
@@ -12,7 +10,8 @@
         <section id="hero-section" class="flex-display align-center">
             <div class="flex-display vertical-align" style="max-width: 1400px; margin: 0 auto; padding: 0 16px; width: 100%; gap: 4rem;">
                 <div style="width: 50%;">
-                    <div class="flex-display {% if not request.is_mobile %} vertical-align {% else %} align-center justify-center {% endif %}" style="margin-bottom: 1.5rem;">
+                    <div class="flex-display {% if not request.is_mobile %} vertical-align {% else %} align-center justify-center {% endif %}"
+                         style="{% if request.is_mobile %}padding-top: 1rem;{% endif %}margin-bottom: 1.5rem;">
                         <img src="{% static 'img/red_shell_cropped.png' %}" style="height: 50px;"/>
                         <span style="margin-left: 1rem; font-size: 40px; font-weight: bold">Red Shell Recruiting</span>
                     </div>

@@ -1,0 +1,19 @@
+<div class="custom-dropdown year-dropdown-wrapper" style="border-bottom: 1px solid var(--ui-support-element-color);">
+    <div class="flex-display space-between">
+        <div class="selected-option year-dropdown" data-placeholder="Select Year">
+            {% if selected_year %}{{ selected_year }}{% else %}Select Year{% endif %}
+        </div>
+        <span class="chevron-down">
+            {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-down' %}
+        </span>
+        <span class="chevron-up" style="display: none;">
+            {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}
+        </span>
+    </div>
+    <ul class="dropdown-list year-list">
+        {% for y in year_range %}
+            <li class="option" data-value="{{ y }}">{{ y }}</li>
+        {% endfor %}
+    </ul>
+    <input class="year-hidden" type="hidden" name="{{ name|default:'placement-year' }}" id="placement-year" value="{{ selected_year|default:'' }}">
+</div>

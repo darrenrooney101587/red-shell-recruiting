@@ -10,6 +10,7 @@ chmod -R a+rX /app/staticfiles || { echo 'Failed to set static file permissions!
 # Create Django superuser if not exists using environment variables
 export DJANGO_SUPERUSER_USERNAME=admin
 export DJANGO_SUPERUSER_PASSWORD=admin1234!
+export DJANGO_SUPERUSER_EMAIL=admin@org.com
 poetry run python manage.py createsuperuser --noinput || true
 
 echo "Starting Gunicorn for local/dev..."

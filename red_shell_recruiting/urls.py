@@ -67,4 +67,14 @@ urlpatterns = [
         views.candidate_ownership_list,
         name="candidate-ownership-list",
     ),
+    path(
+        "candidate/<int:candidate_id>/journal_entries/",
+        views.JournalEntryView.as_view(),
+        name="journal-entries",
+    ),
+    path(
+        "candidate/<int:candidate_id>/placement_records/",
+        views.PlacementRecordView.as_view(),
+        name="placement-records",
+    ),
 ]

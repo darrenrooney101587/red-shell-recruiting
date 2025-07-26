@@ -10,8 +10,9 @@
     <div class="form-signin center-frame flex-display vertical-align">
         <form method="post">
             {% csrf_token %}
-            <div class="flex-display vertical-align justify-center" style="margin-bottom: 2rem;">
-                <img class="" src="{% static 'img/red_shell_horizontal_cropped.png' %}" height="50" alt="">
+            <div class="flex-display vertical-align" style="margin-bottom: 1rem;">
+                <img src="{% static 'img/red_shell_cropped.png' %}" style="height: 45px; width: auto; margin-right: 0.5rem;">
+                <h1 style="margin-bottom: 0;">Red Shell Recruiting</h1>
             </div>
             {% if messages %}
                 {% for message in messages %}

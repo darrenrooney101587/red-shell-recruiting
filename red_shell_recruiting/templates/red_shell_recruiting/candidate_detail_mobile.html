@@ -77,11 +77,13 @@
                 </div>
             </div>
             <hr>
-            {% include 'red_shell_recruiting/components/candidate_detail_placement.html' %}
-            <hr>
             <div class="section" style="margin-bottom: 1rem;">
-                <span style="color: var(--faded-gray-color)" class="small-title">Notes</span>
-                <textarea class="text-input" style="border: 1px solid var(--ui-support-element-color); height: 200px; padding: 0.5rem;" disabled>{{ candidate.notes }}</textarea>
+                <span style="color: var(--faded-gray-color)" class="small-title">Entry Notes</span>
+                {% if user|in_groups:"Site Admin" or user.is_superuser or user|has_perm:required_permission %}
+                    <textarea name="candidate-notes" class="text-input" placeholder="Entry Notes" style="border: 1px solid var(--ui-support-element-color); height: 200px; padding: 0.5rem;">{{ candidate.entry_notes }}</textarea>
+                {% else %}
+                    <textarea class="text-input" style="border: 1px solid var(--ui-support-element-color); height: 200px; padding: 0.5rem;" disabled>{{ candidate.entry_notes }}</textarea>
+                {% endif %}
             </div>
             <hr>
             <div class="flex-display flex-end" style="width: 100%; margin-bottom: 1rem;">
@@ -172,57 +174,7 @@
             </div>
             <hr>
             <div class="section">
-                <textarea name="candidate-notes" class="text-input" placeholder="Notes" style="border: 1px solid var(--ui-support-element-color); height: 200px; padding: 0.5rem;">{{ candidate.notes }}</textarea>
-            </div>
-            <hr>
-            <div class="section client-placement-section">
-                <div class="flex-display vertical-align" style="margin-bottom: 1rem;">
-                    <div style="margin-right: 1rem;">
-                        <h3>Candidate Placement</h3>
-                    </div>
-                    {% if candidate.placement_record.exists %}
-                        <div class="flex-display vertical-align">
-                            <label class="toggle flex-display vertical-align justify-center" style="margin-right: 1rem;">
-                                <input name="client-placement" id="edit-client-placement-toggle" class="toggle-checkbox" type="checkbox">
-                                <div class="toggle-switch"></div>
-                                <span>Remove All Previously Placed</span>
-                            </label>
-                            <input type="hidden" name="remove_all_placements" id="remove-all-placements-flag" value="false">
-                        </div>
-                    {% endif %}
-                </div>
-                <div id="remove-placement-warning" class="placement-warning"
-                     style="display: none; margin-bottom: 1rem;border-radius: var(--std-border-radius);padding-left: 0.25rem;padding-right: 0.25rem;background-color: var(--full-warning-color);color: var(--full-light-orange-color);padding-top: 0.25rem;padding-bottom: .5rem;text-align: center;">
-                    <span>All placement records will be removed when saved.</span>
-                </div>
-                <div id="placement-records-wrapper-edit" class="flex-display column">
-                    {% for record in candidate.placement_record.all %}
-                        <div class="placement-line-item"
-                             data-index="{{ forloop.counter }}"
-                             data-placement-id="{{ record.id }}"
-                             style="margin-bottom: 1rem;">
-                            <div style="margin-bottom: 1rem;">
-                                {% with forloop.counter|stringformat:"s" as counter_str %}
-                                    {% with "placement_id_"|add:counter_str as placement_input_name %}
-                                        {% include 'red_shell_recruiting/components/candidate_placement_dropdown_component.html' with selected_placement=record.placement name=placement_input_name id_suffix=forloop.counter all_placements=all_placements %}
-                                    {% endwith %}
-                                {% endwith %}
-                            </div>
-                            <div class="flex-display space-between vertical-align" style="margin-bottom: 1rem;">
-                                <input name="placement_month_{{ forloop.counter }}" value="{{ record.month }}" placeholder="Month" class="text-input" style="margin-right: 1rem; border-bottom: 1px solid var(--ui-support-element-color); width: 50%">
-                                <input name="placement_year_{{ forloop.counter }}" value="{{ record.year }}" placeholder="Year" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); width: 50%">
-                            </div>
-                            <div class="flex-display vertical-align space-between" style="width: 100%; margin-bottom: 1rem;">
-                                <input name="placement_compensation_{{ forloop.counter }}" value="{{ record.compensation }}" placeholder="Amount" type="number" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color);">
-                                {% include 'red_shell_recruiting/components/candidate_remove_placement_button.html' %}
-                            </div>
-                            <input type="hidden" name="placement_record_id_{{ forloop.counter }}" value="{{ record.id }}">
-                            <input type="hidden" name="delete_placement_{{ forloop.counter }}" value="false" class="delete-marker">
-                        </div>
-                    {% endfor %}
-                    <input type="hidden" name="placement_total_count" value="{{ candidate.placement_record.count }}">
-                </div>
-                <button type="button" class="button" id="add-placement-line-edit" style="font-size: 18px; height: 50px;">Add Placement</button>
+                <textarea name="candidate-notes" class="text-input" placeholder="Entry Notes" style="border: 1px solid var(--ui-support-element-color); height: 200px; padding: 0.5rem;">{{ candidate.entry_notes }}</textarea>
             </div>
             <hr>
             <div style="width: 100%" class="section flex-display vertical-align justify-center space-between">
@@ -236,6 +188,64 @@
             <hr>
         </form>
     </div>
+    <div class="section" style="margin-bottom: 1rem;">
+        <div class="flex-display vertical-align">
+            <h3 style="color: var(--faded-gray-color)" class="small-title">Placement Records</h3>
+        </div>
+        <hr>
+        <div style="flex: 1;">
+            <div id="placement-entry-fields" class="placement-mobile-fields" style="width: 100%; margin-top: 1rem;">
+                <div style="width: 100%;">
+                    <div style="margin-bottom: 0.5rem;">
+                        <h3 style="color: var(--faded-gray-color)" class="small-title">Client</h3>
+                        {% include 'red_shell_recruiting/components/candidate_placement_dropdown_component.html' with selected_placement=None name='placement-client' id_suffix='placement-records' all_placements=all_placements %}
+                    </div>
+                    <div class="placement-mobile-row">
+                        <div class="placement-mobile-half">
+                            <h3 style="color: var(--faded-gray-color)" class="small-title">Month</h3>
+                            {% include 'red_shell_recruiting/components/month_dropdown_component.html' with selected_month=None name='placement-month' %}
+                        </div>
+                        <div class="placement-mobile-half">
+                            <h3 style="color: var(--faded-gray-color)" class="small-title">Year</h3>
+                            {% with year_range=1990|get_range:2027 %}
+                                {% include 'red_shell_recruiting/components/year_dropdown_component.html' with selected_year=None name='placement-year' year_range=year_range %}
+                            {% endwith %}
+                        </div>
+                    </div>
+                    <div class="placement-mobile-full">
+                        <h3 style="color: var(--faded-gray-color)" class="small-title">Compensation</h3>
+                        <input type="number" id="placement-compensation" class="text-input" placeholder="50000" style="width: 100%;">
+                    </div>
+                </div>
+                <button type="button" id="add-placement-record-btn" class="button green" style="{% if request.is_mobile %}font-size:18px; height: 50px; {% else %} font-size:12px {% endif %}; width: 100%; margin-top: 1rem;">Add Placement</button>
+            </div>
+            <div id="placement-records-list" style="margin-top: 1rem;"></div>
+        </div>
+    </div>
+    <hr>
+    <div class="section" style="margin-bottom: 1rem;">
+        <div class="flex-display vertical-align">
+            <h3 style="color: var(--faded-gray-color)" class="small-title">Journal Entries</h3>
+        </div>
+        <hr>
+        <div style="flex: 1;">
+            <div id="journal-entry-fields" class="journal-mobile-fields" style="width: 100%; margin-bottom: 1rem;">
+                <div style="width: 100%;">
+                    <div style="margin-bottom: 1rem;">
+                        <h3 style="color: var(--faded-gray-color)" class="small-title">Date</h3>
+                        <input type="date" id="journal-meeting-date" name="meeting_date" required class="text-input">
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <h3 style="margin-bottom: 0.5rem; color: var(--faded-gray-color)" class="small-title">Meeting Notes</h3>
+                        <textarea id="journal-notes" style="border: 1px solid var(--ui-support-element-color); width: 100%; height: 200px; padding: 0.5rem;" name="notes" class="text-input" placeholder="Meeting notes..."></textarea>
+                    </div>
+                </div>
+                <button type="button" id="add-journal-entry-btn" class="button green" style="{% if request.is_mobile %}font-size:18px; height: 50px; {% else %} font-size:12px {% endif %};width: 100%; margin-top: 1rem;">Add Journal Entry</button>
+            </div>
+            <div id="journal-entries-list" style="margin-top: 1rem;"></div>
+        </div>
+    </div>
+    <hr>
     <div class="section-group">
         <div class="section" style="margin-bottom: 1rem;">
             <div class="section-title">Resumes</div>
@@ -336,40 +346,130 @@
             </div>
         </div>
     </div>
-    <script type="text/template" id="remove-placement-button-template">
-        {% include 'red_shell_recruiting/components/candidate_remove_placement_button.html' %}
-    </script>
     <script>
         const clientPlacementListUrl = "{% url 'client-placement-list' %}";
         const removePlacementButton = $("#remove-placement-button-template").html();
         const uploadCulinaryPortfolioUrl = "{% url 'upload-culinary-portfolio' candidate.id %}";
-        const uploadResumeUrl = "{% url "upload-resume" candidate.id %}";
-        const uploadDocumentUrl = '{% url "upload-document" candidate.id %}';
-    </script>
-    <script src="{% static 'js/candidate_edit_save.js' %}" crossorigin="anonymous"></script>
-    <script>
+        const uploadResumeUrl = "{% url 'upload-resume' candidate.id %}";
+        const uploadDocumentUrl = "{% url 'upload-document' candidate.id %}";
+        const placementRecordsUrl = "{% url 'placement-records' candidate.id %}";
+        const journalEntryUrl = "{% url 'journal-entries' candidate.id %}";
+        function loadPlacementRecords() {
+            $.get(placementRecordsUrl, function(data) {
+                $('#placement-records-list').html(data);
+            });
+        }
+        function loadPlacementClients() {
+            $.getJSON('/api/client-placements/', function(data) {
+                var $select = $('#placement-client');
+                $select.empty();
+                $select.append($('<option>', { value: '', text: 'Select Client' }));
+                $.each(data, function(i, item) {
+                    $select.append($('<option>', { value: item.id, text: item.name }));
+                });
+            });
+        }
+        function handleNewPlacementRecord() {
+            $('#add-placement-record-btn').on('click', function() {
+                var placementId = $('#placement-client').val();
+                var month = $('#placement-month').val();
+                var year = $('#placement-year').val();
+                var compensation = $('#placement-compensation').val();
+                if (!placementId || !month || !year || !compensation) {
+                    alert('Please fill all placement fields.');
+                    return;
+                }
+                $.ajax({
+                    url: placementRecordsUrl,
+                    method: 'POST',
+                    data: {
+                        placement_id: placementId,
+                        month: month,
+                        year: year,
+                        compensation: compensation,
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    success: function() {
+                        $('#placement-client').val('');
+                        $('#placement-month').val('');
+                        $('#placement-year').val('');
+                        $('#placement-compensation').val('');
+                        loadPlacementRecords();
+                    },
+                    error: function(xhr) {
+                        alert('Error: ' + xhr.responseText);
+                    }
+                });
+            });
+        }
+        function handleRemovePlacementRecord() {
+            $('#placement-records-list').on('click', '.remove-placement', function() {
+                var $li = $(this).closest('li[data-placement-history-id]');
+                var placementId = $li.data('placement-history-id');
+                if (!placementId) return;
+                if (!confirm('Are you sure you want to remove this placement record?')) return;
+                $.ajax({
+                    url: placementRecordsUrl + '?placement_history_id=' + placementId,
+                    method: 'DELETE',
+                    headers: { 'X-CSRFToken': getCSRFToken() },
+                    success: function() { loadPlacementRecords(); },
+                    error: function(xhr) { alert('Error: ' + xhr.responseText); }
+                });
+            });
+        }
+        function loadJournalEntries() {
+            $.get(journalEntryUrl, function(data) {
+                $('#journal-entries-list').html(data);
+            });
+        }
+        function handleNewJournalEntry() {
+            $('#add-journal-entry-btn').on('click', function() {
+                var meetingDate = $('#journal-meeting-date').val();
+                var notes = $('#journal-notes').val();
+                if (!meetingDate || !notes) {
+                    alert('Please enter both date and notes.');
+                    return;
+                }
+                $.ajax({
+                    url: journalEntryUrl,
+                    method: 'POST',
+                    data: {
+                        meeting_date: meetingDate,
+                        notes: notes,
+                        csrfmiddlewaretoken: getCSRFToken()
+                    },
+                    success: function() {
+                        $('#journal-meeting-date').val('');
+                        $('#journal-notes').val('');
+                        loadJournalEntries();
+                    },
+                    error: function(xhr) {
+                        alert('Error: ' + xhr.responseText);
+                    }
+                });
+            });
+        }
         $(document).ready(function () {
-
-            PlacementEditSaveActions(true);
             CandidateEditSaveActions();
             AddDocumentAction();
             AddResumeAction();
             AddPortfolioAction();
             SaveCandidate();
-
+            loadPlacementRecords();
+            handleNewPlacementRecord();
+            handleRemovePlacementRecord();
+            loadJournalEntries();
+            handleNewJournalEntry();
             // TOGGLE TO EDIT MODE
             $('#edit-button').on('click', function () {
                 $('#candidate-view-mode').hide();
                 $('#candidate-edit-mode').show();
-
                 $('#state-hidden').val('{{ candidate.state }}');
                 $('#city-hidden').val('{{ candidate.city }}');
                 $('#state-dropdown').text('{{ candidate.state }}');
                 $('#city-dropdown').text('{{ candidate.city }}');
                 $('#city-dropdown-wrapper').show();
             });
-
         });
     </script>
-
 {% endblock %}

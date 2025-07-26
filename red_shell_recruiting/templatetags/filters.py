@@ -44,3 +44,9 @@ def dict_get(d: dict, key) -> any:
     if not isinstance(d, dict):
         return None
     return d.get(key)
+
+
+@register.filter
+def get_range(start: int, end: int) -> range:
+    """Return a range from start to end (inclusive)."""
+    return range(int(start), int(end) + 1)

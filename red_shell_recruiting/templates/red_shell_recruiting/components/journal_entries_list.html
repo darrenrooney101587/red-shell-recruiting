@@ -1,0 +1,11 @@
+{% for entry in entries %}
+    <div class="journal-entry" style="margin-bottom: 1rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">
+        <div class="flex-display vertical-align space-between" style="margin-bottom: 0.25rem;">
+            <span class="small-title" style="color: var(--faded-gray-color);">{{ entry.meeting_date }}</span>
+            <span class="small-title" style="color: var(--faded-gray-color);">by {{ entry.user }}</span>
+        </div>
+        <div style="white-space: pre-line;">{{ entry.notes }}</div>
+    </div>
+{% empty %}
+    <div class="small-title" style="opacity: 0.6">No journal entries yet.</div>
+{% endfor %}

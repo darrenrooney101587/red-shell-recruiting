@@ -4,8 +4,6 @@
 {% block header %}
     {% if not request.is_mobile %}
         {% include 'components/header.html' %}
-    {% else %}
-        <div style="padding-top: 1rem;"></div>
     {% endif %}
 {% endblock %}
 {% block sidebar %}
@@ -30,6 +28,7 @@
     {% include 'components/footer.html' %}
 {% endblock %}
 {% block script %}
+<script src="{% static 'js/candidate_edit_save.js' %}" crossorigin="anonymous"></script>
 <script>
 
     function getValidations(debug=false) {
@@ -395,6 +394,46 @@
             $(this).closest('.custom-dropdown').find('.chevron-up').hide();
         });
 
+
+        // month click handler
+        $(document).on('click', '.month-list .option', function (event) {
+            event.stopPropagation();
+
+            const $option = $(this);
+            const monthValue = $option.data('value');
+            const monthName = $option.text();
+
+            const $dropdown = $option.closest('.custom-dropdown');
+            const $display = $dropdown.find('.month-dropdown');
+            const $hidden = $dropdown.find('.month-hidden');
+
+            $display.text(monthName);
+            $hidden.val(monthValue);
+
+            $dropdown.find('.dropdown-list').hide();
+            $dropdown.find('.chevron-down').show();
+            $dropdown.find('.chevron-up').hide();
+        });
+
+        // year click handler
+        $(document).on('click', '.year-list .option', function (event) {
+            event.stopPropagation();
+
+            const $option = $(this);
+            const yearValue = $option.data('value');
+            const yearName = $option.text();
+
+            const $dropdown = $option.closest('.custom-dropdown');
+            const $display = $dropdown.find('.year-dropdown');
+            const $hidden = $dropdown.find('.year-hidden');
+
+            $display.text(yearName);
+            $hidden.val(yearValue);
+
+            $dropdown.find('.dropdown-list').hide();
+            $dropdown.find('.chevron-down').show();
+            $dropdown.find('.chevron-up').hide();
+        });
 
         // general dropdown show/hide
         $(document).on('click', '.custom-dropdown', function (event) {

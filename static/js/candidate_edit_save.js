@@ -290,3 +290,155 @@ function PlacementEditSaveActions(mobile = false) {
 
     });
 }
+
+/**
+ * Loads all journal entries for the candidate and updates the DOM.
+ */
+function loadJournalEntries() {
+    $.get(journalEntryUrl, function(data) {
+        $('#journal-entries-list').html(data);
+    });
+}
+
+/**
+ * Handles adding a new journal entry via AJAX and reloads the list.
+ */
+function handleNewJournalEntry() {
+    $('#add-journal-entry-btn').on('click', function() {
+        var meetingDate = $('#journal-meeting-date').val();
+        var notes = $('#journal-notes').val();
+        if (!meetingDate || !notes) {
+            alert('Please enter both date and notes.');
+            return;
+        }
+        $.ajax({
+            url: journalEntryUrl,
+            method: 'POST',
+            data: {
+                meeting_date: meetingDate,
+                notes: notes,
+                csrfmiddlewaretoken: getCSRFToken()
+            },
+            success: function() {
+                $('#journal-meeting-date').val('');
+                $('#journal-notes').val('');
+                loadJournalEntries();
+            },
+            error: function(xhr) {
+                alert('Error: ' + xhr.responseText);
+            }
+        });
+    });
+}
+
+/**
+ * Handles removal of placement records via AJAX for both desktop and mobile views.
+ */
+function handleRemovePlacementRecord() {
+    $('#placement-records-list').on('click', '.remove-placement', function() {
+        var $li = $(this).closest('li[data-placement-history-id]');
+        var placementId = $li.data('placement-history-id');
+        if (!placementId) return;
+        if (!confirm('Are you sure you want to remove this placement record?')) return;
+        $.ajax({
+            url: placementRecordsUrl + '?placement_history_id=' + placementId,
+            method: 'DELETE',
+            headers: { 'X-CSRFToken': getCSRFToken() },
+            success: function() { loadPlacementRecords(); },
+            error: function(xhr) { alert('Error: ' + xhr.responseText); }
+        });
+    });
+}
+
+/**
+ * Handles adding a new placement record via AJAX and reloads the list.
+ */
+function handleAddPlacementRecord() {
+    $('#add-placement-record-btn').on('click', function() {
+        // Use direct selectors for hidden fields
+        var placementId = $('input[name="placement-client"]').val();
+        var month = $('input[name="placement-month"]').val();
+        var year = $('input[name="placement-year"]').val();
+        var compensation = $('#placement-compensation').val();
+
+        if (!placementId || !month || !year || !compensation) {
+            alert('Please fill in all placement fields.');
+            return;
+        }
+
+        $.ajax({
+            url: placementRecordsUrl,
+            method: 'POST',
+            data: {
+                placement_id: placementId,
+                month: month,
+                year: year,
+                compensation: compensation,
+                csrfmiddlewaretoken: getCSRFToken()
+            },
+            success: function() {
+                // Clear fields after successful add
+                $('input[name="placement-client"]').val("");
+                $('input[name="placement-month"]').val("");
+                $('input[name="placement-year"]').val("");
+                $('#placement-compensation').val("");
+                loadPlacementRecords();
+            },
+            error: function(xhr) {
+                alert('Error: ' + xhr.responseText);
+            }
+        });
+    });
+}
+
+/**
+ * Loads all placement records for the candidate and updates the DOM.
+ */
+function loadPlacementRecords() {
+    $.get(placementRecordsUrl, function(data) {
+        $('#placement-records-list').html(data);
+    });
+}
+
+/**
+ * Handles custom dropdown selection for client placement and updates the hidden input value.
+ */
+function handleClientPlacementDropdown() {
+    // For all dropdowns in the DOM (including dynamically added ones)
+    $(document).on('click', '.client-placement-list .option', function() {
+        var $option = $(this);
+        var value = $option.data('value');
+        var text = $option.text();
+        var $dropdown = $option.closest('.custom-dropdown, .client-placement-dropdown-wrapper');
+        $dropdown.find('.selected-option').text(text);
+        $dropdown.find('.client-placement-hidden').val(value);
+        $dropdown.find('.dropdown-list').hide();
+    });
+    // Show/hide dropdown list on click
+    $(document).on('click', '.selected-option.client-placement-dropdown', function(e) {
+        e.stopPropagation();
+        var $dropdown = $(this).closest('.custom-dropdown, .client-placement-dropdown-wrapper');
+        $dropdown.find('.dropdown-list').toggle();
+    });
+    // Hide dropdown if clicking outside
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('.custom-dropdown, .client-placement-dropdown-wrapper').length) {
+            $('.dropdown-list').hide();
+        }
+    });
+}
+
+$(document).ready(function() {
+    // Initialize actions
+    AddResumeAction();
+    AddPortfolioAction();
+    AddDocumentAction();
+    CandidateEditSaveActions();
+    PlacementEditSaveActions();
+    handleNewJournalEntry();
+    handleRemovePlacementRecord();
+    handleAddPlacementRecord();
+    loadJournalEntries();
+    loadPlacementRecords();
+    handleClientPlacementDropdown();
+});
