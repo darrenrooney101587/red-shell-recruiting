@@ -1,6 +1,9 @@
 # copy ssh key to ec2 to pull from github
 scp -i /Users/darren.rooney/Documents/personal/red-shell-recruiting/red-shell-recruiting.pem ~/.ssh/id_red_shell_recruiting ec2-user@3.21.170.36:~/.ssh/id_red_shell_recruiting
 
+@ for when a new ec2 is created
+ssh-keygen -R 3.132.153.170
+
 # get cert
 docker-compose run --rm certbot certonly \
   --webroot \
