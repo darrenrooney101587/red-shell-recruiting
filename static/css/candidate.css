@@ -6,9 +6,6 @@
 .candidate-card {
     cursor: pointer;
 }
-.small-title {
-    font-size: 12px;
-}
 
 
 /* Section list styles */
@@ -40,11 +37,6 @@
     border-right: none;
     margin-right: 0;
     padding-right: 0;
-}
-.section-group .section-title {
-    margin-bottom: 1rem;
-    color: var(--faded-gray-color);
-    font-size: 12px;
 }
 .section-group .section-list {
     margin-bottom: 1rem;

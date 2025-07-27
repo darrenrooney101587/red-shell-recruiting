@@ -1,8 +1,8 @@
 {% for entry in entries %}
-    <div class="journal-entry" style="margin-bottom: 1rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">
+    <div class="journal-entry">
         <div class="flex-display vertical-align space-between" style="margin-bottom: 0.25rem;">
-            <span class="small-title" style="color: var(--faded-gray-color);">{{ entry.meeting_date }}</span>
-            <span class="small-title" style="color: var(--faded-gray-color);">by {{ entry.user }}</span>
+            <span class="journal-entry-date small-title">{{ entry.meeting_date }}</span>
+            <span class="small-title">by {{ entry.user }}</span>
         </div>
         <div style="white-space: pre-line;">{{ entry.notes }}</div>
     </div>

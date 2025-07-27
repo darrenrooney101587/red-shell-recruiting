@@ -455,6 +455,11 @@
 
             event.stopPropagation();
 
+            // Hide all other dropdowns and reset chevrons
+            $('.dropdown-list').not(dropdownList).hide();
+            $('.chevron-down').not(chevronDown).show();
+            $('.chevron-up').not(chevronUp).hide();
+
             if (dropdownList.is(':visible')) {
                 dropdownList.hide();
                 chevronDown.show();

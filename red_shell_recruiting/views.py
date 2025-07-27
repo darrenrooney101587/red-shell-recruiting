@@ -391,7 +391,9 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
         candidate.compensation_to = str(
             request.POST.get("candidate-compensation-to", candidate.compensation_to)
         ).replace(",", "")
-        candidate.notes = request.POST.get("candidate-notes", candidate.notes)
+        candidate.entry_notes = request.POST.get(
+            "candidate-notes", candidate.entry_notes
+        )
         candidate.open_to_relocation = (
             request.POST.get("candidate-open-to-relocation") == "on"
         )

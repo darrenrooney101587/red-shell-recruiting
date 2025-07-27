@@ -3,6 +3,11 @@
     <div class="flex-display space-between vertical-align">
         <div class="flex-display vertical-align">
             <h4>{{ candidate.first_name }} {{ candidate.last_name }}</h4>
+            <div style="margin-left: 0.5rem;">
+                {% if candidate.linkedin_url %}
+                    {% include 'red_shell_recruiting/components/svg_components.html' with type='linkedin' %}
+                {% endif %}
+            </div>
         </div>
         <h3 style="font-size: 12px;" class="small-title" data-created-at="{{ candidate.created_at|date:'c' }}">
             Added <span style="font-size: 12px;" class="created-at-local"></span>
@@ -10,43 +15,48 @@
     </div>
     <hr style="margin-top: 0.5rem; margin-bottom: 0.5rem;">
     <div class="">
-        <div>
-            <span style="font-size: 12px; color: var(--faded-gray-color)">Job Title</span>
-            <h4>{{ candidate.title.display_name }}</h4>
-        </div>
-        <hr>
-        <div>
-            <span style="font-size: 12px; color: var(--faded-gray-color)">Email</span>
-            <h4>{{ candidate.email }}</h4>
-        </div>
+        <span style="font-size: 12px; color: var(--faded-gray-color)">Email</span>
+        <h4>{{ candidate.email }}</h4>
     </div>
     <hr>
     <div class="flex-display space-between">
         <div class="flex-display column space-between">
-            <div class="flex-display vertical-align space-between" style="width: 155px; margin-bottom: 0.5rem;">
+            <div class="flex-display vertical-align space-between" style="width: 155px; height: 20px">
                 <h5 style="margin-right: 0.5rem;">Actively Looking</h5>
                 {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.actively_looking %}
             </div>
-            <div class="flex-display vertical-align space-between" style="width: 155px; margin-bottom: 0.5rem;">
+            <div class="flex-display vertical-align space-between" style="width: 155px;; height: 20px">
                 <h5 style="margin-right: 0.5rem;">Open to Relocation</h5>
                 {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.open_to_relocation %}
             </div>
-            <div class="flex-display vertical-align space-between" style="width: 155px;; margin-bottom: 0.5rem">
+            <div class="flex-display vertical-align space-between" style="width: 155px;; height: 20px">
                 <h5 style="margin-right: 0.5rem;">Currently Working</h5>
                 {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.currently_working %}
             </div>
-            <div class="flex-display vertical-align space-between" style="width: 155px;">
+            <div class="flex-display vertical-align space-between" style="width: 155px;; height: 20px">
                 <h5 style="margin-right: 0.5rem;">Previously Placed</h5>
                 {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.placement_record.exists %}
             </div>
         </div>
-        <div class="flex-display">
-            <div style="height: 100%; border: 0; border-left: 1px solid rgba(0,0,0,.1); margin-left: 1rem; margin-right: 1rem;"></div>
-            <div class="flex-display column space-between align-end">
-                <span style="text-align: center">{{ candidate.resumes.count }} Resume(s)</span>
-                {% if candidate.linkedin_url %}
-                    {% include 'red_shell_recruiting/components/svg_components.html' with type='linkedin' %}
-                {% endif %}
+        <div class="flex-display" style="height: auto; min-height: 100px; width: 1px; border-left: 1px solid rgba(0,0,0,.1); margin-left: 1rem; margin-right: 1rem;"></div>
+        <div class="flex-display space-between">
+            <div class="flex-display column space-between">
+                <div class="flex-display vertical-align space-between" style="; height: 20px">
+                    <span style="font-size: 12px;">{{ candidate.resumes.count }}</span>
+                    <span style="font-size: 12px; margin-left: 0.5rem;">Resume(s)</span>
+                </div>
+                <div class="flex-display vertical-align space-between" style="; height: 20px">
+                    <span style="font-size: 12px;">{{ candidate.culinary_portfolios.count }}</span>
+                    <span style="font-size: 12px; margin-left: 0.5rem;">Portfolio(s)</span>
+                </div>
+                <div class="flex-display vertical-align space-between" style="; height: 20px">
+                    <span style="font-size: 12px;">{{ candidate.documents.count }}</span>
+                    <span style="font-size: 12px; margin-left: 0.5rem;">Document(s)</span>
+                </div>
+                <div class="flex-display vertical-align space-between" style="; height: 20px">
+                    <span style="font-size: 12px;">{{ candidate.journal_entries.count }}</span>
+                    <span style="font-size: 12px; margin-left: 0.5rem;">Journal Items(s)</span>
+                </div>
             </div>
         </div>
     </div>

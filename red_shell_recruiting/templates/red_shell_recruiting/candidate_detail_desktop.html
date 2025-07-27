@@ -13,6 +13,8 @@
     <div class="section" style="width: 80%; margin: 2rem auto 0;">
         <div class="messages"></div>
         <div id="candidate-view-mode">
+            <h3 class="medium-title">Demographic Info</h3>
+            <hr>
             <div class="field-set flex-display" style="column-gap: 2rem; position:relative;">
                 <div style="width: 33%; position: relative">
                     <div>
@@ -196,7 +198,7 @@
     </div>
     <div class="section" style="width: 80%; margin: 2rem auto 0;">
         <div class="flex-display vertical-align">
-            <h3 style="color: var(--faded-gray-color)" class="small-title">Placement Records</h3>
+            <h3 style="color: var(--faded-gray-color)" class="medium-title">Placement Records</h3>
         </div>
         <div class="placement-messages messages" style="margin-top: 1rem;"></div>
         <hr>
@@ -229,7 +231,7 @@
     </div>
     <div class="section" style="width: 80%; margin: 2rem auto 0;">
         <div class="flex-display vertical-align">
-            <h3 style="color: var(--faded-gray-color)" class="small-title">Journal Entries</h3>
+            <h3 style="color: var(--faded-gray-color)" class="medium-title">Journal Entries</h3>
         </div>
         <div class="journal-messages messages" style="margin-top: 1rem;"></div>
         <hr>
@@ -252,7 +254,7 @@
     <div class="section flex-display space-between" style="width: 80%; margin: 2rem auto 0;">
         <div class="section-group flex-display space-between" style="width: 100%">
             <div class="section-col">
-                <div class="section-title">Resumes</div>
+                <h3 class="medium-title">Resumes</h3>
                 <hr>
                 <ul class="section-list">
                     {% for resume in resumes %}
@@ -260,7 +262,7 @@
                             <a href="{{ resume.get_signed_url }}" download>{{ resume.file.name|filename }}</a>
                             <form method="post" action="{% url 'archive-resume' resume.id %}" style="display: inline;">
                                 {% csrf_token %}
-                                {% include 'red_shell_recruiting/components/candidate_button.html' with type='submit' extra_class='button' style='margin-left: 0.5rem; padding: 0;' icon='close' %}
+                                {% include 'red_shell_recruiting/components/candidate_button.html' with type='submit' color='red' text='Remove' extra_class='button' style='margin-left: 0.5rem;' %}
                             </form>
                         </li>
                     {% empty %}
@@ -280,7 +282,7 @@
                 </div>
             </div>
             <div class="section-col">
-                <div class="section-title">Culinary Portfolios</div>
+                <h3 class="medium-title">Culinary Portfolios</h3>
                 <hr>
                 <ul class="section-list">
                     {% for portfolio in portfolios %}
@@ -288,7 +290,7 @@
                             <a href="{{ portfolio.get_signed_url }}" download>{{ portfolio.file.name|filename }}</a>
                             <form method="post" action="{% url 'archive-culinary-portfolio' portfolio.id %}" style="display: inline;">
                                 {% csrf_token %}
-                                {% include 'red_shell_recruiting/components/candidate_button.html' with type='submit' extra_class='button' style='margin-left: 0.5rem; padding: 0;' icon='close' %}
+                                {% include 'red_shell_recruiting/components/candidate_button.html' with type='submit' color='red' text='Remove' extra_class='button' style='margin-left: 0.5rem;' %}
                             </form>
                         </li>
                     {% empty %}
@@ -308,7 +310,7 @@
                 </div>
             </div>
             <div class="section-col">
-                <div class="section-title">Documents</div>
+                <h3 class="medium-title">Documents</h3>
                 <hr>
                 <ul class="section-list">
                     {% for document in documents %}
@@ -316,7 +318,7 @@
                             <a href="{{ document.get_signed_url }}" download>{{ document.file.name|filename }}</a>
                             <form method="post" action="{% url 'archive-document' document.id %}" style="display: inline;">
                                 {% csrf_token %}
-                                {% include 'red_shell_recruiting/components/candidate_button.html' with type='submit' extra_class='button' style='margin-left: 0.5rem; padding: 0;' icon='close' %}
+                                {% include 'red_shell_recruiting/components/candidate_button.html' with type='submit' color='red' text='Remove' extra_class='button' style='margin-left: 0.5rem;' %}
                             </form>
                         </li>
                     {% empty %}
