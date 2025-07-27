@@ -7,6 +7,7 @@
 {% endblock %}
 {% block css-extra %}
     <link rel="stylesheet" href="{% static 'css/candidate.css' %}?n={% css_invalidate_int %}">
+    <link rel="stylesheet" href="{% static 'css/daterangepicker.css' %}">
 {% endblock %}
 {% block content %}
     <div class="section" style="width: 80%; margin: 2rem auto 0;">
@@ -238,7 +239,7 @@
                 <div class="flex-display vertical-align" style="width: 100%; height: 75px; gap: 1rem;">
                     <div style="width: 150px;">
                         <h3 style="color: var(--faded-gray-color)" class="small-title">Date</h3>
-                        <input type="date" id="journal-meeting-date" name="meeting_date" required class="text-input">
+                        <input type="text" id="journal-meeting-date" name="meeting_date" required class="text-input" autocomplete="off" placeholder="Select date" style="cursor:pointer; background-color:#fff;">
                     </div>
                     <div style="width: 75%;">
                         <h3 style="color: var(--faded-gray-color)" class="small-title">Meeting Notes</h3>
@@ -272,9 +273,13 @@
                 <hr>
                 <div class="section-actions">
                     <input required type="file" id="candidate-resume" name="candidate_resume" accept=".pdf, .doc, .docx">
-                    {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' text='Attach Resume' extra_class='align-start' id='trigger-resume-upload' %}
+                    {% with button_type='button' button_text='Attach Resume' button_extra_class='align-start' button_id='trigger-resume-upload' %}
+                        {% include 'red_shell_recruiting/components/candidate_button.html' with type=button_type text=button_text extra_class=button_extra_class id=button_id %}
+                    {% endwith %}
                     <div class="file-name ellipsis" id="file-name"></div>
-                    {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' color='green' text='Upload' extra_class='align-end' style='display:none; margin-left: 1rem;' id='add-resume-button' %}
+                    {% with button_type='button' button_color='green' button_text='Upload' button_extra_class='button green flex-display vertical-align space-between' button_style='display:none; margin-left: 1rem;' button_id='add-resume-button' %}
+                        {% include 'red_shell_recruiting/components/candidate_button.html' with type=button_type color=button_color text=button_text extra_class=button_extra_class style=button_style id=button_id %}
+                    {% endwith %}
                 </div>
             </div>
             <div class="section-col">
@@ -296,9 +301,13 @@
                 <hr>
                 <div class="section-actions">
                     <input type="file" id="candidate-culinary-portfolio" name="candidate_culinary_portfolio" accept=".pdf, .doc, .docx">
-                    {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' text='Attach Portfolio' extra_class='align-start' id='trigger-portfolio-upload' %}
+                    {% with button_type='button' button_text='Attach Portfolio' button_extra_class='align-start' button_id='trigger-portfolio-upload' %}
+                        {% include 'red_shell_recruiting/components/candidate_button.html' with type=button_type text=button_text extra_class=button_extra_class id=button_id %}
+                    {% endwith %}
                     <div class="file-name ellipsis" id="portfolio-file-name"></div>
-                    {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' color='green' text='Upload' extra_class='align-end' style='display:none; margin-left: 1rem;' id='add-portfolio-button' %}
+                    {% with button_type='button' button_color='green' button_text='Upload' button_extra_class='align-end' button_style='display:none; margin-left: 1rem;' button_id='add-portfolio-button' %}
+                        {% include 'red_shell_recruiting/components/candidate_button.html' with type=button_type color=button_color text=button_text extra_class=button_extra_class style=button_style id=button_id %}
+                    {% endwith %}
                 </div>
             </div>
             <div class="section-col">
@@ -320,15 +329,88 @@
                 <hr>
                 <div class="section-actions">
                     <input type="file" id="candidate-document" name="candidate_document" accept=".pdf, .doc, .docx">
-                    {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' text='Attach Document' extra_class='align-start' id='trigger-document-upload' %}
+                    {% with button_type='button' button_text='Attach Document' button_extra_class='align-start' button_id='trigger-document-upload' %}
+                        {% include 'red_shell_recruiting/components/candidate_button.html' with type=button_type text=button_text extra_class=button_extra_class id=button_id %}
+                    {% endwith %}
                     <div class="file-name ellipsis" id="document-file-name"></div>
-                    {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' color='green' text='Upload' extra_class='align-end' style='display: none; margin-left: 1rem;' id='add-document-button' %}
+                    {% with button_type='button' button_color='green' button_text='Upload' button_extra_class='align-end' button_style='display: none; margin-left: 1rem;' button_id='add-document-button' %}
+                        {% include 'red_shell_recruiting/components/candidate_button.html' with type=button_type color=button_color text=button_text extra_class=button_extra_class style=button_style id=button_id %}
+                    {% endwith %}
                 </div>
             </div>
         </div>
     </div>
     <script src="{% static 'js/candidate_edit_save.js' %}" crossorigin="anonymous"></script>
+    <script src="{% static 'js/moment.min.js' %}"></script>
+    <script src="{% static 'js/daterangepicker.js' %}"></script>
     <script>
+        /**
+         * Returns an array of class names for a jQuery element.
+         * @param el - jQuery element
+         * @returns {Array}
+         */
+        function getClasses(el) {
+            var classAttr = el.attr('class');
+            return classAttr ? classAttr.split(/\s+/) : [];
+        }
+
+        /**
+         * Raises the input controller (stub for compatibility).
+         * @param selector - jQuery selector
+         */
+        function inputControllerRaise(selector) {
+            // No-op for now, can be extended for label animation if needed
+        }
+
+        /**
+         * Custom date picker initialization for journal entry date field.
+         * @param parentEl - selector for the parent element
+         */
+        function datePicker(parentEl) {
+            setTimeout(function() {
+                picker();
+            }, 500);
+
+            function picker() {
+                var el = $(parentEl).parent();
+                var classes = getClasses(el);
+                var hasTheme = function() {
+                    for(var i = 0; i < classes.length; i++) {
+                        if(classes[i].includes('section-theme')) {
+                            return classes[i];
+                        }
+                    }
+                    return '';
+                };
+
+                var dateParams = {
+                    date_bx_ext: parentEl,
+                    date_bx_date_std_input: parentEl + ' #journal-meeting-date',
+                    date_bx_input_class: 'date-bx-input',
+                    single_date_picker: true
+                };
+
+                $(dateParams.date_bx_date_std_input).daterangepicker({
+                    opens: 'center',
+                    minDate: new Date(),
+                    singleDatePicker: dateParams.single_date_picker,
+                    locale: { cancelLabel: 'Clear' },
+                    autoUpdateInput: false,
+                    theme: hasTheme()
+                }, function(start) {
+                    $(dateParams.date_bx_ext + ' #journal-meeting-date').val(start.format('YYYY-MM-DD'));
+                });
+
+                $(dateParams.date_bx_date_std_input).on('cancel.daterangepicker', function() {
+                    $(dateParams.date_bx_date_std_input).val('').blur();
+                    picker();
+                });
+
+                $(dateParams.date_bx_date_std_input).on('apply.daterangepicker', function() {
+                    inputControllerRaise(dateParams.date_bx_date_std_input);
+                });
+            }
+        }
 
         const clientPlacementListUrl = "{% url 'client-placement-list' %}";
         const removePlacementButton = $("#remove-placement-button-template").html();
@@ -414,7 +496,7 @@
                 $('#city-dropdown').text('{{ candidate.city }}');
                 $('#city-dropdown-wrapper').show();
             });
-
+            datePicker('#journal-entry-fields');
         });
     </script>
 {% endblock %}
