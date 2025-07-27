@@ -10,10 +10,10 @@
 {% endblock %}
 {% block content %}
     <div>
-        <div style="margin: 0 auto; width: 1000px;">
+        <div style="margin: 0 auto; display: table;">
             <form method="get" action="{% url 'candidate-search' %}" style="width: 100%;">
                 <div class="section flex-display vertical-align space-between" style="width: 100%;">
-                    <div class="flex-display column space-between" style="width: 200px;">
+                    <div class="flex-display column space-between" style="width: 250px;">
                         <div class="flex-display vertical-align space-between" style="width: 100%; margin-bottom: 0.5rem;">
                             <span style="margin-right: 1rem; font-size: 12px;">Total Candidates:</span>
                             <span style="margin-right: 1rem; font-size: 12px;">{{ total_count_profile }}</span>
@@ -31,15 +31,6 @@
                     <div style="width: 100%;">
                         <div class="flex-display vertical-align space-between" style="width: 100%;">
                             <input style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" type="text" class="text-input" name="q" value="{{ query }}" placeholder="Search candidates..." />
-                            <div class="flex-display vertical-align">
-                                <button style="width: 60px;" class="button" type="submit">Search</button>
-                                <div style="margin-left: 0.5rem;" class="flex-display vertical-align justify-center">
-                                    <a style="width: 60px; text-align: center" href="{% url 'candidate-search' %}" class="button">Clear</a>
-                                </div>
-                                <div style="width: auto; margin-left: 0.5rem;" class="flex-display vertical-align justify-center">
-                                    <a style="width: 60px; text-align: center" href="{% url 'candidate-search' %}?q=all" class="button">All</a>
-                                </div>
-                            </div>
                         </div>
                         <div class="flex-display vertical-align space-between" style="margin-top: 1rem;">
                             <div class="flex-display column align-baseline">
@@ -47,6 +38,31 @@
                             </div>
                             <div style="height: 75px; border-right: 1px solid rgba(0,0,0,.1); margin-right: 1rem;"></div>
                             {% include 'red_shell_recruiting/components/candidate_search_dropdowns.html' %}
+                        </div>
+                    </div>
+                    <div style="height: 125px; border-right: 1px solid rgba(0,0,0,.1); margin-right: 1rem; margin-left: 1rem;"></div>
+                    <div>
+                        <div class="flex-display column vertical-align">
+                            <div class="flex-display vertical-align justify-center" style="gap: 0.5rem; width: 100%; margin-bottom: 0.5rem;">
+                                <button style="min-width: 100px; width: 50%; text-align: center" class="button" type="submit">Search</button>
+                                <a style="min-width: 100px; width: 50%; text-align: center" href="{% url 'candidate-search' %}?q=all" class="button">All</a>
+                            </div>
+                            <a style="text-align: center; width: 100%" href="{% url 'candidate-search' %}" class="button">Clear</a>
+                            {% if candidates %}
+                                <div id="pagination-container" class="pagination flex-display column vertical-align" style="margin-top: 0.5rem;">
+                                    <div class="flex-display vertical-align" style="gap: 0.5rem;">
+                                        {% if page_obj.has_previous %}
+                                            <a style="font-size: 12px; min-width: 80px; text-align: center;" class="button" href="?{{ get_params }}&page={{ page_obj.previous_page_number }}">Previous</a>
+                                        {% endif %}
+                                        <span style="font-size: 12px; min-width: 80px; text-align: center; background: #f5f5f5; border-radius: 4px; padding: 0.25rem 0.75rem; display: inline-block;">
+                                            {{ page_obj.number }} of {{ paginator.num_pages }}
+                                        </span>
+                                        {% if page_obj.has_next %}
+                                            <a style="font-size: 12px; min-width: 80px; text-align: center;" class="button" href="?{{ get_params }}&page={{ page_obj.next_page_number }}">Next</a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                        {% endif %}
                         </div>
                     </div>
                 </div>

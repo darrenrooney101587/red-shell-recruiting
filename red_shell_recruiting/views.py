@@ -18,6 +18,7 @@ from django.http import HttpResponse, HttpRequest
 from django.views import View
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from django.core.paginator import Paginator, Page
 
 from red_shell_recruiting.tasks import (
     update_resume_search_vector,
@@ -234,6 +235,7 @@ class CandidateInput(LoginRequiredMixin, View):
 class CandidateSearch(LoginRequiredMixin, TemplateView):
     template_name_desktop = "red_shell_recruiting/candidate_search_desktop.html"
     template_name_mobile = "red_shell_recruiting/candidate_search_mobile.html"
+    paginate_by = 1
 
     def get_template_names(self):
         user_agent = self.request.META.get("HTTP_USER_AGENT", "")
@@ -241,12 +243,17 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
             return [self.template_name_mobile]
         return [self.template_name_desktop]
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> dict:
+        """Get context data for candidate search, including dropdowns and filters."""
         context = super().get_context_data(**kwargs)
         request = self.request
 
-        all_sources = CandidateProfileSource.objects.all().order_by("display_name")
+        # Fetch dropdown data
+        titles = CandidateProfileTitle.objects.annotate(
+            count=Count("candidateprofile", distinct=True)
+        ).order_by("display_name")
         all_ownerships = CandidateOwnership.objects.all().order_by("display_name")
+        all_sources = CandidateProfileSource.objects.all().order_by("display_name")
 
         toggle_filters = {
             "actively_looking": request.GET.get("actively_looking"),
@@ -266,16 +273,12 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
             candidates = candidates.order_by("-created_at")
             query = None
         else:
-
             if title_id:
                 candidates = candidates.filter(title_id=title_id)
-
             if ownership_id:
                 candidates = candidates.filter(ownership_id=ownership_id)
-
             if source_id:
                 candidates = candidates.filter(source_id=source_id)
-
             if query:
                 candidates = (
                     CandidateProfile.objects.extra(
@@ -319,10 +322,8 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
                     .order_by("-rank")
                     .distinct()
                 )
-
             elif not (toggles_active or title_id or ownership_id or source_id):
                 candidates = CandidateProfile.objects.none()
-
             if toggle_filters["actively_looking"]:
                 candidates = candidates.filter(actively_looking=True)
             if toggle_filters["open_to_relocation"]:
@@ -331,19 +332,32 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
                 candidates = candidates.filter(currently_working=True)
             if toggle_filters["previously_placed"]:
                 candidates = candidates.filter(placement_record__isnull=False)
-
             candidates = candidates.annotate(resume_count=Count("resumes"))
 
-        context["candidates"] = candidates
+        # Pagination
+        page_number = request.GET.get("page", 1)
+        paginator = Paginator(candidates, self.paginate_by)
+        page_obj = paginator.get_page(page_number)
+
+        # Preserve all GET parameters except 'page' for pagination links
+        get_params = request.GET.copy()
+        if "page" in get_params:
+            get_params.pop("page")
+        context["get_params"] = get_params.urlencode()
+
+        context["candidates"] = page_obj.object_list
+        context["page_obj"] = page_obj
+        context["paginator"] = paginator
         context["query"] = query
-        context["selected_count"] = candidates.count()
+        context["selected_count"] = paginator.count
         context["total_count_profile"] = CandidateProfile.objects.count()
         context["total_count_resume"] = CandidateResume.objects.count()
         context["all_sources"] = all_sources
-        context["selected_title_id"] = title_id
         context["all_ownerships"] = all_ownerships
+        context["titles"] = titles
+        context["selected_title_id"] = title_id
         context["selected_ownership_id"] = ownership_id
-
+        context["selected_source_id"] = source_id
         return context
 
 

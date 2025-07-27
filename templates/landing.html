@@ -31,14 +31,14 @@
                                 </div>
                             </div>
                         </div>
-                        <div id="request-access-button" class="flex-display justify-center {% if request.is_mobile %} vertical-align {% endif %}" style="margin-right: 2rem; width: 200px; border: 1px solid black; border-radius: var(--std-border-radius); padding: 0.5rem; 2rem; background: transparent; color: #666;">
-                            <div class="flex-display justify-center {% if request.is_mobile %}  {% else %} vertical-align {% endif %}" style="margin-left: 0.5rem; transition: transform 0.2s; ">
-                                <span style="font-size: 18px; color: black">Request Access</span>
-                                <div class="flex-display vertical-align justify-center" style="color: black; margin-left: 0.5rem; transition: transform 0.2s; ">
-                                    {% include 'red_shell_recruiting/components/svg_components.html' with type='user' %}
-                                </div>
-                            </div>
-                        </div>
+{#                        <div id="request-access-button" class="flex-display justify-center {% if request.is_mobile %} vertical-align {% endif %}" style="margin-right: 2rem; width: 200px; border: 1px solid black; border-radius: var(--std-border-radius); padding: 0.5rem; 2rem; background: transparent; color: #666;">#}
+{#                            <div class="flex-display justify-center {% if request.is_mobile %}  {% else %} vertical-align {% endif %}" style="margin-left: 0.5rem; transition: transform 0.2s; ">#}
+{#                                <span style="font-size: 18px; color: black">Request Access</span>#}
+{#                                <div class="flex-display vertical-align justify-center" style="color: black; margin-left: 0.5rem; transition: transform 0.2s; ">#}
+{#                                    {% include 'red_shell_recruiting/components/svg_components.html' with type='user' %}#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        </div>#}
                     </div>
                     {% if not request.is_mobile %}
                         <div style="display: flex; gap: 1.5rem; color: #6c757d;">
