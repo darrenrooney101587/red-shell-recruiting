@@ -7,7 +7,7 @@
 <div class="flex-display column align-baseline search-dropdown">
     <div style="width: 100%; height: 25px;" class="custom-dropdown" id="title-search-dropdown-wrapper">
         <div class="flex-display space-between">
-            <div class="selected-option ellipsis" id="candidate-title-dropdown" data-placeholder="Select a Title">
+            <div style="{% if request.is_mobile %}font-size: 16px;{% endif %}" class="selected-option ellipsis" id="candidate-title-dropdown" data-placeholder="Select a Title">
                 {% with selected=request.GET.title_id|default:'' %}
                     {% if selected %}
                         {% for title in titles %}
@@ -24,7 +24,7 @@
             <span class="chevron-up" style="display: none;">{% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}</span>
         </div>
         <ul class="dropdown-list" id="candidate-title-list">
-            <li class="option placeholder-option" data-value="">Select a Title</li>
+            <li style="{% if request.is_mobile %}font-size: 16px;{% endif %}" class="option placeholder-option" data-value="">Select a Title</li>
             {% for title in titles %}
                 <li class="flex-display space-between option" data-value="{{ title.id }}">{{ title.display_name }} <span style='color: var(--faded-gray-color); font-size: 12px;'>({{ title.count }})</span></li>
             {% endfor %}
@@ -33,7 +33,7 @@
     </div>
     <div style="width: 100%; height: 25px" class="custom-dropdown" id="ownership-search-dropdown-wrapper">
         <div class="flex-display space-between">
-            <div class="selected-option ellipsis" id="candidate-ownership-dropdown" data-placeholder="Select an Ownership">
+            <div style="{% if request.is_mobile %}font-size: 16px;{% endif %}"  class="selected-option ellipsis" id="candidate-ownership-dropdown" data-placeholder="Select an Ownership">
                 {% with selected=request.GET.ownership_id|default:'' %}
                     {% if selected %}
                         {% for owner in all_ownerships %}
@@ -50,7 +50,7 @@
             <span class="chevron-up" style="display: none;">{% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}</span>
         </div>
         <ul class="dropdown-list" id="candidate-ownership-list">
-            <li class="option placeholder-option" data-value="">Select an Ownership</li>
+            <li style="{% if request.is_mobile %}font-size: 16px;{% endif %}" class="option placeholder-option" data-value="">Select an Ownership</li>
             {% for owner in all_ownerships %}
                 <li class="flex-display space-between option" data-value="{{ owner.id }}">{{ owner.display_name }}</li>
             {% endfor %}
@@ -59,7 +59,7 @@
     </div>
     <div style="width: 100%; height: 25px;" class="custom-dropdown" id="source-search-dropdown-wrapper">
         <div class="flex-display space-between">
-            <div class="selected-option ellipsis" id="candidate-source-dropdown" data-placeholder="Select a Source">
+            <div style="{% if request.is_mobile %}font-size: 16px;{% endif %}"  class="selected-option ellipsis" id="candidate-source-dropdown" data-placeholder="Select a Source">
                 {% with selected=request.GET.source_id|default:'' %}
                     {% if selected %}
                         {% for source in all_sources %}
@@ -76,7 +76,7 @@
             <span class="chevron-up" style="display: none;">{% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}</span>
         </div>
         <ul class="dropdown-list" id="candidate-source-list">
-            <li class="option placeholder-option" data-value="">Select a Source</li>
+            <li style="{% if request.is_mobile %}font-size: 16px;{% endif %}" class="option placeholder-option" data-value="">Select a Source</li>
             {% for source in all_sources %}
                 <li class="flex-display space-between option" data-value="{{ source.id }}">{{ source.display_name }}</li>
             {% endfor %}

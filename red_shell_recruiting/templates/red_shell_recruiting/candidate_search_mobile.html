@@ -14,23 +14,33 @@
                 <div class="section  vertical-align">
                     <div class="" style="width: 100%;">
                         <div class="flex-display space-between" style="border-right: 1px solid rgba(0,0,0,.1);">
-                            <span style="margin-right: 1rem;">Total Candidates: {{ total_count_profile }}</span>
-                            <span style="margin-right: 1rem;">Total Resumes: {{ total_count_resume }}</span>
+                            <span style="font-weight: bold; margin-right: 1rem;">Total Candidates: {{ total_count_profile }}</span>
+                            <span style="font-weight: bold; margin-right: 1rem;">Total Resumes: {{ total_count_resume }}</span>
                         </div>
                         <hr>
                         <div>
-                            <div class="" style="width: 100%;">
-                                <input style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" type="text" class="text-input" name="q" value="{{ query }}" placeholder="Search candidates..." />
-                                <br>
-                                <br>
-                                <div class="flex-display space-between vertical-align">
-                                    <div class="flex-display vertical-align justify-center">
-                                        <a href="{% url 'candidate-search' %}" class="button large">Clear</a>
+                            <div>
+                                <div class="flex-display column vertical-align">
+                                    <div class="flex-display vertical-align justify-center" style="gap: 0.5rem; width: 100%; margin-bottom: 0.5rem;">
+                                        <button class="button font-responsive" type="submit" style="min-width: 100px; width: 50%; height: 40px; text-align: center">Search</button>
+                                        <a class="button font-responsive" href="{% url 'candidate-search' %}?q=all" style="line-height: 30px; height: 40px; min-width: 100px; width: 50%; text-align: center">All</a>
                                     </div>
-                                    <button class="button large" type="submit">Search</button>
-                                    <div style="width: auto; margin-left: 0.5rem;" class="flex-display vertical-align justify-center">
-                                        <a href="{% url 'candidate-search' %}?q=all" class="button large">All</a>
-                                    </div>
+                                    <a class="button font-responsive" href="{% url 'candidate-search' %}" style="line-height: 30px; height: 40px; text-align: center; width: 100%">Clear</a>
+                                    {% if candidates %}
+                                        <div id="pagination-container" class="pagination flex-display column vertical-align" style="margin-top: 0.5rem;">
+                                            <div class="flex-display vertical-align" style="gap: 0.5rem;">
+                                                {% if page_obj.has_previous %}
+                                                    <a class="button font-responsive" href="?{{ get_params }}&page={{ page_obj.previous_page_number }}" style="line-height: 30px; height: 40px; min-width: 80px; text-align: center;">Previous</a>
+                                                {% endif %}
+                                                <span class="font-responsive" style="line-height: 30px; height: 40px; min-width: 80px; text-align: center; background: #f5f5f5; border-radius: 4px; padding: 0.25rem 0.75rem; display: inline-block;">
+                                            {{ page_obj.number }} of {{ paginator.num_pages }}
+                                        </span>
+                                                {% if page_obj.has_next %}
+                                                    <a class="button font-responsive" href="?{{ get_params }}&page={{ page_obj.next_page_number }}" style="line-height: 30px; height: 40px; min-width: 80px; text-align: center;">Next</a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
                             <hr>
@@ -46,66 +56,10 @@
         </div>
         <hr>
         {% if candidates %}
-            <div class="flex-display justify-center vertical-align" style="margin-left: 1rem; margin-right: 1rem; margin-bottom: 1rem; height: 39px; background-color: lightgreen; border-radius: 6px">
-                <span style="margin-right: 1rem; font-size: 16px;">Total Results: {{ selected_count }}</span>
-            </div>
             <div class="flex-display col flex-wrap" style="gap: 2rem;">
                 {% for candidate in candidates %}
-                    <div class="candidate-card section" data-candidate-id="{{ candidate.id }}" style="width: 100%">
-                        <div class="flex-display space-between vertical-align">
-                            <h2>{{ candidate.first_name }} {{ candidate.last_name }}</h2>
-                            <h2 class="small-title">Added {{ candidate.created_at }}</h2>
-                        </div>
-                        <hr style="margin-top: 0.5rem; margin-bottom: 0.5rem;">
-                        <div class="">
-                            <div>
-                                <span style="font-size: 9px; color: var(--faded-gray-color)">Job Title</span>
-                                <h4>{{ candidate.title.display_name }}</h4>
-                            </div>
-                            <div>
-                                <span style="font-size: 9px; color: var(--faded-gray-color)">Email</span>
-                                <h4>{{ candidate.email }}</h4>
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="">
-                            <div class="">
-                                <div class="flex-display vertical-align space-between" style="margin-bottom: 1rem; width: 150px;">
-                                    <h5 style="margin-right: 0.5rem;">Actively Looking</h5>
-                                    {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.actively_looking %}
-                                </div>
-                                <div class="flex-display vertical-align space-between" style="margin-bottom: 1rem; width: 150px;">
-                                    <h5 style="margin-right: 0.5rem;">Open to Relocation</h5>
-                                    {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.open_to_relocation %}
-                                </div>
-                                <div class="flex-display vertical-align space-between" style="margin-bottom: 1rem; width: 150px;">
-                                    <h5 style="margin-right: 0.5rem;">Currently Working</h5>
-                                    {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.currently_working %}
-                                </div>
-                                <div class="flex-display vertical-align space-between" style="margin-bottom: 1rem; width: 150px;">
-                                    <h5 style="margin-right: 0.5rem;">Previously Placed</h5>
-                                    {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.placement_record.exists %}
-                                </div>
-                            </div>
-                            <hr>
-                            <div class="">
-                                <div style="height: 100%; border: 0; border-left: 1px solid rgba(0,0,0,.1); margin-left: 1rem; margin-right: 1rem;"></div>
-                                <div class="">
-                                    <span style="text-align: center">{{ candidate.resumes.count }} Resume(s)</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    {% include 'red_shell_recruiting/components/candidate_card.html' with candidate=candidate %}
                 {% endfor %}
-            </div>
-            <div class="pagination flex-display vertical-align justify-center" style="margin-top: 2rem;">
-                {% if page_obj.has_previous %}
-                    <a class="button large" href="?{{ get_params }}&page={{ page_obj.previous_page_number }}">Previous</a>
-                {% endif %}
-                <span style="margin: 0 1rem;">Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
-                {% if page_obj.has_next %}
-                    <a class="button large" href="?{{ get_params }}&page={{ page_obj.next_page_number }}">Next</a>
-                {% endif %}
             </div>
         {% else %}
             {% if query %}

@@ -239,9 +239,9 @@
                     {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' text='Select date' id='journal-meeting-date' name='meeting_date' required=True style='width:100%; height: 45px;' %}
                 </div>
                 {% if request.is_mobile %}
-                    {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' color='green' text='Add Journal Entry' extra_class='button green' style='font-size:18px; height: 45px; width: 100%;' id='add-journal-entry-btn' %}
+                    {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' color='green' text='Add Journal Entry' extra_class='button green font-responsive' style='height: 45px; width: 100%;' id='add-journal-entry-btn' %}
                 {% else %}
-                    {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' color='green' text='Add Journal Entry' extra_class='button green' style='font-size:12px; width: 100%;' id='add-journal-entry-btn' %}
+                    {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' color='green' text='Add Journal Entry' extra_class='button green font-responsive' style='width: 100%;' id='add-journal-entry-btn' %}
                 {% endif %}
             </div>
             <hr>
@@ -274,7 +274,7 @@
             <div class="section-actions">
                 <input required type="file" id="candidate-resume" name="candidate_resume" accept=".pdf, .doc, .docx">
                 <button id="trigger-resume-upload" class="button flex-display vertical-align space-between" style="height: 45px;">
-                    <span style="font-size: 18px;">Attach Resume</span>
+                    <span class="font-responsive" style="font-size: 18px;">Attach Resume</span>
                 </button>
                 <div class="file-name ellipsis" id="file-name"></div>
                 {% with button_type='button' button_color='green' button_text='Upload' button_extra_class='button green flex-display vertical-align space-between' button_style='display:none; margin-left: 1rem;' button_id='add-resume-button' %}

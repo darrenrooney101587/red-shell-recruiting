@@ -9,13 +9,13 @@
                 {% endif %}
             </div>
         </div>
-        <h3 style="font-size: 12px;" class="small-title" data-created-at="{{ candidate.created_at|date:'c' }}">
-            Added <span style="font-size: 12px;" class="created-at-local"></span>
+        <h3 class="small-title font-responsive" data-created-at="{{ candidate.created_at|date:'c' }}">
+            Added <span class="created-at-local font-responsive"></span>
         </h3>
     </div>
     <hr style="margin-top: 0.5rem; margin-bottom: 0.5rem;">
     <div class="">
-        <span style="font-size: 12px; color: var(--faded-gray-color)">Email</span>
+        <span class="font-responsive" style="color: var(--faded-gray-color)">Email</span>
         <h4>{{ candidate.email }}</h4>
     </div>
     <hr>
@@ -42,20 +42,20 @@
         <div class="flex-display space-between">
             <div class="flex-display column space-between">
                 <div class="flex-display vertical-align space-between" style="; height: 20px">
-                    <span style="font-size: 12px;">{{ candidate.resumes.count }}</span>
-                    <span style="font-size: 12px; margin-left: 0.5rem;">Resume(s)</span>
+                    <span class="font-responsive">{{ candidate.resumes.count }}</span>
+                    <span class="font-responsive" style="margin-left: 0.5rem;">Resume(s)</span>
                 </div>
                 <div class="flex-display vertical-align space-between" style="; height: 20px">
-                    <span style="font-size: 12px;">{{ candidate.culinary_portfolios.count }}</span>
-                    <span style="font-size: 12px; margin-left: 0.5rem;">Portfolio(s)</span>
+                    <span class="font-responsive">{{ candidate.culinary_portfolios.count }}</span>
+                    <span class="font-responsive" style="margin-left: 0.5rem;">Portfolio(s)</span>
                 </div>
                 <div class="flex-display vertical-align space-between" style="; height: 20px">
-                    <span style="font-size: 12px;">{{ candidate.documents.count }}</span>
-                    <span style="font-size: 12px; margin-left: 0.5rem;">Document(s)</span>
+                    <span class="font-responsive">{{ candidate.documents.count }}</span>
+                    <span class="font-responsive" style="margin-left: 0.5rem;">Document(s)</span>
                 </div>
                 <div class="flex-display vertical-align space-between" style="; height: 20px">
-                    <span style="font-size: 12px;">{{ candidate.journal_entries.count }}</span>
-                    <span style="font-size: 12px; margin-left: 0.5rem;">Journal Items(s)</span>
+                    <span class="font-responsive">{{ candidate.journal_entries.count }}</span>
+                    <span class="font-responsive" style="margin-left: 0.5rem;">Journal Items(s)</span>
                 </div>
             </div>
         </div>

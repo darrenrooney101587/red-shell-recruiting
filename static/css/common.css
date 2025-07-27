@@ -820,6 +820,13 @@ h6 {
     gap: 0.5rem;
 }
 
+.grid-cols-1 {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    grid-template-rows: repeat(1, auto);
+    gap: 0.5rem;
+}
+
 /*
   Ellipsis
   */
@@ -1445,6 +1452,7 @@ li.nav-item.sub {
     cursor: pointer;
 }
 
+
 .small-title {
     font-size: 12px;
     color: var(--faded-gray-color);
@@ -1598,4 +1606,16 @@ li.nav-item.sub {
 
 .placement-records-list li:hover .small-title {
     font-weight: bold;
+}
+
+.font-responsive {
+    font-size: 12px;
+}
+@media (max-width: 768px) {
+    .font-responsive.button {
+        font-size: 16px;
+    }
+    .search-dropdown .custom-dropdown {
+        width: 100% !important;
+    }
 }
