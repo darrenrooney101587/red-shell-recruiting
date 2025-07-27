@@ -101,7 +101,7 @@
 }
 
 .daterangepicker.show-calendar .drp-buttons {
-  display: block;
+  display: flex;
 }
 
 .daterangepicker.auto-apply .drp-buttons {
@@ -275,9 +275,9 @@
 }
 
 .daterangepicker .drp-selected {
-  display: inline-block;
   font-size: 12px;
   padding-right: 8px;
+  display: none;
 }
 
 .daterangepicker .drp-buttons .btn {
@@ -447,4 +447,33 @@
 
 .daterangepicker.mobile-vertical .drp-calendar.right {
   margin-top: 0 !important;
+}
+
+.daterangepicker .drp-buttons {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100vw;
+  background: #fff;
+  z-index: 4000;
+  padding: 16px 0 16px 0;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+.daterangepicker .drp-buttons .btn {
+  font-size: 1.25em;
+  padding: 16px 32px;
+  border-radius: 8px;
+  min-width: 120px;
+}
+
+button.cancelBtn.btn.btn-sm.btn-default {
+  background-color: var(--accent-red-color);
+  color: white;
+}
+
+button.applyBtn.btn.btn-sm.btn-primary {
+  background-color: var(--accent-green-color);
 }

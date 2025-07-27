@@ -281,6 +281,9 @@
         if (typeof options.alwaysShowCalendars === 'boolean')
             this.alwaysShowCalendars = options.alwaysShowCalendars;
 
+        // Add support for single date selection with multi-month stacked view
+        this.forceSingleDateMultiMonth = options.forceSingleDateMultiMonth || false;
+
         // update day names order to firstDay
         if (this.locale.firstDay != 0) {
             var iterator = this.locale.firstDay;
@@ -542,6 +545,11 @@
             this.updateMonthsInView();
             this.updateCalendars();
             this.updateFormInputs();
+            // If forceSingleDateMultiMonth, always show both calendars
+            if (this.forceSingleDateMultiMonth) {
+                this.container.find('.drp-calendar.left').show();
+                this.container.find('.drp-calendar.right').show();
+            }
         },
 
         updateMonthsInView: function() {
@@ -1308,6 +1316,34 @@
             var cal = $(e.target).parents('.drp-calendar');
             var date = cal.hasClass('left') ? this.leftCalendar.calendar[row][col] : this.rightCalendar.calendar[row][col];
 
+            // Support forceSingleDateMultiMonth: always select a single date, even with two calendars
+            if (this.forceSingleDateMultiMonth) {
+                if (this.timePicker) {
+                    var hour = parseInt(this.container.find('.left .hourselect').val(), 10);
+                    if (!this.timePicker24Hour) {
+                        var ampm = this.container.find('.left .ampmselect').val();
+                        if (ampm === 'PM' && hour < 12)
+                            hour += 12;
+                        if (ampm === 'AM' && hour === 12)
+                            hour = 0;
+                    }
+                    var minute = parseInt(this.container.find('.left .minuteselect').val(), 10);
+                    if (isNaN(minute)) {
+                        minute = parseInt(this.container.find('.left .minuteselect option:last').val(), 10);
+                    }
+                    var second = this.timePickerSeconds ? parseInt(this.container.find('.left .secondselect').val(), 10) : 0;
+                    date = date.clone().hour(hour).minute(minute).second(second);
+                }
+                this.setStartDate(date.clone());
+                this.setEndDate(date.clone());
+                this.updateView();
+                if (!this.timePicker && this.autoApply) {
+                    this.clickApply();
+                }
+                e.stopPropagation();
+                return;
+            }
+
             //
             // this function needs to do a few things:
             // * alternate between selecting a start and end date for the range,
@@ -1418,14 +1454,9 @@
 
             this.startDate = this.oldStartDate;
             this.endDate = this.oldEndDate;
-            // this.hide();
-
-            $(this.container).css({
-                "visibility": "hidden",
-                "opacity": "0",
-                "transition": "visibility 0s linear 0.2s, opacity 0.2s linear"
-            });
-
+            // Hide the container fully so it can be reopened
+            this.container.removeAttr('style').hide();
+            this.isShowing = false;
             this.element.trigger('cancel.daterangepicker', this);
         },
 
@@ -1497,6 +1528,9 @@
                 start.minute(minute);
                 start.second(second);
                 this.setStartDate(start);
+                if (this.forceSingleDateMultiMonth) {
+                    this.rightCalendar.month = this.leftCalendar.month.clone().add(1, 'month');
+                }
                 if (this.singleDatePicker) {
                     this.endDate = this.startDate.clone();
                 } else if (this.endDate && this.endDate.format('YYYY-MM-DD') == start.format('YYYY-MM-DD') && this.endDate.isBefore(start)) {

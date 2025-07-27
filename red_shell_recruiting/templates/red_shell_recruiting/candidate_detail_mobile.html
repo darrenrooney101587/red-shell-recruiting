@@ -352,58 +352,31 @@
     <script src="{% static 'js/daterangepicker.js' %}"></script>
     <script>
         $(function() {
-            // Responsive daterangepicker initialization
-            if (window.matchMedia('(max-width: 600px)').matches) {
-                $('#journal-meeting-date').daterangepicker({
-                    singleDatePicker: false, // Show two months stacked
-                    autoUpdateInput: false,
-                    minDate: new Date(),
-                    locale: { cancelLabel: 'Clear' },
-                    opens: 'center',
-                    theme: ''
-                });
-            } else {
-                $('#journal-meeting-date').daterangepicker({
-                    singleDatePicker: true,
-                    autoUpdateInput: false,
-                    minDate: new Date(),
-                    locale: { cancelLabel: 'Clear' },
-                    opens: 'center',
-                    theme: ''
-                });
-            }
+            // Show two stacked months, but only allow single date selection
+            $('#journal-meeting-date').daterangepicker({
+                singleDatePicker: false, // Only allow single date selection
+                forceSingleDateMultiMonth: true, // Custom option for single date, multi-month
+                autoApply: false,
+                autoUpdateInput: false,
+                minDate: new Date(),
+                locale: { cancelLabel: 'Clear' },
+                opens: 'center',
+                theme: ''
+            });
             $('#journal-meeting-date').on('apply.daterangepicker', function(ev, picker) {
-                $(this).val(picker.startDate.format('YYYY-MM-DD'));
+                var date = picker.startDate.format('YYYY-MM-DD');
+                $(this).val(date);
             });
             $('#journal-meeting-date').on('cancel.daterangepicker', function(ev, picker) {
                 $(this).val('');
             });
-            // Add mobile-vertical class and top arrows to daterangepicker on mobile
-            if (window.matchMedia('(max-width: 600px)').matches) {
-                $(document).on('DOMNodeInserted', function(e) {
-                    var $drp = $(e.target);
-                    if ($drp.hasClass('daterangepicker')) {
-                        $drp.addClass('mobile-vertical');
-                        // Remove any existing top arrows
-                        $drp.find('.drp-top-arrows').remove();
-                        // Add top arrows
-                        var $arrows = $('<div class="drp-top-arrows" style="width:100%;display:flex;justify-content:space-between;position:absolute;top:0;left:0;z-index:10;pointer-events:auto;"></div>');
-                        var $left = $('<button type="button" class="drp-arrow drp-arrow-left" style="background:none;border:none;font-size:2rem;padding:0.5rem 1.5rem;cursor:pointer;">&#8592;</button>');
-                        var $right = $('<button type="button" class="drp-arrow drp-arrow-right" style="background:none;border:none;font-size:2rem;padding:0.5rem 1.5rem;cursor:pointer;">&#8594;</button>');
-                        $arrows.append($left).append($right);
-                        $drp.prepend($arrows);
-                        // Hide default calendar arrows
-                        $drp.find('.drp-calendar .prev, .drp-calendar .next').css('visibility', 'hidden');
-                        // Bind click events
-                        $left.on('click', function() {
-                            $drp.find('.drp-calendar.left .prev').click();
-                        });
-                        $right.on('click', function() {
-                            $drp.find('.drp-calendar.right .next').click();
-                        });
-                    }
-                });
-            }
+            // Add mobile-vertical class to daterangepicker on mobile
+            $(document).on('DOMNodeInserted', function(e) {
+                var $drp = $(e.target);
+                if ($drp.hasClass('daterangepicker')) {
+                    $drp.addClass('mobile-vertical');
+                }
+            });
         });
         const clientPlacementListUrl = "{% url 'client-placement-list' %}";
         const removePlacementButton = $("#remove-placement-button-template").html();
