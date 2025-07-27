@@ -101,7 +101,8 @@
 }
 
 .daterangepicker.show-calendar .drp-buttons {
-  display: block;
+  display: flex;
+  justify-content: space-between;
 }
 
 .daterangepicker.auto-apply .drp-buttons {
@@ -271,11 +272,10 @@
   display: none;
   line-height: 12px;
   vertical-align: middle;
-  padding-right: 2em;
 }
 
 .daterangepicker .drp-selected {
-  display: inline-block;
+  display: none;
   font-size: 12px;
   padding-right: 8px;
 }
@@ -393,20 +393,11 @@
   }
 }
 
-@media (min-width: 730px) {
-  .daterangepicker .ranges {
-    width: auto;
-  }
+button.cancelBtn.btn.btn-sm.btn-default {
+  background-color: var(--accent-red-color);
+  color: white;
+}
 
-  .daterangepicker .ranges {
-    float: left;
-  }
-
-  .daterangepicker.rtl .ranges {
-    float: right;
-  }
-
-  .daterangepicker .drp-calendar.left {
-    clear: none !important;
-  }
+button.applyBtn.btn.btn-sm.btn-primary {
+  background-color: var(--accent-green-color);
 }

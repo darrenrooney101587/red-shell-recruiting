@@ -232,18 +232,16 @@
             <div id="journal-entry-fields" class="journal-mobile-fields" style="width: 100%; margin-bottom: 1rem;">
                 <div style="width: 100%;">
                     <div style="margin-bottom: 1rem;">
-                        <h3 style="color: var(--faded-gray-color)" class="small-title">Date</h3>
-                        <input type="text" id="journal-meeting-date" name="meeting_date" required class="text-input" autocomplete="off" placeholder="Select date" style="cursor:pointer; background-color:#fff;">
-                    </div>
-                    <div style="margin-bottom: 1rem;">
-                        <h3 style="margin-bottom: 0.5rem; color: var(--faded-gray-color)" class="small-title">Meeting Notes</h3>
                         <textarea id="journal-notes" style="border: 1px solid var(--ui-support-element-color); width: 100%; height: 200px; padding: 0.5rem;" name="notes" class="text-input" placeholder="Meeting notes..."></textarea>
                     </div>
                 </div>
+                <div style="margin-bottom: 1rem;">
+                    {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' text='Select date' id='journal-meeting-date' name='meeting_date' required=True style='width:100%; height: 45px;' %}
+                </div>
                 {% if request.is_mobile %}
-                    {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' color='green' text='Add Journal Entry' extra_class='button green' style='font-size:18px; height: 50px; width: 100%; margin-top: 1rem;' id='add-journal-entry-btn' %}
+                    {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' color='green' text='Add Journal Entry' extra_class='button green' style='font-size:18px; height: 45px; width: 100%;' id='add-journal-entry-btn' %}
                 {% else %}
-                    {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' color='green' text='Add Journal Entry' extra_class='button green' style='font-size:12px; width: 100%; margin-top: 1rem;' id='add-journal-entry-btn' %}
+                    {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' color='green' text='Add Journal Entry' extra_class='button green' style='font-size:12px; width: 100%;' id='add-journal-entry-btn' %}
                 {% endif %}
             </div>
             <hr>
@@ -347,6 +345,7 @@
             </div>
         </div>
     </div>
+    <script src="{% static 'js/daterangepicker_wrapper.js' %}"></script>
     <script src="{% static 'js/candidate_edit_save.js' %}" crossorigin="anonymous"></script>
     <script src="{% static 'js/moment.min.js' %}"></script>
     <script src="{% static 'js/daterangepicker.js' %}"></script>
@@ -358,14 +357,14 @@
                 forceSingleDateMultiMonth: true, // Custom option for single date, multi-month
                 autoApply: false,
                 autoUpdateInput: false,
-                minDate: new Date(),
+                minDate: false,
                 locale: { cancelLabel: 'Clear' },
                 opens: 'center',
                 theme: ''
             });
             $('#journal-meeting-date').on('apply.daterangepicker', function(ev, picker) {
                 var date = picker.startDate.format('YYYY-MM-DD');
-                $(this).val(date);
+                $(this).text(date);
             });
             $('#journal-meeting-date').on('cancel.daterangepicker', function(ev, picker) {
                 $(this).val('');
@@ -376,6 +375,7 @@
                 if ($drp.hasClass('daterangepicker')) {
                     $drp.addClass('mobile-vertical');
                 }
+                $(this).text('Select date');
             });
         });
         const clientPlacementListUrl = "{% url 'client-placement-list' %}";
@@ -479,73 +479,6 @@
                     }
                 });
             });
-        }
-        /**
-         * Returns an array of class names for a jQuery element.
-         * @param el - jQuery element
-         * @returns {Array}
-         */
-        function getClasses(el) {
-            var classAttr = el.attr('class');
-            return classAttr ? classAttr.split(/\s+/) : [];
-        }
-
-        /**
-         * Raises the input controller (stub for compatibility).
-         * @param selector - jQuery selector
-         */
-        function inputControllerRaise(selector) {
-            // No-op for now, can be extended for label animation if needed
-        }
-
-        /**
-         * Custom date picker initialization for journal entry date field.
-         * @param parentEl - selector for the parent element
-         */
-        function datePicker(parentEl) {
-            setTimeout(function() {
-                picker();
-            }, 500);
-
-            function picker() {
-                var el = $(parentEl).parent();
-                var classes = getClasses(el);
-                var hasTheme = function() {
-                    for(var i = 0; i < classes.length; i++) {
-                        if(classes[i].includes('section-theme')) {
-                            return classes[i];
-                        }
-                    }
-                    return '';
-                };
-
-                var dateParams = {
-                    date_bx_ext: parentEl,
-                    date_bx_date_std_input: parentEl + ' #journal-meeting-date',
-                    date_bx_input_class: 'date-bx-input',
-                    single_date_picker: true
-                };
-
-                $(dateParams.date_bx_date_std_input).daterangepicker({
-                    opens: 'center',
-                    minDate: new Date(),
-                    singleDatePicker: dateParams.single_date_picker,
-                    locale: { cancelLabel: 'Clear' },
-                    autoUpdateInput: false,
-                    theme: hasTheme()
-                }, function(start) {
-                    $(dateParams.date_bx_ext + ' #journal-meeting-date').val(start.format('YYYY-MM-DD'));
-                });
-
-                $(dateParams.date_bx_date_std_input).on('cancel.daterangepicker', function() {
-                    $(dateParams.date_bx_date_std_input).val('').blur();
-                    picker();
-                });
-
-                $(dateParams.date_bx_date_std_input).on('apply.daterangepicker', function() {
-                    inputControllerRaise(dateParams.date_bx_date_std_input);
-                });
-            }
         }
         $(document).ready(function () {
             CandidateEditSaveActions();

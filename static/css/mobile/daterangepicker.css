@@ -477,3 +477,16 @@ button.cancelBtn.btn.btn-sm.btn-default {
 button.applyBtn.btn.btn-sm.btn-primary {
   background-color: var(--accent-green-color);
 }
+
+.calendar-table th.next {
+  position: absolute;
+  right: 18px;
+  top: 20px;
+  z-index: 2;
+  /* background: #fff; */
+  border-radius: 4px;
+  color: white;
+}
+.daterangepicker.mobile-vertical .drp-calendar.right .calendar-table {
+  position: relative;
+}
