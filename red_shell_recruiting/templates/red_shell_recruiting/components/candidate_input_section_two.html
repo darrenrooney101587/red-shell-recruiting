@@ -36,11 +36,13 @@
 <br>
 <div id="client-placement-toggle-wrapper" style="display: none;" class="flex-display column w-100">
     <div style="margin-bottom: 1rem;">
-        {% include 'red_shell_recruiting/components/candidate_placement_dropdown_component.html' with selected_placement=None name='placement-client' id_suffix='placement-records' all_placements=all_placements %}
+        {% include 'red_shell_recruiting/components/candidate_placement_dropdown_component.html' with selected_placement=None name='client-placement-id' id_suffix='placement-records' all_placements=all_placements %}
     </div>
     <div class="flex-display vertical-align justify-center" style="margin-bottom: 1rem;">
-        {% include 'red_shell_recruiting/components/month_dropdown_component.html' with selected_month=None name='placement-month' %}
-        {% include 'red_shell_recruiting/components/year_dropdown_component.html' with selected_year=None name='placement-year' year_range=year_range %}
+        {% include 'red_shell_recruiting/components/month_dropdown_component.html' with selected_month=None name='client-placement-month' %}
+        {% with year_range=1990|get_range:2027 %}
+            {% include 'red_shell_recruiting/components/year_dropdown_component.html' with selected_year=None name='client-placement-year' year_range=year_range %}
+        {% endwith %}
     </div>
-    <input type="number" id="placement-compensation" class="text-input" placeholder="Compensation" style="width: 100%; border-bottom: 1px solid var(--ui-support-element-color);">
+    <input type="number" id="client-placement-compensation" name="client-placement-compensation" class="text-input" placeholder="Compensation" style="width: 100%; border-bottom: 1px solid var(--ui-support-element-color);">
 </div>

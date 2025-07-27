@@ -182,7 +182,7 @@ class CandidateInput(LoginRequiredMixin, View):
                     email=email,
                     compensation_from=compensation_from,
                     compensation_to=compensation_to,
-                    notes=notes,
+                    entry_notes=notes,
                     open_to_relocation=open_to_relocation,
                     currently_working=currently_working,
                     actively_looking=actively_looking,
@@ -716,7 +716,6 @@ class UploadCulinaryPortfolio(LoginRequiredMixin, View):
         return JsonResponse({"success": False, "error": "No file uploaded"}, status=400)
 
 
-@method_decorator(login_required, name="dispatch")
 class JournalEntryView(View):
     """View for handling candidate journal entries (GET for list, POST for add)."""
 
