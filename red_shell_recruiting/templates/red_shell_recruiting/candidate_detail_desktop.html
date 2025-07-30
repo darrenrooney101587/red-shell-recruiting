@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="{% static 'css/daterangepicker.css' %}">
 {% endblock %}
 {% block content %}
-    <div class="section" style="width: 80%; margin: 2rem auto 0;">
+    <div class="section" style="width: 70%; margin: 2rem auto 0;">
         <div class="messages"></div>
         <div id="candidate-view-mode">
             <h3 class="medium-title">Demographic Info</h3>
@@ -196,9 +196,9 @@
             </form>
         </div>
     </div>
-    <div class="section" style="width: 80%; margin: 2rem auto 0;">
+    <div class="section" style="width: 70%; margin: 2rem auto 0;">
         <div class="flex-display vertical-align">
-            <h3 style="color: var(--faded-gray-color)" class="medium-title">Journal Entries</h3>
+            <h3 class="medium-title">Journal Entries</h3>
         </div>
         <div class="journal-messages messages" style="margin-top: 1rem;"></div>
         <hr>
@@ -218,9 +218,9 @@
             <div id="journal-entries-list" style="margin-top: 1rem;"></div>
         </div>
     </div>
-    <div class="section" style="width: 80%; margin: 2rem auto 0;">
+    <div class="section" style="width: 70%; margin: 2rem auto 0;">
         <div class="flex-display vertical-align">
-            <h3 style="color: var(--faded-gray-color)" class="medium-title">Placement Records</h3>
+            <h3 class="medium-title">Placement Records</h3>
         </div>
         <div class="placement-messages messages" style="margin-top: 1rem;"></div>
         <hr>
@@ -251,7 +251,7 @@
             <div id="placement-records-list" style="margin-top: 1rem;"></div>
         </div>
     </div>
-    <div class="section flex-display space-between" style="width: 80%; margin: 2rem auto 0;">
+    <div class="section flex-display space-between" style="width: 70%; margin: 2rem auto 0;">
         <div class="section-group flex-display space-between" style="width: 100%">
             <div class="section-col">
                 <h3 class="medium-title">Resumes</h3>
@@ -344,113 +344,31 @@
     <script src="{% static 'js/moment.min.js' %}"></script>
     <script src="{% static 'js/daterangepicker.js' %}"></script>
     <script>
+
         const clientPlacementListUrl = "{% url 'client-placement-list' %}";
-        const removePlacementButton = $("#remove-placement-button-template").html();
         const uploadCulinaryPortfolioUrl = "{% url 'upload-culinary-portfolio' candidate.id %}";
         const uploadResumeUrl = "{% url "upload-resume" candidate.id %}";
         const uploadDocumentUrl = '{% url "upload-document" candidate.id %}';
         const journalEntryUrl = '{% url "journal-entries" candidate.id %}';
         const placementRecordsUrl = '{% url "placement-records" candidate.id %}';
 
-        // Show two stacked months, but only allow single date selection
-        $('#journal-meeting-date').daterangepicker({
-            {#singleDatePicker: true,#}
-            {#forceSingleDateMultiMonth: true,#}
-            autoApply: false,
-            autoUpdateInput: false,
-            minDate: false,
-            locale: { cancelLabel: 'Clear' },
-            opens: 'center',
-            theme: ''
-        });
-        $('#journal-meeting-date').on('apply.daterangepicker', function(ev, picker) {
-            var date = picker.startDate.format('YYYY-MM-DD');
-            $(this).text(date);
-        });
-        $('#journal-meeting-date').on('cancel.daterangepicker', function(ev, picker) {
-            $(this).val('');
-        });
-        $(document).on('DOMNodeInserted', function(e) {
-            $(this).text('Select date');
-        });
-
-        function loadPlacementRecords() {
-            $.get(placementRecordsUrl, function(data) {
-                $('#placement-records-list').html(data);
-            });
-        }
-        function loadPlacementClients() {
-            $.getJSON(clientPlacementListUrl, function(data) {
-                var $select = $('#placement-client');
-                $select.empty();
-                $select.append($('<option>', { value: '', text: 'Select Client' }));
-                $.each(data, function(i, item) {
-                    $select.append($('<option>', { value: item.id, text: item.name }));
-                });
-            });
-        }
-        function handleNewPlacementRecord() {
-            $('#add-placement-record-btn').on('click', function() {
-                var placementId = $('#placement-client').val();
-                var month = $('#placement-month').val();
-                var year = $('#placement-year').val();
-                var compensation = $('#placement-compensation').val();
-                if (!placementId || !month || !year || !compensation) {
-                    addClientMessage('Please fill all placement fields.');
-                    return;
-                }
-                $.ajax({
-                    url: placementRecordsUrl,
-                    method: 'POST',
-                    data: {
-                        placement_id: placementId,
-                        month: month,
-                        year: year,
-                        compensation: compensation,
-                        csrfmiddlewaretoken: '{{ csrf_token }}'
-                    },
-                    success: function() {
-                        $('#placement-client').val('');
-                        $('#placement-month').val('');
-                        $('#placement-year').val('');
-                        $('#placement-compensation').val('');
-                        loadPlacementRecords();
-                    },
-                    error: function(xhr) {
-                        addClientMessage('Error: ' + xhr.responseText);
-                    }
-                });
-            });
-        }
-        function handleRemovePlacementRecord() {
-            $('#placement-records-list').on('click', '.remove-placement', function() {
-                var $li = $(this).closest('li[data-placement-history-id]');
-                var placementId = $li.data('placement-history-id');
-                if (!placementId) return;
-                if (!confirm('Are you sure you want to remove this placement record?')) return;
-                $.ajax({
-                    url: placementRecordsUrl + '?placement_history_id=' + placementId,
-                    method: 'DELETE',
-                    headers: { 'X-CSRFToken': getCSRFToken() },
-                    success: function() { loadPlacementRecords(); },
-                    error: function(xhr) { alert('Error: ' + xhr.responseText); }
-                });
-            });
-        }
-
         $(document).ready(function () {
+
             // TOGGLE TO EDIT MODE
             $('#edit-button').on('click', function () {
                 $('#candidate-view-mode').hide();
                 $('#candidate-edit-mode').show();
-
                 $('#state-hidden').val('{{ candidate.state }}');
                 $('#city-hidden').val('{{ candidate.city }}');
                 $('#state-dropdown').text('{{ candidate.state }}');
                 $('#city-dropdown').text('{{ candidate.city }}');
                 $('#city-dropdown-wrapper').show();
             });
-        });
 
+            loadPlacementRecords();
+            loadPlacementClients();
+            handleNewPlacementRecord();
+            handleRemovePlacementRecord();
+        });
     </script>
 {% endblock %}

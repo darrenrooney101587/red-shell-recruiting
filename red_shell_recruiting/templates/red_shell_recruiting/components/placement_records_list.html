@@ -1,42 +1,42 @@
 {% load static %}
 {% load tags %}
 <hr>
-<ul class="placement-records-list">
+<div class="placement-records-lis">
     {% for placement in placements %}
         {% if request.is_mobile %}
-            <li style="margin-bottom: 1rem; flex-direction: column; align-items: flex-start;" class="flex-display vertical-align" data-placement-history-id="{{ placement.id }}">
+            <div class="placement-record-item flex-display vertical-align" data-placement-history-id="{{ placement.id }}" style="margin-bottom: 1rem; flex-direction: column; align-items: flex-start;">
                 <div class="flex-display vertical-align" style="width: 100%; justify-content: space-between;">
                     <span class="placement-remove-btn" style="margin-right: 1rem;">
-                        {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' color='' text='' icon='close' icon_size='large' extra_class='remove-placement' style='padding:7px' %}
+                        {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' color='' text='' icon='close' extra_class='remove-placement' style='padding:7px' %}
                     </span>
-                    <div class="flex-display vertical-align space-between" style="font-size: 16px;">
+                    <div class="flex-display vertical-align space-between font-responsive">
                         <span style="margin-right: 1rem;">{{ placement.placement.display_name }} - {{ placement.month }}/{{ placement.year }}</span>
                         <span style="font-weight: bold;">${{ placement.compensation }}</span>
                     </div>
                 </div>
-            </li>
+            </div>
         {% else %}
-            <li style="margin-bottom: 1rem;" class="placement-item flex-display vertical-align space-between" data-placement-history-id="{{ placement.id }}">
+            <div class="placement-record-item colored-border-list flex-display vertical-align space-between" data-placement-history-id="{{ placement.id }}" style="margin-bottom: 1rem;">
                 <div class="flex-display vertical-align">
                     <div class="flex-display column">
                         <span class="small-title">Client</span>
-                        <span style="width: 100px; font-size:12px;">{{ placement.placement.display_name }}</span>
+                        <span class="font-responsive" style="width: 100px;">{{ placement.placement.display_name }}</span>
                     </div>
                     <div class="flex-display column">
                         <span class="small-title">When</span>
-                        <span style="width: 100px; font-size:12px">{{ placement.month }}/{{ placement.year }}</span>
+                        <span class="font-responsive" style="width: 100px;">{{ placement.month }}/{{ placement.year }}</span>
                     </div>
                     <div class="flex-display column">
                         <span class="small-title">Compensation</span>
-                        <span style="width: 100px; font-size:12px">${{ placement.compensation }}</span>
+                        <span class="font-responsive" style="width: 100px;">${{ placement.compensation }}</span>
                     </div>
                 </div>
                 <span class="placement-remove-btn" style="margin-right: 1rem;">
                     {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' color='red' text='Remove' extra_class='remove-placement' %}
                 </span>
-            </li>
+            </div>
         {% endif %}
     {% empty %}
-        <li>No placement records found.</li>
+        <div class="small-title" style="opacity: 0.6">No placement records found.</div>
     {% endfor %}
-</ul>
+</div>

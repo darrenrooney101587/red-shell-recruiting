@@ -176,10 +176,10 @@
     function populateCandidateTitles() {
         const list = $('#candidate-title-list');
         list.empty();
-        list.append(`<li class="option placeholder-option font-responsive" data-value="">Select a Title</li>`);
+        list.append(`<li class="option placeholder-option" data-value="">Select a Title</li>`);
         $.get("{% url 'candidate-title-list' %}", function(data) {
             data.forEach(function(item) {
-                list.append(`<li class="flex-display space-between option font-responsive" data-value="${item.id}">${item.name} <span class='font-responsive' style='color: var(--faded-gray-color);'>(${item.count})</span></li>`);
+                list.append(`<li class="flex-display space-between option" data-value="${item.id}">${item.name} <span style='color: var(--faded-gray-color); '>(${item.count})</span></li>`);
             });
             setDropdownSelection('#candidate-title-list', '#candidate-title-hidden', '#candidate-title-dropdown');
         }).fail(function() {
@@ -190,10 +190,10 @@
     function populateCandidateSources() {
         const list = $('#candidate-source-list');
         list.empty();
-        list.append(`<li class="option placeholder-option font-responsive" data-value="">Select a Source</li>`);
+        list.append(`<li class="option placeholder-option" data-value="">Select a Source</li>`);
         $.get("{% url 'candidate-source-list' %}", function(data) {
             data.forEach(function(item) {
-                list.append(`<li class="flex-display space-between option font-responsive" data-value="${item.id}">${item.name} <span class='font-responsive' style='color: var(--faded-gray-color);'>(${item.count})</span></li>`);
+                list.append(`<li class="flex-display space-between option" data-value="${item.id}">${item.name} <span style='color: var(--faded-gray-color); '>(${item.count})</span></li>`);
             });
             setDropdownSelection('#candidate-source-list', '#candidate-source-hidden', '#candidate-source-dropdown');
         }).fail(function() {
@@ -204,10 +204,10 @@
     function populateCandidateOwners() {
         const list = $('#candidate-ownership-list');
         list.empty();
-        list.append(`<li class="option placeholder-option font-responsive" data-value="">Select an Ownership</li>`);
+        list.append(`<li class="option placeholder-option" data-value="">Select an Ownership</li>`);
         $.get("{% url 'candidate-ownership-list' %}", function(data) {
             data.forEach(function(item) {
-                list.append(`<li class="flex-display space-between option font-responsive" data-value="${item.id}">${item.name} <span class='font-responsive' style='color: var(--faded-gray-color);'>(${item.count})</span></li>`);
+                list.append(`<li class="flex-display space-between option" data-value="${item.id}">${item.name} <span style='color: var(--faded-gray-color); '>(${item.count})</span></li>`);
             });
             setDropdownSelection('#candidate-ownership-list', '#candidate-ownership-hidden', '#candidate-ownership-dropdown');
         }).fail(function() {

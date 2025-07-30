@@ -10,37 +10,23 @@
 {% block content %}
     <div>
         <div class="" style="margin: 0 auto; width: 100%; padding: 1rem;">
-            <form method="get" action="{% url 'candidate-search' %}" style="width: 100%;">
+            <form id="candidate-search-form" style="width: 100%;">
                 <div class="section  vertical-align">
                     <div class="" style="width: 100%;">
                         <div class="flex-display space-between" style="border-right: 1px solid rgba(0,0,0,.1);">
-                            <span style="font-weight: bold; margin-right: 1rem;">Total Candidates: {{ total_count_profile }}</span>
-                            <span style="font-weight: bold; margin-right: 1rem;">Total Resumes: {{ total_count_resume }}</span>
+                            <span style="margin-right: 1rem;">Total Candidates: <span id="total-count-profile">{{ total_count_profile }}</span></span>
+                            <span style="margin-right: 1rem;">Total Resumes: <span id="total-count-resume">{{ total_count_resume }}</span></span>
                         </div>
                         <hr>
                         <div>
                             <div>
                                 <div class="flex-display column vertical-align">
+                                    <input type="text" class="text-input" name="q" id="search-q" value="{{ query|default_if_none:"" }}" placeholder="Search candidates..." style="border-bottom: 1px solid var(--ui-support-element-color); width: 100%; margin-bottom: 1rem;" />
                                     <div class="flex-display vertical-align justify-center" style="gap: 0.5rem; width: 100%; margin-bottom: 0.5rem;">
-                                        <button class="button font-responsive" type="submit" style="min-width: 100px; width: 50%; height: 40px; text-align: center">Search</button>
-                                        <a class="button font-responsive" href="{% url 'candidate-search' %}?q=all" style="line-height: 30px; height: 40px; min-width: 100px; width: 50%; text-align: center">All</a>
+                                        <button class="button font-responsive" type="button" id="search-btn" style="min-width: 100px; width: 50%; height: 40px; text-align: center">Search</button>
+                                        <a class="button font-responsive" href="#" id="all-btn" style="line-height: 30px; height: 40px; min-width: 100px; width: 50%; text-align: center">All</a>
                                     </div>
-                                    <a class="button font-responsive" href="{% url 'candidate-search' %}" style="line-height: 30px; height: 40px; text-align: center; width: 100%">Clear</a>
-                                    {% if candidates %}
-                                        <div id="pagination-container" class="pagination flex-display column vertical-align" style="margin-top: 0.5rem;">
-                                            <div class="flex-display vertical-align" style="gap: 0.5rem;">
-                                                {% if page_obj.has_previous %}
-                                                    <a class="button font-responsive" href="?{{ get_params }}&page={{ page_obj.previous_page_number }}" style="line-height: 30px; height: 40px; min-width: 80px; text-align: center;">Previous</a>
-                                                {% endif %}
-                                                <span class="font-responsive" style="line-height: 30px; height: 40px; min-width: 80px; text-align: center; background: #f5f5f5; border-radius: 4px; padding: 0.25rem 0.75rem; display: inline-block;">
-                                            {{ page_obj.number }} of {{ paginator.num_pages }}
-                                        </span>
-                                                {% if page_obj.has_next %}
-                                                    <a class="button font-responsive" href="?{{ get_params }}&page={{ page_obj.next_page_number }}" style="line-height: 30px; height: 40px; min-width: 80px; text-align: center;">Next</a>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                    {% endif %}
+                                    <a class="button font-responsive" href="#" id="clear-btn" style="line-height: 30px; height: 40px; text-align: center; width: 100%">Clear</a>
                                 </div>
                             </div>
                             <hr>
@@ -55,26 +41,11 @@
             </form>
         </div>
         <hr>
-        {% if candidates %}
-            <div class="flex-display col flex-wrap" style="gap: 2rem;">
-                {% for candidate in candidates %}
-                    {% include 'red_shell_recruiting/components/candidate_card.html' with candidate=candidate %}
-                {% endfor %}
-            </div>
-        {% else %}
-            {% if query %}
-                <p>No results found.</p>
-            {% endif %}
+        <div id="candidate-results-container" class="flex-display col flex-wrap" style="gap: 2rem;"></div>
+        <div id="loading-indicator" style="display:none; text-align:center; margin:1rem;">Loading more candidates...</div>
+        {% if not candidates and query %}
+            <p>No results found.</p>
         {% endif %}
     </div>
-    <script>
-        $(document).ready(function() {
-
-            {#$('#clear-button').on('click', function() {#}
-            {#    $('input[type="text"]').val('');#}
-            {#    $('input[type="checkbox"]').prop('checked', false);#}
-            {#});#}
-
-        });
-    </script>
-{% endblock %}
+    <script src="{% static 'js/search.js' %}"></script>
+{% endblock %

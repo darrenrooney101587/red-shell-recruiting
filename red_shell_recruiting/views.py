@@ -233,11 +233,14 @@ class CandidateInput(LoginRequiredMixin, View):
 
 
 class CandidateSearch(LoginRequiredMixin, TemplateView):
+    """View for candidate search with desktop and mobile templates, supporting AJAX for all search/filter actions."""
+
     template_name_desktop = "red_shell_recruiting/candidate_search_desktop.html"
     template_name_mobile = "red_shell_recruiting/candidate_search_mobile.html"
-    paginate_by = 1
+    paginate_by = 10
 
-    def get_template_names(self):
+    def get_template_names(self) -> list[str]:
+        """Return the appropriate template name based on user agent."""
         user_agent = self.request.META.get("HTTP_USER_AGENT", "")
         if parse(user_agent).is_mobile:
             return [self.template_name_mobile]
@@ -247,14 +250,11 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
         """Get context data for candidate search, including dropdowns and filters."""
         context = super().get_context_data(**kwargs)
         request = self.request
-
-        # Fetch dropdown data
         titles = CandidateProfileTitle.objects.annotate(
             count=Count("candidateprofile", distinct=True)
         ).order_by("display_name")
         all_ownerships = CandidateOwnership.objects.all().order_by("display_name")
         all_sources = CandidateProfileSource.objects.all().order_by("display_name")
-
         toggle_filters = {
             "actively_looking": request.GET.get("actively_looking"),
             "open_to_relocation": request.GET.get("open_to_relocation"),
@@ -262,13 +262,11 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
             "previously_placed": request.GET.get("previously_placed"),
         }
         toggles_active = any(toggle_filters.values())
-
         title_id = request.GET.get("title_id")
         ownership_id = request.GET.get("ownership_id")
         source_id = request.GET.get("source_id")
         query = request.GET.get("q", "").strip()
         candidates = CandidateProfile.objects.all()
-
         if "all" in query:
             candidates = candidates.order_by("-created_at")
             query = None
@@ -333,18 +331,13 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
             if toggle_filters["previously_placed"]:
                 candidates = candidates.filter(placement_record__isnull=False)
             candidates = candidates.annotate(resume_count=Count("resumes"))
-
-        # Pagination
         page_number = request.GET.get("page", 1)
         paginator = Paginator(candidates, self.paginate_by)
         page_obj = paginator.get_page(page_number)
-
-        # Preserve all GET parameters except 'page' for pagination links
         get_params = request.GET.copy()
         if "page" in get_params:
             get_params.pop("page")
         context["get_params"] = get_params.urlencode()
-
         context["candidates"] = page_obj.object_list
         context["page_obj"] = page_obj
         context["paginator"] = paginator
@@ -359,6 +352,22 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
         context["selected_ownership_id"] = ownership_id
         context["selected_source_id"] = source_id
         return context
+
+    def render_to_response(self, context: dict, **response_kwargs) -> HttpResponse:
+        """Render candidate cards only for AJAX requests (all search/filter actions), else full template."""
+        request = self.request
+        is_ajax = request.headers.get("x-requested-with") == "XMLHttpRequest"
+        if is_ajax:
+            html = render_to_string(
+                "red_shell_recruiting/components/candidate_cards_lazy.html",
+                {
+                    "candidates": context["candidates"],
+                    "has_next": context["page_obj"].has_next(),
+                },
+                request=request,
+            )
+            return HttpResponse(html)
+        return super().render_to_response(context, **response_kwargs)
 
 
 class CandidateDetail(LoginRequiredMixin, TemplateView):

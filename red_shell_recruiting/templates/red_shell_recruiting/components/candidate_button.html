@@ -3,15 +3,11 @@
     {% if icon %}
         <span class="button-icon">
             {% if icon == 'close' %}
-                {% if icon_size == 'large' %}
-                    {% include 'red_shell_recruiting/components/svg_components.html' with type='close-large' %}
-                {% else %}
-                    {% include 'red_shell_recruiting/components/svg_components.html' with type='close' %}
-                {% endif %}
+                {% include 'red_shell_recruiting/components/svg_components.html' with type='close' %}
             {% else %}
                 {% include 'red_shell_recruiting/components/svg_components.html' with type=icon %}
             {% endif %}
         </span>
     {% endif %}
-    <span class="button-text" style="{% if request.is_mobile %}font-size: 18px{% else %}font-size: 12px{% endif %}">{{ text }}</span>
+    <span class="button-text">{{ text }}</span>
 </button>

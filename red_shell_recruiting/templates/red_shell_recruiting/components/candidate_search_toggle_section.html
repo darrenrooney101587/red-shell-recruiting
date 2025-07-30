@@ -4,21 +4,21 @@
     <label class="toggle flex-display vertical-align {% if not request.is_mobile %}align-start{% endif %}" style="margin-right: 1rem;">
         <input type="checkbox" name="actively_looking" {% if request.GET.actively_looking %}checked{% endif %} class="toggle-checkbox">
         <div class="toggle-switch"></div>
-        <span style="{% if request.is_mobile %}font-size: 16px;{% endif %}">Actively Looking</span>
+        <span>Actively Looking</span>
     </label>
     <label class="toggle flex-display vertical-align {% if not request.is_mobile %}align-start{% endif %}" style="margin-right: 1rem;">
         <input type="checkbox" name="open_to_relocation" {% if request.GET.open_to_relocation %}checked{% endif %} class="toggle-checkbox">
         <div class="toggle-switch"></div>
-        <span style="{% if request.is_mobile %}font-size: 16px;{% endif %}">Open to Relocation</span>
+        <span>Open to Relocation</span>
     </label>
     <label class="toggle flex-display vertical-align {% if not request.is_mobile %}align-start{% endif %}" style="margin-right: 1rem;">
         <input type="checkbox" name="currently_working" {% if request.GET.currently_working %}checked{% endif %} class="toggle-checkbox">
         <div class="toggle-switch"></div>
-        <span style="{% if request.is_mobile %}font-size: 16px;{% endif %}">Currently Working</span>
+        <span>Currently Working</span>
     </label>
     <label class="toggle flex-display vertical-align {% if not request.is_mobile %}align-start{% endif %}" style="margin-right: 1rem;">
         <input  type="checkbox" name="previously_placed" {% if request.GET.previously_placed %}checked{% endif %} class="toggle-checkbox">
         <div class="toggle-switch"></div>
-        <span style="{% if request.is_mobile %}font-size: 16px;{% endif %}">Previously Placed</span>
+        <span>Previously Placed</span>
     </label>
 </div>

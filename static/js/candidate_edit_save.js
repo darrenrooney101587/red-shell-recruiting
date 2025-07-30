@@ -292,6 +292,14 @@ function PlacementEditSaveActions(mobile = false) {
 }
 
 /**
+ * Show a message in the .journal-messages container.
+ * @param {string} msg
+ */
+function addJournalMessage(msg) {
+    $('.journal-messages').html('<div class="alert alert-danger">' + msg + '</div>');
+}
+
+/**
  * Loads all journal entries for the candidate and updates the DOM.
  */
 function loadJournalEntries() {
@@ -301,31 +309,51 @@ function loadJournalEntries() {
 }
 
 /**
- * Handles adding a new journal entry via AJAX and reloads the list.
+ * Handles adding a new journal entry via AJAX, with validation.
  */
 function handleNewJournalEntry() {
-    $('#add-journal-entry-btn').on('click', function() {
-        var meetingDate = $('#journal-meeting-date').val();
-        var notes = $('#journal-notes').val();
-        if (!meetingDate || !notes) {
-            addClientMessage('Please enter both date and notes.', 'error', this);
+    // Date picker setup
+    $('#journal-meeting-date').daterangepicker({
+        autoApply: false,
+        autoUpdateInput: false,
+        minDate: false,
+        locale: {cancelLabel: 'Clear'},
+        opens: 'center',
+        theme: ''
+    });
+    $('#journal-meeting-date').on('apply.daterangepicker', function (ev, picker) {
+        var date = picker.startDate.format('YYYY-MM-DD');
+        $(this).text(date);
+        $(this).data('selected-date', date);
+    });
+    $('#journal-meeting-date').on('cancel.daterangepicker', function (ev, picker) {
+        $(this).text('Select date');
+        $(this).data('selected-date', '');
+    });
+
+    $('#add-journal-entry-btn').on('click', function (e) {
+        e.preventDefault();
+        var notes = $('#journal-notes').val().trim();
+        var date = $('#journal-meeting-date').data('selected-date');
+        if (!notes || !date) {
+            addJournalMessage('Please enter both date and notes.');
             return;
         }
         $.ajax({
             url: journalEntryUrl,
             method: 'POST',
             data: {
-                meeting_date: meetingDate,
                 notes: notes,
+                meeting_date: date,
                 csrfmiddlewaretoken: getCSRFToken()
             },
-            success: function() {
-                $('#journal-meeting-date').val('');
+            success: function () {
                 $('#journal-notes').val('');
+                $('#journal-meeting-date').text('Select date').data('selected-date', '');
                 loadJournalEntries();
             },
-            error: function(xhr) {
-                addClientMessage('Error: ' + xhr.responseText, 'error', '#add-journal-entry-btn');
+            error: function (xhr) {
+                addJournalMessage('Error: ' + xhr.responseText);
             }
         });
     });
@@ -336,10 +364,10 @@ function handleNewJournalEntry() {
  */
 function handleRemovePlacementRecord() {
     $('#placement-records-list').on('click', '.remove-placement', function() {
-        var $li = $(this).closest('li[data-placement-history-id]');
-        var placementId = $li.data('placement-history-id');
+        // Support both div and li containers
+        var $item = $(this).closest('[data-placement-history-id]');
+        var placementId = $item.data('placement-history-id');
         if (!placementId) return;
-        if (!confirm('Are you sure you want to remove this placement record?')) return;
         $.ajax({
             url: placementRecordsUrl + '?placement_history_id=' + placementId,
             method: 'DELETE',
@@ -382,6 +410,11 @@ function handleAddPlacementRecord() {
                 $('input[name="placement-month"]').val("");
                 $('input[name="placement-year"]').val("");
                 $('#placement-compensation').val("");
+                // Reset custom dropdown UI for client
+                var $dropdown = $('input[name="placement-client"]').closest('.custom-dropdown, .client-placement-dropdown-wrapper');
+                $dropdown.find('.selected-option').text('Select a Client');
+                $dropdown.find('.client-placement-hidden').val('');
+                $dropdown.find('.dropdown-list').hide();
                 loadPlacementRecords();
             },
             error: function(xhr) {
@@ -452,6 +485,52 @@ function addClientMessage(messageText, messageType = 'error', contextElem) {
     $container.append(messageHtml);
 }
 
+function loadPlacementClients() {
+    $.getJSON(clientPlacementListUrl, function (data) {
+        var $select = $('#placement-client');
+        $select.empty();
+        $select.append($('<option>', {value: '', text: 'Select Client'}));
+        $.each(data, function (i, item) {
+            $select.append($('<option>', {value: item.id, text: item.name}));
+        });
+    });
+}
+
+function handleNewPlacementRecord() {
+    $('#add-placement-record-btn').on('click', function () {
+        var placementId = $('#placement-client').val();
+        var month = $('#placement-month').val();
+        var year = $('#placement-year').val();
+        var compensation = $('#placement-compensation').val();
+        if (!placementId || !month || !year || !compensation) {
+            addClientMessage('Please fill all placement fields.');
+            return;
+        }
+        $.ajax({
+            url: placementRecordsUrl,
+            method: 'POST',
+            data: {
+                placement_id: placementId,
+                month: month,
+                year: year,
+                compensation: compensation,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function () {
+                $('#placement-client').val('');
+                $('#placement-month').val('');
+                $('#placement-year').val('');
+                $('#placement-compensation').val('');
+                loadPlacementRecords();
+            },
+            error: function (xhr) {
+                addClientMessage('Error: ' + xhr.responseText);
+            }
+        });
+    });
+}
+
+
 $(document).ready(function() {
     // Initialize actions
     AddResumeAction();
@@ -460,9 +539,9 @@ $(document).ready(function() {
     CandidateEditSaveActions();
     PlacementEditSaveActions();
     handleNewJournalEntry();
+    loadJournalEntries();
     handleRemovePlacementRecord();
     handleAddPlacementRecord();
-    loadJournalEntries();
     loadPlacementRecords();
     handleClientPlacementDropdown();
 });

@@ -11,22 +11,22 @@
 {% block content %}
     <div>
         <div style="margin: 0 auto; display: table;">
-            <form method="get" action="{% url 'candidate-search' %}" style="width: 100%;">
+            <form id="candidate-search-form" style="width: 100%;">
                 <div class="section flex-display vertical-align space-between" style="width: 100%;">
                     <div class="flex-display column space-between" style="width: 250px;">
                         <div class="flex-display vertical-align space-between" style="width: 100%; margin-bottom: 0.5rem;">
                             <span style="margin-right: 1rem; font-size: 12px;">Total Candidates:</span>
-                            <span style="margin-right: 1rem; font-size: 12px;">{{ total_count_profile }}</span>
+                            <span style="margin-right: 1rem; font-size: 12px;" id="total-count-profile">{{ total_count_profile }}</span>
                         </div>
                         <div class="flex-display vertical-align space-between" style="width: 100%;; margin-bottom: 0.5rem;">
                             <span style="margin-right: 1rem; font-size: 12px;">Total Resumes:</span>
-                            <span style="margin-right: 1rem; font-size: 12px;">{{ total_count_resume }}</span>
+                            <span style="margin-right: 1rem; font-size: 12px;" id="total-count-resume">{{ total_count_resume }}</span>
                         </div>
                     </div>
                     <div style="height: 125px; border-right: 1px solid rgba(0,0,0,.1); margin-right: 1rem; margin-left: 1rem;"></div>
                     <div style="width: 100%;">
                         <div class="flex-display vertical-align space-between" style="width: 100%;">
-                            <input style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" type="text" class="text-input" name="q" value="{{ query }}" placeholder="Search candidates..." />
+                            <input style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" type="text" class="text-input" name="q" id="search-q" value="{{ query }}" placeholder="Search candidates..." />
                         </div>
                         <div class="flex-display vertical-align space-between" style="margin-top: 1rem;">
                             <div class="flex-display column align-baseline">
@@ -40,41 +40,23 @@
                     <div>
                         <div class="flex-display column vertical-align">
                             <div class="flex-display vertical-align justify-center" style="gap: 0.5rem; width: 100%; margin-bottom: 0.5rem;">
-                                <button style="min-width: 100px; width: 50%; text-align: center" class="button" type="submit">Search</button>
-                                <a style="min-width: 100px; width: 50%; text-align: center" href="{% url 'candidate-search' %}?q=all" class="button">All</a>
+                                <button style="min-width: 100px; width: 50%; text-align: center" class="button" type="button" id="search-btn">Search</button>
+                                <a style="min-width: 100px; width: 50%; text-align: center" href="#" class="button" id="all-btn">All</a>
                             </div>
-                            <a style="text-align: center; width: 100%" href="{% url 'candidate-search' %}" class="button">Clear</a>
-                            {% if candidates %}
-                                <div id="pagination-container" class="pagination flex-display column vertical-align" style="margin-top: 0.5rem;">
-                                    <div class="flex-display vertical-align" style="gap: 0.5rem;">
-                                        {% if page_obj.has_previous %}
-                                            <a style="font-size: 12px; min-width: 80px; text-align: center;" class="button" href="?{{ get_params }}&page={{ page_obj.previous_page_number }}">Previous</a>
-                                        {% endif %}
-                                        <span style="font-size: 12px; min-width: 80px; text-align: center; background: #f5f5f5; border-radius: 4px; padding: 0.25rem 0.75rem; display: inline-block;">
-                                            {{ page_obj.number }} of {{ paginator.num_pages }}
-                                        </span>
-                                        {% if page_obj.has_next %}
-                                            <a style="font-size: 12px; min-width: 80px; text-align: center;" class="button" href="?{{ get_params }}&page={{ page_obj.next_page_number }}">Next</a>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            {% endif %}
+                            <a style="text-align: center; width: 100%" href="#" class="button" id="clear-btn">Clear</a>
                         </div>
                     </div>
                 </div>
             </form>
         </div>
         <hr>
-        {% if candidates %}
-            <div class="flex-display flex-wrap" style="gap: 2rem;">
-                {% for candidate in candidates %}
-                    {% include 'red_shell_recruiting/components/candidate_card.html' with candidate=candidate %}
-                {% endfor %}
-            </div>
-        {% else %}
-            {% if query %}
-                <p>No results found.</p>
-            {% endif %}
+        <div id="candidate-results-container" class="flex-display flex-wrap" style="gap: 2rem;">
+            {# Candidate cards will be loaded here via AJAX #}
+        </div>
+        <div id="loading-indicator" style="display:none; text-align:center; margin:1rem;">Loading more candidates...</div>
+        {% if not candidates and query %}
+            <p>No results found.</p>
         {% endif %}
     </div>
+    <script src="{% static 'js/search.js' %}"></script>
 {% endblock %}

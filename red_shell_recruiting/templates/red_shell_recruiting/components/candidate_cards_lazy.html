@@ -1,0 +1,6 @@
+{% for candidate in candidates %}
+    {% include 'red_shell_recruiting/components/candidate_card.html' with candidate=candidate %}
+{% endfor %}
+{% if has_next %}
+    <button id="load-more">Load More</button>
+{% endif %}
