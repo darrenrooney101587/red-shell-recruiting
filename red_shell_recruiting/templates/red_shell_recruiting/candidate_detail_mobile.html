@@ -347,7 +347,6 @@
             </div>
         </div>
     </div>
-    <script src="{% static 'js/daterangepicker_wrapper.js' %}"></script>
     <script src="{% static 'js/candidate_edit_save.js' %}" crossorigin="anonymous"></script>
     <script src="{% static 'js/moment.min.js' %}"></script>
     <script src="{% static 'js/daterangepicker.js' %}"></script>
@@ -361,15 +360,6 @@
         const journalEntryUrl = '{% url "journal-entries" candidate.id %}';
 
         $(document).ready(function () {
-            CandidateEditSaveActions();
-            AddDocumentAction();
-            AddResumeAction();
-            AddPortfolioAction();
-            SaveCandidate();
-            loadPlacementRecords();
-            loadPlacementClients();
-            handleNewPlacementRecord();
-            handleRemovePlacementRecord();
 
             // TOGGLE TO EDIT MODE
             $('#edit-button').on('click', function () {
@@ -381,7 +371,7 @@
                 $('#city-dropdown').text('{{ candidate.city }}');
                 $('#city-dropdown-wrapper').show();
             });
-            // Removed datePicker('#journal-entry-fields');
+
             // Add mobile-vertical class to daterangepicker on mobile
             if (window.matchMedia('(max-width: 600px)').matches) {
                 $(document).on('DOMNodeInserted', function(e) {

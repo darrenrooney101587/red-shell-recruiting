@@ -339,7 +339,6 @@
             </div>
         </div>
     </div>
-    <script src="{% static 'js/daterangepicker_wrapper.js' %}"></script>
     <script src="{% static 'js/candidate_edit_save.js' %}" crossorigin="anonymous"></script>
     <script src="{% static 'js/moment.min.js' %}"></script>
     <script src="{% static 'js/daterangepicker.js' %}"></script>
@@ -365,10 +364,10 @@
                 $('#city-dropdown-wrapper').show();
             });
 
-            loadPlacementRecords();
-            loadPlacementClients();
-            handleNewPlacementRecord();
-            handleRemovePlacementRecord();
+            LoadPlacementRecords();
+            LoadPlacementClients();
+            HandleNewPlacementRecord();
+            HandleRemovePlacementRecord();
         });
     </script>
 {% endblock %}
