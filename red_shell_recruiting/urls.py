@@ -58,14 +58,29 @@ urlpatterns = [
         "api/candidate-titles/", views.candidate_title_list, name="candidate-title-list"
     ),
     path(
+        "api/candidate-titles-filtered/",
+        views.candidate_title_list_filtered,
+        name="candidate-title-list-filtered",
+    ),
+    path(
         "api/candidate-sources/",
         views.candidate_source_list,
         name="candidate-source-list",
     ),
     path(
-        "api/candidate-ownership/",
+        "api/candidate-sources-filtered/",
+        views.candidate_source_list_filtered,
+        name="candidate-source-list-filtered",
+    ),
+    path(
+        "api/candidate-ownerships/",
         views.candidate_ownership_list,
         name="candidate-ownership-list",
+    ),
+    path(
+        "api/candidate-ownerships-filtered/",
+        views.candidate_ownership_list_filtered,
+        name="candidate-ownership-list-filtered",
     ),
     path(
         "api/journal_entries/<int:candidate_id>",

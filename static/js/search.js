@@ -4,6 +4,78 @@ $(document).ready(function() {
     let isLoading = false;
     let lastSearchParams = ''; // Store the last search parameters
 
+        function resetDropdownCounts() {
+        // Reset title dropdown counts to global values
+        $.ajax({
+            url: '/candidate/api/candidate-titles/',
+            success: function(data) {
+                updateDropdownOptions('#candidate-title-list', data);
+            }
+        });
+
+        // Reset source dropdown counts to global values
+        $.ajax({
+            url: '/candidate/api/candidate-sources/',
+            success: function(data) {
+                updateDropdownOptions('#candidate-source-list', data);
+            }
+        });
+
+        // Reset ownership dropdown counts to global values
+        $.ajax({
+            url: '/candidate/api/candidate-ownerships/',
+            success: function(data) {
+                updateDropdownOptions('#candidate-ownership-list', data);
+            }
+        });
+    }
+
+    function updateDropdownCounts(searchParams) {
+        // Update title dropdown counts
+        $.ajax({
+            url: '/candidate/api/candidate-titles-filtered/?' + searchParams,
+            success: function(data) {
+                updateDropdownOptions('#candidate-title-list', data);
+            }
+        });
+
+        // Update source dropdown counts
+        $.ajax({
+            url: '/candidate/api/candidate-sources-filtered/?' + searchParams,
+            success: function(data) {
+                updateDropdownOptions('#candidate-source-list', data);
+            }
+        });
+
+        // Update ownership dropdown counts
+        $.ajax({
+            url: '/candidate/api/candidate-ownerships-filtered/?' + searchParams,
+            success: function(data) {
+                updateDropdownOptions('#candidate-ownership-list', data);
+            }
+        });
+    }
+
+    function updateDropdownOptions(dropdownSelector, data) {
+        const dropdown = $(dropdownSelector);
+        if (dropdown.length === 0) return;
+
+        // Clear existing options except placeholder
+        dropdown.find('.option:not(.placeholder-option)').remove();
+
+        // Add filtered options with counts
+        data.forEach(function(item) {
+            if (item.count > 0) {
+                const optionHtml = `
+                    <li class="flex-display space-between option" data-value="${item.id}">
+                        ${item.name} <span style="color: var(--faded-gray-color);">(${item.count})</span>
+                    </li>
+                `;
+                dropdown.append(optionHtml);
+            }
+        });
+    }
+
     function fetchCandidates(params, append=false) {
         isLoading = true;
         $('#loading-indicator').show();
@@ -31,6 +103,11 @@ $(document).ready(function() {
                     $('#candidate-results-container').html(data);
                     // Reset pagination state for new searches
                     currentPage = 1;
+
+                    // Update dropdown counts after new search results
+                    if (lastSearchParams) {
+                        updateDropdownCounts(lastSearchParams);
+                    }
                 }
 
                 // Update hasNext based on whether there's a Load More button in the response
@@ -87,6 +164,8 @@ $(document).ready(function() {
         // Reset pagination state when clearing
         currentPage = 1;
         hasNext = true;
+        // Reset dropdown counts to global values
+        resetDropdownCounts();
     });
 
     // Free text search on enter

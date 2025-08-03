@@ -96,6 +96,86 @@ def candidate_title_list(request):
     return JsonResponse(data, safe=False)
 
 
+def candidate_title_list_filtered(request):
+    """Return title counts filtered by current search parameters."""
+    candidates = CandidateProfile.objects.all()
+
+    # Apply same filters as CandidateSearch view
+    query = request.GET.get("q", "").strip()
+    title_id = request.GET.get("title_id")
+    ownership_id = request.GET.get("ownership_id")
+    source_id = request.GET.get("source_id")
+    deep_search = request.GET.get("deep_search") == "true"
+
+    # Apply filters (excluding title_id to get counts for all titles)
+    if ownership_id:
+        candidates = candidates.filter(ownership_id=ownership_id)
+    if source_id:
+        candidates = candidates.filter(source_id=source_id)
+
+    if query and "all" not in query:
+        if deep_search:
+            # Use same deep search logic as main view
+            candidates = CandidateProfile.objects.extra(
+                where=[
+                    """
+                    candidate_profile.search_document @@ plainto_tsquery(%s)
+                    OR EXISTS (
+                        SELECT 1 FROM candidate_resume
+                        WHERE candidate_resume.candidate_id = candidate_profile.id
+                        AND candidate_resume.search_document @@ plainto_tsquery(%s)
+                    )
+                    OR EXISTS (
+                        SELECT 1 FROM candidate_document
+                        WHERE candidate_document.candidate_id = candidate_profile.id
+                        AND candidate_document.search_document @@ plainto_tsquery(%s)
+                    )
+                    OR EXISTS (
+                        SELECT 1 FROM candidate_culinary_portfolio
+                        WHERE candidate_culinary_portfolio.candidate_id = candidate_profile.id
+                        AND candidate_culinary_portfolio.search_document @@ plainto_tsquery(%s)
+                    )
+                    """
+                ],
+                params=[query, query, query, query],
+            ).distinct()
+        else:
+            # Simple search
+            search_query = Q()
+            search_query |= Q(first_name__icontains=query)
+            search_query |= Q(last_name__icontains=query)
+            search_query |= Q(email__icontains=query)
+            search_query |= Q(phone_number__icontains=query)
+            search_query |= Q(city__icontains=query)
+            search_query |= Q(state__icontains=query)
+            search_query |= Q(entry_notes__icontains=query)
+            search_query |= Q(linkedin_url__icontains=query)
+            search_query |= Q(title__display_name__icontains=query)
+            search_query |= Q(ownership__display_name__icontains=query)
+            search_query |= Q(source__display_name__icontains=query)
+            candidates = candidates.filter(search_query)
+
+    # Apply toggle filters
+    if request.GET.get("actively_looking"):
+        candidates = candidates.filter(actively_looking=True)
+    if request.GET.get("open_to_relocation"):
+        candidates = candidates.filter(open_to_relocation=True)
+    if request.GET.get("currently_working"):
+        candidates = candidates.filter(currently_working=True)
+    if request.GET.get("previously_placed"):
+        candidates = candidates.filter(placement_record__isnull=False)
+
+    # Get title counts from filtered candidates
+    titles = (
+        CandidateProfileTitle.objects.filter(candidateprofile__in=candidates)
+        .annotate(count=Count("candidateprofile", distinct=True))
+        .order_by("display_name")
+    )
+
+    data = [{"id": t.id, "name": t.display_name, "count": t.count} for t in titles]
+    return JsonResponse(data, safe=False)
+
+
 def candidate_source_list(request):
     sources = CandidateProfileSource.objects.annotate(
         count=Count("candidateprofile", distinct=True)
@@ -104,10 +184,160 @@ def candidate_source_list(request):
     return JsonResponse(data, safe=False)
 
 
+def candidate_source_list_filtered(request):
+    """Return source counts filtered by current search parameters."""
+    candidates = CandidateProfile.objects.all()
+
+    # Apply same filters as CandidateSearch view (excluding source_id)
+    query = request.GET.get("q", "").strip()
+    title_id = request.GET.get("title_id")
+    ownership_id = request.GET.get("ownership_id")
+    deep_search = request.GET.get("deep_search") == "true"
+
+    if title_id:
+        candidates = candidates.filter(title_id=title_id)
+    if ownership_id:
+        candidates = candidates.filter(ownership_id=ownership_id)
+
+    if query and "all" not in query:
+        if deep_search:
+            candidates = CandidateProfile.objects.extra(
+                where=[
+                    """
+                    candidate_profile.search_document @@ plainto_tsquery(%s)
+                    OR EXISTS (
+                        SELECT 1 FROM candidate_resume
+                        WHERE candidate_resume.candidate_id = candidate_profile.id
+                        AND candidate_resume.search_document @@ plainto_tsquery(%s)
+                    )
+                    OR EXISTS (
+                        SELECT 1 FROM candidate_document
+                        WHERE candidate_document.candidate_id = candidate_profile.id
+                        AND candidate_document.search_document @@ plainto_tsquery(%s)
+                    )
+                    OR EXISTS (
+                        SELECT 1 FROM candidate_culinary_portfolio
+                        WHERE candidate_culinary_portfolio.candidate_id = candidate_profile.id
+                        AND candidate_culinary_portfolio.search_document @@ plainto_tsquery(%s)
+                    )
+                    """
+                ],
+                params=[query, query, query, query],
+            ).distinct()
+        else:
+            search_query = Q()
+            search_query |= Q(first_name__icontains=query)
+            search_query |= Q(last_name__icontains=query)
+            search_query |= Q(email__icontains=query)
+            search_query |= Q(phone_number__icontains=query)
+            search_query |= Q(city__icontains=query)
+            search_query |= Q(state__icontains=query)
+            search_query |= Q(entry_notes__icontains=query)
+            search_query |= Q(linkedin_url__icontains=query)
+            search_query |= Q(title__display_name__icontains=query)
+            search_query |= Q(ownership__display_name__icontains=query)
+            search_query |= Q(source__display_name__icontains=query)
+            candidates = candidates.filter(search_query)
+
+    # Apply toggle filters
+    if request.GET.get("actively_looking"):
+        candidates = candidates.filter(actively_looking=True)
+    if request.GET.get("open_to_relocation"):
+        candidates = candidates.filter(open_to_relocation=True)
+    if request.GET.get("currently_working"):
+        candidates = candidates.filter(currently_working=True)
+    if request.GET.get("previously_placed"):
+        candidates = candidates.filter(placement_record__isnull=False)
+
+    sources = (
+        CandidateProfileSource.objects.filter(candidateprofile__in=candidates)
+        .annotate(count=Count("candidateprofile", distinct=True))
+        .order_by("display_name")
+    )
+
+    data = [{"id": s.id, "name": s.display_name, "count": s.count} for s in sources]
+    return JsonResponse(data, safe=False)
+
+
 def candidate_ownership_list(request):
     owners = CandidateOwnership.objects.annotate(
         count=Count("candidateprofile", distinct=True)
     ).order_by("display_name")
+    data = [{"id": o.id, "name": o.display_name, "count": o.count} for o in owners]
+    return JsonResponse(data, safe=False)
+
+
+def candidate_ownership_list_filtered(request):
+    """Return ownership counts filtered by current search parameters."""
+    candidates = CandidateProfile.objects.all()
+
+    # Apply same filters as CandidateSearch view (excluding ownership_id)
+    query = request.GET.get("q", "").strip()
+    title_id = request.GET.get("title_id")
+    source_id = request.GET.get("source_id")
+    deep_search = request.GET.get("deep_search") == "true"
+
+    if title_id:
+        candidates = candidates.filter(title_id=title_id)
+    if source_id:
+        candidates = candidates.filter(source_id=source_id)
+
+    if query and "all" not in query:
+        if deep_search:
+            candidates = CandidateProfile.objects.extra(
+                where=[
+                    """
+                    candidate_profile.search_document @@ plainto_tsquery(%s)
+                    OR EXISTS (
+                        SELECT 1 FROM candidate_resume
+                        WHERE candidate_resume.candidate_id = candidate_profile.id
+                        AND candidate_resume.search_document @@ plainto_tsquery(%s)
+                    )
+                    OR EXISTS (
+                        SELECT 1 FROM candidate_document
+                        WHERE candidate_document.candidate_id = candidate_profile.id
+                        AND candidate_document.search_document @@ plainto_tsquery(%s)
+                    )
+                    OR EXISTS (
+                        SELECT 1 FROM candidate_culinary_portfolio
+                        WHERE candidate_culinary_portfolio.candidate_id = candidate_profile.id
+                        AND candidate_culinary_portfolio.search_document @@ plainto_tsquery(%s)
+                    )
+                    """
+                ],
+                params=[query, query, query, query],
+            ).distinct()
+        else:
+            search_query = Q()
+            search_query |= Q(first_name__icontains=query)
+            search_query |= Q(last_name__icontains=query)
+            search_query |= Q(email__icontains=query)
+            search_query |= Q(phone_number__icontains=query)
+            search_query |= Q(city__icontains=query)
+            search_query |= Q(state__icontains=query)
+            search_query |= Q(entry_notes__icontains=query)
+            search_query |= Q(linkedin_url__icontains=query)
+            search_query |= Q(title__display_name__icontains=query)
+            search_query |= Q(ownership__display_name__icontains=query)
+            search_query |= Q(source__display_name__icontains=query)
+            candidates = candidates.filter(search_query)
+
+    # Apply toggle filters
+    if request.GET.get("actively_looking"):
+        candidates = candidates.filter(actively_looking=True)
+    if request.GET.get("open_to_relocation"):
+        candidates = candidates.filter(open_to_relocation=True)
+    if request.GET.get("currently_working"):
+        candidates = candidates.filter(currently_working=True)
+    if request.GET.get("previously_placed"):
+        candidates = candidates.filter(placement_record__isnull=False)
+
+    owners = (
+        CandidateOwnership.objects.filter(candidateprofile__in=candidates)
+        .annotate(count=Count("candidateprofile", distinct=True))
+        .order_by("display_name")
+    )
+
     data = [{"id": o.id, "name": o.display_name, "count": o.count} for o in owners]
     return JsonResponse(data, safe=False)
 
