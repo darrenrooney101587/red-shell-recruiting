@@ -244,6 +244,7 @@ class SearchVectorProcessingLog(models.Model):
         ("resume", "Resume"),
         ("profile", "Candidate Profile"),
         ("document", "Candidate Document"),
+        ("portfolio", "Candidate Portfolio"),
     ]
 
     resume = models.ForeignKey(
@@ -254,6 +255,12 @@ class SearchVectorProcessingLog(models.Model):
     )
     document = models.ForeignKey(
         "red_shell_recruiting.CandidateDocument",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
+    portfolio = models.ForeignKey(
+        "red_shell_recruiting.CandidateCulinaryPortfolio",
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
@@ -270,12 +277,13 @@ class SearchVectorProcessingLog(models.Model):
         indexes = [
             models.Index(fields=["resume", "document_type", "status"]),
             models.Index(fields=["document"]),
+            models.Index(fields=["portfolio"]),
         ]
         verbose_name_plural = "Candidate Vector Processing Logs"
         verbose_name = "Candidate Vector Processing Log"
 
     def __str__(self):
-        return f"{self.resume} - {self.document_type} - {self.status}"
+        return f"{self.resume or self.document or self.portfolio} - {self.document_type} - {self.status}"
 
 
 class CandidateCulinaryPortfolio(models.Model):

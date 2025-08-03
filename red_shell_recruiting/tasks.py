@@ -14,6 +14,7 @@ from red_shell_recruiting.models import (
     CandidateProfile,
     SearchVectorProcessingLog,
     CandidateDocument,
+    CandidateCulinaryPortfolio,
 )
 
 
@@ -72,7 +73,6 @@ def update_document_search_vector(self, document_id):
 
     except CandidateDocument.DoesNotExist:
         SearchVectorProcessingLog.objects.create(
-            document_id=document_id,
             document_type="document",
             status="failed",
             message="Document not found.",
@@ -82,7 +82,6 @@ def update_document_search_vector(self, document_id):
 
     except Exception as e:
         SearchVectorProcessingLog.objects.create(
-            document_id=document_id,
             document_type="document",
             status="failed",
             message=str(e),
@@ -140,7 +139,7 @@ def update_resume_search_vector(self, resume_id):
                 )
                 + SearchVector(Value(candidate.city), weight="C")
                 + SearchVector(Value(candidate.state), weight="C")
-                + SearchVector(Value(candidate.notes or ""), weight="D")
+                + SearchVector(Value(candidate.entry_notes or ""), weight="D")
                 + SearchVector(Value(candidate.email), weight="A")
             )
 
@@ -167,7 +166,6 @@ def update_resume_search_vector(self, resume_id):
 
     except CandidateResume.DoesNotExist:
         SearchVectorProcessingLog.objects.create(
-            resume_id=resume_id,
             document_type="resume",
             status="failed",
             message="Resume not found.",
@@ -177,8 +175,80 @@ def update_resume_search_vector(self, resume_id):
 
     except Exception as e:
         SearchVectorProcessingLog.objects.create(
-            resume_id=resume_id,
             document_type="resume",
+            status="failed",
+            message=str(e),
+            attempts=self.request.retries,
+        )
+        raise self.retry(exc=e, countdown=60, max_retries=3)
+
+
+@shared_task(bind=True)
+def update_portfolio_search_vector(self, portfolio_id):
+    try:
+        portfolio = CandidateCulinaryPortfolio.objects.get(id=portfolio_id)
+        s3 = boto3.client("s3")
+        obj = s3.get_object(
+            Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=portfolio.file.name
+        )
+        file_bytes = obj["Body"].read()
+        extension = portfolio.file.name.split(".")[-1].lower()
+        with tempfile.NamedTemporaryFile(
+            delete=False, suffix=f".{extension}"
+        ) as temp_file:
+            temp_file.write(file_bytes)
+            temp_file_path = temp_file.name
+
+        try:
+            extracted_text = textract.process(temp_file_path).decode("utf-8")
+        except Exception as textract_error:
+            SearchVectorProcessingLog.objects.create(
+                portfolio=portfolio,
+                document_type="portfolio",
+                status="failed",
+                message=f"Textract error: {str(textract_error)}",
+                attempts=self.request.retries,
+            )
+            raise self.retry(exc=textract_error, countdown=60, max_retries=3)
+
+        if extracted_text.strip():
+            portfolio.extracted_text = extracted_text
+            portfolio.save(update_fields=["extracted_text"])
+
+            CandidateCulinaryPortfolio.objects.filter(id=portfolio.id).update(
+                search_document=SearchVector("extracted_text", weight="D")
+            )
+
+            SearchVectorProcessingLog.objects.create(
+                portfolio=portfolio,
+                document_type="portfolio",
+                status="success",
+                message="Portfolio processed successfully.",
+                attempts=self.request.retries,
+            )
+        else:
+            SearchVectorProcessingLog.objects.create(
+                portfolio=portfolio,
+                document_type="portfolio",
+                status="ignored",
+                message="No extracted text found in portfolio.",
+                attempts=self.request.retries,
+            )
+            return
+
+    except CandidateCulinaryPortfolio.DoesNotExist:
+        SearchVectorProcessingLog.objects.create(
+            document_type="portfolio",
+            status="failed",
+            message="Portfolio not found.",
+            attempts=self.request.retries,
+        )
+        raise Ignore()
+
+    except Exception as e:
+        SearchVectorProcessingLog.objects.create(
+            portfolio=portfolio,
+            document_type="portfolio",
             status="failed",
             message=str(e),
             attempts=self.request.retries,

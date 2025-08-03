@@ -1605,7 +1605,7 @@ li.nav-item.sub {
     font-size: 12px;
 }
 
-@media (min-width: 768px) {
+@media (max-width: 768px) {
     .search-dropdown .custom-dropdown {
         width: 100% !important;
     }

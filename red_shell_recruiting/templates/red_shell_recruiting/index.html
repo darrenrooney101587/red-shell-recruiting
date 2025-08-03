@@ -2,6 +2,7 @@
 {% block title %}Home{% endblock %}
 {% block content %}
     <h2>Welcome, {{ user_name }}</h2>
+    <p>These are you 5 last candidates created</p>
     {% if candidates %}
         <div class="flex-display flex-wrap" style="gap: 2rem; margin-top: 2rem;">
             {% for candidate in candidates %}

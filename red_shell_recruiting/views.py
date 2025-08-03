@@ -23,6 +23,7 @@ from django.core.paginator import Paginator, Page
 from red_shell_recruiting.tasks import (
     update_resume_search_vector,
     update_document_search_vector,
+    update_portfolio_search_vector,
 )
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -266,7 +267,9 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
         ownership_id = request.GET.get("ownership_id")
         source_id = request.GET.get("source_id")
         query = request.GET.get("q", "").strip()
+        deep_search = request.GET.get("deep_search") == "true"
         candidates = CandidateProfile.objects.all()
+
         if "all" in query:
             candidates = candidates.order_by("-created_at")
             query = None
@@ -278,50 +281,66 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
             if source_id:
                 candidates = candidates.filter(source_id=source_id)
             if query:
-                candidates = (
-                    CandidateProfile.objects.extra(
-                        where=[
-                            """
-                            candidate_profile.search_document @@ plainto_tsquery(%s)
-                            OR EXISTS (
-                                SELECT 1 FROM candidate_resume
-                                WHERE candidate_resume.candidate_id = candidate_profile.id
-                                AND candidate_resume.search_document @@ plainto_tsquery(%s)
-                            )
-                            OR EXISTS (
-                                SELECT 1 FROM candidate_document
-                                WHERE candidate_document.candidate_id = candidate_profile.id
-                                AND candidate_document.search_document @@ plainto_tsquery(%s)
-                            )
-                            """
-                        ],
-                        params=[query, query, query],
-                    )
-                    .annotate(
-                        rank=RawSQL(
-                            """
-                            GREATEST(
-                                ts_rank(candidate_profile.search_document, plainto_tsquery(%s)),
-                                COALESCE((
-                                    SELECT MAX(ts_rank(candidate_resume.search_document, plainto_tsquery(%s)))
-                                    FROM candidate_resume
+                if deep_search:
+                    # Existing deep search using PostgreSQL full-text search
+                    candidates = (
+                        CandidateProfile.objects.extra(
+                            where=[
+                                """
+                                candidate_profile.search_document @@ plainto_tsquery(%s)
+                                OR EXISTS (
+                                    SELECT 1 FROM candidate_resume
                                     WHERE candidate_resume.candidate_id = candidate_profile.id
-                                ), 0),
-                                COALESCE((
-                                    SELECT MAX(ts_rank(candidate_document.search_document, plainto_tsquery(%s)))
-                                    FROM candidate_document
+                                    AND candidate_resume.search_document @@ plainto_tsquery(%s)
+                                )
+                                OR EXISTS (
+                                    SELECT 1 FROM candidate_document
                                     WHERE candidate_document.candidate_id = candidate_profile.id
-                                ), 0)
-                            )
-                            """,
-                            (query, query, query),
+                                    AND candidate_document.search_document @@ plainto_tsquery(%s)
+                                )
+                                OR EXISTS (
+                                    SELECT 1 FROM candidate_culinary_portfolio
+                                    WHERE candidate_culinary_portfolio.candidate_id = candidate_profile.id
+                                    AND candidate_culinary_portfolio.search_document @@ plainto_tsquery(%s)
+                                )
+                                """
+                            ],
+                            params=[query, query, query, query],
                         )
+                        .annotate(
+                            rank=RawSQL(
+                                """
+                                GREATEST(
+                                    ts_rank(candidate_profile.search_document, plainto_tsquery(%s)),
+                                    COALESCE((
+                                        SELECT MAX(ts_rank(candidate_resume.search_document, plainto_tsquery(%s)))
+                                        FROM candidate_resume
+                                        WHERE candidate_resume.candidate_id = candidate_profile.id
+                                    ), 0),
+                                    COALESCE((
+                                        SELECT MAX(ts_rank(candidate_document.search_document, plainto_tsquery(%s)))
+                                        FROM candidate_document
+                                        WHERE candidate_document.candidate_id = candidate_profile.id
+                                    ), 0),
+                                    COALESCE((
+                                        SELECT MAX(ts_rank(candidate_culinary_portfolio.search_document, plainto_tsquery(%s)))
+                                        FROM candidate_culinary_portfolio
+                                        WHERE candidate_culinary_portfolio.candidate_id = candidate_profile.id
+                                    ), 0)
+                                )
+                                """,
+                                (query, query, query, query),
+                            )
+                        )
+                        .order_by("-rank")
+                        .distinct()
                     )
-                    .order_by("-rank")
-                    .distinct()
-                )
+                else:
+                    # Simple search using ILIKE across candidate profile fields
+                    candidates = self._perform_simple_search(candidates, query)
             elif not (toggles_active or title_id or ownership_id or source_id):
                 candidates = CandidateProfile.objects.none()
+
             if toggle_filters["actively_looking"]:
                 candidates = candidates.filter(actively_looking=True)
             if toggle_filters["open_to_relocation"]:
@@ -331,6 +350,9 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
             if toggle_filters["previously_placed"]:
                 candidates = candidates.filter(placement_record__isnull=False)
             candidates = candidates.annotate(resume_count=Count("resumes"))
+
+        print(candidates.query)
+
         page_number = request.GET.get("page", 1)
         paginator = Paginator(candidates, self.paginate_by)
         page_obj = paginator.get_page(page_number)
@@ -342,6 +364,7 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
         context["page_obj"] = page_obj
         context["paginator"] = paginator
         context["query"] = query
+        context["deep_search"] = deep_search
         context["selected_count"] = paginator.count
         context["total_count_profile"] = CandidateProfile.objects.count()
         context["total_count_resume"] = CandidateResume.objects.count()
@@ -352,6 +375,27 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
         context["selected_ownership_id"] = ownership_id
         context["selected_source_id"] = source_id
         return context
+
+    def _perform_simple_search(self, queryset, query: str):
+        """Perform simple ILIKE search across candidate profile fields."""
+        search_query = Q()
+
+        # Search across text fields in candidate profile
+        search_query |= Q(first_name__icontains=query)
+        search_query |= Q(last_name__icontains=query)
+        search_query |= Q(email__icontains=query)
+        search_query |= Q(phone_number__icontains=query)
+        search_query |= Q(city__icontains=query)
+        search_query |= Q(state__icontains=query)
+        search_query |= Q(entry_notes__icontains=query)
+        search_query |= Q(linkedin_url__icontains=query)
+
+        # Search in related fields
+        search_query |= Q(title__display_name__icontains=query)
+        search_query |= Q(ownership__display_name__icontains=query)
+        search_query |= Q(source__display_name__icontains=query)
+
+        return queryset.filter(search_query).order_by("-created_at").distinct()
 
     def render_to_response(self, context: dict, **response_kwargs) -> HttpResponse:
         """Render candidate cards only for AJAX requests (all search/filter actions), else full template."""
@@ -456,6 +500,7 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
             portfolio = CandidateCulinaryPortfolio.objects.create(
                 candidate=candidate, file=culinary_file
             )
+            update_portfolio_search_vector.delay(portfolio.id)
 
         # ----- Resume upload (if applicable) -----
         uploaded_file = request.FILES.get("resume-file")
@@ -732,8 +777,7 @@ class UploadCulinaryPortfolio(LoginRequiredMixin, View):
             portfolio = CandidateCulinaryPortfolio.objects.create(
                 candidate=candidate, file=uploaded_file
             )
-            # Optional background task
-            # update_portfolio_search_vector.delay(portfolio.id)
+            update_portfolio_search_vector.delay(portfolio.id)
             return JsonResponse({"success": True})
 
         return JsonResponse({"success": False, "error": "No file uploaded"}, status=400)
