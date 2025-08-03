@@ -238,7 +238,7 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
 
     template_name_desktop = "red_shell_recruiting/candidate_search_desktop.html"
     template_name_mobile = "red_shell_recruiting/candidate_search_mobile.html"
-    paginate_by = 10
+    paginate_by = 2
 
     def get_template_names(self) -> list[str]:
         """Return the appropriate template name based on user agent."""
@@ -351,8 +351,6 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
                 candidates = candidates.filter(placement_record__isnull=False)
             candidates = candidates.annotate(resume_count=Count("resumes"))
 
-        print(candidates.query)
-
         page_number = request.GET.get("page", 1)
         paginator = Paginator(candidates, self.paginate_by)
         page_obj = paginator.get_page(page_number)
@@ -395,18 +393,36 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
         search_query |= Q(ownership__display_name__icontains=query)
         search_query |= Q(source__display_name__icontains=query)
 
-        return queryset.filter(search_query).order_by("-created_at").distinct()
+        return queryset.filter(search_query).order_by("-created_at", "-id").distinct()
 
     def render_to_response(self, context: dict, **response_kwargs) -> HttpResponse:
         """Render candidate cards only for AJAX requests (all search/filter actions), else full template."""
         request = self.request
         is_ajax = request.headers.get("x-requested-with") == "XMLHttpRequest"
         if is_ajax:
+            # Debug logging for pagination
+            page_obj = context["page_obj"]
+            candidates_queryset = context["candidates"]
+            total_count = page_obj.paginator.count
+            current_page_count = len(list(candidates_queryset))
+            remaining_count = total_count - (page_obj.number * self.paginate_by)
+
+            print(f"DEBUG: AJAX response - Current page: {page_obj.number}")
+            print(f"DEBUG: AJAX response - Has next: {page_obj.has_next()}")
+            print(f"DEBUG: AJAX response - Total pages: {page_obj.paginator.num_pages}")
+            print(f"DEBUG: AJAX response - Total count: {total_count}")
+            print(f"DEBUG: AJAX response - Page size: {self.paginate_by}")
+            print(f"DEBUG: AJAX response - Objects on this page: {current_page_count}")
+            print(f"DEBUG: AJAX response - Remaining count: {remaining_count}")
+            print(f"DEBUG: Query params: {request.GET}")
+
             html = render_to_string(
                 "red_shell_recruiting/components/candidate_cards_lazy.html",
                 {
                     "candidates": context["candidates"],
                     "has_next": context["page_obj"].has_next(),
+                    "total_count": total_count,
+                    "remaining_count": max(0, remaining_count),
                 },
                 request=request,
             )

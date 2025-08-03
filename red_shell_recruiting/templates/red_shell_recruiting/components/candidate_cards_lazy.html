@@ -2,5 +2,12 @@
     {% include 'red_shell_recruiting/components/candidate_card.html' with candidate=candidate %}
 {% endfor %}
 {% if has_next %}
-    <button id="load-more">Load More</button>
+    <div class="flex-display justify-center vertical-align">
+        <button id="load-more-candidates" class="button" style="margin:1rem 0;">
+            <span class="flex-display justify-center vertical-align">
+                <span>Load More ({{ remaining_count }} of {{ total_count }} remaining)</span>
+                <div class="loading-spinner" style="display:none; margin-left:8px; vertical-align:middle;"></div>
+            </span>
+        </button>
+    </div>
 {% endif %}
