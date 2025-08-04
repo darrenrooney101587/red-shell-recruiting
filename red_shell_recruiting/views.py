@@ -547,7 +547,7 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
 
     template_name_desktop = "red_shell_recruiting/candidate_search_desktop.html"
     template_name_mobile = "red_shell_recruiting/candidate_search_mobile.html"
-    paginate_by = 2
+    paginate_by = 10
 
     def get_template_names(self) -> list[str]:
         """Return the appropriate template name based on user agent."""
@@ -560,11 +560,6 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
         """Get context data for candidate search, including dropdowns and filters."""
         context = super().get_context_data(**kwargs)
         request = self.request
-        titles = CandidateProfileTitle.objects.annotate(
-            count=Count("candidateprofile", distinct=True)
-        ).order_by("display_name")
-        all_ownerships = CandidateOwnership.objects.all().order_by("display_name")
-        all_sources = CandidateProfileSource.objects.all().order_by("display_name")
         toggle_filters = {
             "actively_looking": request.GET.get("actively_looking"),
             "open_to_relocation": request.GET.get("open_to_relocation"),
@@ -688,9 +683,6 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
             if toggle_filters["previously_placed"]:
                 candidates = candidates.filter(placement_record__isnull=False)
             candidates = candidates.annotate(resume_count=Count("resumes"))
-
-        if candidates:
-            print(candidates.query)
 
         page_number = request.GET.get("page", 1)
         paginator = Paginator(candidates, self.paginate_by)
