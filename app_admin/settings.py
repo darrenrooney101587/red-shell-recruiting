@@ -69,8 +69,20 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "< change me >")
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = True
 SECURE_SSL_REDIRECT = os.getenv("SECURE_SSL_REDIRECT", "True") == "True"
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+
+# Cookie security settings - only enforce HTTPS in production
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+
+# Additional CSRF settings for Safari compatibility
+CSRF_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_SAMESITE = "Lax"
+
+# Ensure CSRF cookies are set properly for local development
+if DEBUG:
+    CSRF_COOKIE_HTTPONLY = False
+    CSRF_USE_SESSIONS = False
+
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True

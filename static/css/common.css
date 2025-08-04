@@ -1760,3 +1760,33 @@ input::placeholder {
 :-ms-input-placeholder { /* IE/Edge */
     font-size: 0.75rem;
 }
+
+/* iOS Safari disabled input fix */
+input:disabled,
+textarea:disabled,
+select:disabled {
+    -webkit-text-fill-color: var(--theme-base-color) !important;
+    -webkit-opacity: 1 !important;
+    opacity: 1 !important;
+    color: var(--theme-base-color) !important;
+}
+
+/* Additional iOS Safari specific fixes */
+input[disabled],
+textarea[disabled],
+select[disabled] {
+    -webkit-text-fill-color: var(--theme-base-color) !important;
+    -webkit-opacity: 1 !important;
+    opacity: 1 !important;
+    color: var(--theme-base-color) !important;
+    background-color: transparent !important;
+}
+
+/* Ensure text inputs maintain black text when disabled */
+.text-input:disabled,
+.text-input[disabled] {
+    -webkit-text-fill-color: var(--theme-base-color) !important;
+    -webkit-opacity: 1 !important;
+    opacity: 1 !important;
+    color: var(--theme-base-color) !important;
+}

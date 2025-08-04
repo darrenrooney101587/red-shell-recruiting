@@ -247,12 +247,12 @@
     <div class="section flex-display space-between" style="width: 70%; margin: 2rem auto 0;">
         <div class="section-group flex-display space-between" style="width: 100%">
             <div class="section-col">
-                <h3 class="medium-title">Resumes</h3>
+                <h3 class="medium-title">Resumesss</h3>
                 <hr>
                 <ul class="section-list">
                     {% for resume in resumes %}
-                        <li class="section-list-item{% if not forloop.first %} section-list-item-border{% endif %}">
-                            <a href="{{ resume.get_signed_url }}" download>{{ resume.file.name|filename }}</a>
+                        <li class="section-list-item {% if not forloop.first %} section-list-item-border{% endif %}">
+                            <a style="width: 16rem;" class="ellipsis" href="{{ resume.get_signed_url }}" download>{{ resume.file.name|filename }}</a>
                             <form method="post" action="{% url 'archive-resume' resume.id %}" style="display: inline;">
                                 {% csrf_token %}
                                 {% include 'red_shell_recruiting/components/candidate_button.html' with type='submit' color='red' text='Remove' extra_class='button' style='margin-left: 0.5rem;' %}
@@ -280,7 +280,7 @@
                 <ul class="section-list">
                     {% for portfolio in portfolios %}
                         <li class="section-list-item{% if not forloop.first %} section-list-item-border{% endif %}">
-                            <a href="{{ portfolio.get_signed_url }}" download>{{ portfolio.file.name|filename }}</a>
+                            <a style="width: 16rem;" class="ellipsis"  href="{{ portfolio.get_signed_url }}" download>{{ portfolio.file.name|filename }}</a>
                             <form method="post" action="{% url 'archive-culinary-portfolio' portfolio.id %}" style="display: inline;">
                                 {% csrf_token %}
                                 {% include 'red_shell_recruiting/components/candidate_button.html' with type='submit' color='red' text='Remove' extra_class='button' style='margin-left: 0.5rem;' %}
@@ -308,7 +308,7 @@
                 <ul class="section-list">
                     {% for document in documents %}
                         <li class="section-list-item{% if not forloop.first %} section-list-item-border{% endif %}">
-                            <a href="{{ document.get_signed_url }}" download>{{ document.file.name|filename }}</a>
+                            <a style="width: 16rem;" class="ellipsis"  href="{{ document.get_signed_url }}" download>{{ document.file.name|filename }}</a>
                             <form method="post" action="{% url 'archive-document' document.id %}" style="display: inline;">
                                 {% csrf_token %}
                                 {% include 'red_shell_recruiting/components/candidate_button.html' with type='submit' color='red' text='Remove' extra_class='button' style='margin-left: 0.5rem;' %}
