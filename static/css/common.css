@@ -1735,3 +1735,28 @@ li.nav-item.sub {
 #candidate-search-form {
     background-color: white;
 }
+
+
+/* Style all input placeholders */
+input::placeholder {
+    font-size: 0.75rem;
+}
+
+/* For specific input classes */
+.text-input::placeholder {
+    font-size: 0.75rem;
+}
+
+/* Cross-browser compatibility */
+::-webkit-input-placeholder { /* Chrome/Safari/Opera */
+    font-size: 0.75rem;
+}
+:-moz-placeholder { /* Firefox 18- */
+    font-size: 0.75rem;
+}
+::-moz-placeholder { /* Firefox 19+ */
+    font-size: 0.75rem;
+}
+:-ms-input-placeholder { /* IE/Edge */
+    font-size: 0.75rem;
+}

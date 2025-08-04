@@ -141,156 +141,6 @@ function CandidateEditSaveActions() {
     });
 }
 
-function PlacementEditSaveActions(mobile = false) {
-    // INPUT PAGE TOGGLE
-    $('#client-placement').change(function () {
-        const isChecked = $(this).is(':checked');
-        if (isChecked) {
-            $('#placement-records-wrapper').slideDown(200);
-        } else {
-            $('#placement-records-wrapper').slideUp(200);
-            $('#placement-records-wrapper').find('.placement-line-item').remove();
-            placementIndex = 0;
-        }
-    });
-
-    // EDIT PAGE TOGGLE
-    $('#edit-client-placement-toggle').change(function () {
-        const isChecked = $(this).is(':checked');
-        const $wrapper = $('#placement-records-wrapper-edit');
-
-        if (isChecked) {
-            // Hide and mark for deletion
-            $wrapper.slideUp(200);
-            $wrapper.find('.placement-line-item').each(function () {
-                $(this).find('.delete-marker').val('true');
-            });
-            $('#remove-all-placements-flag').val('true');
-            $('#remove-placement-warning').fadeIn(200);
-        } else {
-            // Show existing records again (they were not removed yet)
-            $wrapper.slideDown(200);
-            $wrapper.find('.placement-line-item').show();
-            $wrapper.find('.delete-marker').val('false');
-            $('#remove-all-placements-flag').val('false');
-            $('#remove-placement-warning').hide();
-        }
-    });
-
-    // ADD PLACEMENT (EDIT MODE)
-    let placementIndex = parseInt($('input[name="placement_total_count"]').val()) || 0;
-
-    $('#add-placement-line-edit').click(function () {
-        placementIndex++;
-        console.log('Hello World')
-        let newLine;
-
-        if(mobile) {
-            newLine = `
-                    <div class="placement-line-item" data-index="${placementIndex}" style="margin-bottom: 1rem;">
-                        <div class="flex-display vertical-align" style="margin-bottom: 1rem;">
-                            <div class="custom-dropdown client-placement-dropdown-wrapper" style="border-bottom: 1px solid var(--ui-support-element-color);">
-                                <div class="flex-display space-between">
-                                    <div class="selected-option client-placement-dropdown">Select a Client</div>
-                                    <span class="chevron-down">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" aria-hidden="true">
-                                            <path fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m16 10-4 4-4-4"/>
-                                        </svg>
-                                    </span>
-                                    <span class="chevron-up" style="display: none;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" aria-hidden="true" style="transform: rotate(180deg);">
-                                            <path fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m16 10-4 4-4-4"/>
-                                        </svg>
-                                    </span>
-                                </div>
-                                <ul class="dropdown-list client-placement-list"></ul>
-                                <input class="client-placement-hidden" type="hidden" name="placement_id_${placementIndex}" value="">
-                            </div>
-                        </div>
-                        <div class="flex-display space-between vertical-align" style="margin-bottom: 1rem;">
-                            <input name="placement_month_${placementIndex}" placeholder="Month" class="text-input" style="margin-right: 1rem; width: 50%; border-bottom: 1px solid var(--ui-support-element-color);">
-                            <input name="placement_year_${placementIndex}" placeholder="Year" class="text-input" style="width: 50%; border-bottom: 1px solid var(--ui-support-element-color);">
-                        </div>
-                        <div class="flex-display vertical-align space-between" style="width: 100%; margin-bottom: 1rem;">
-                            <input name="placement_compensation_${placementIndex}" placeholder="Amount" class="text-input" type="number" style="width: 100%; border-bottom: 1px solid var(--ui-support-element-color);">
-                            ${removePlacementButton}
-                        </div>
-                        <input type="hidden" name="delete_placement_${placementIndex}" value="false" class="delete-marker">
-                    </div>
-                `;
-        } else {
-            newLine = `
-                <div class="placement-line-item" data-index="${placementIndex}" style="">
-                    <div style="margin-bottom: 1rem;">
-                        <div class="custom-dropdown" style="border-bottom: 1px solid var(--ui-support-element-color);">
-                            <div class="flex-display space-between">
-                                <div class="selected-option client-placement-dropdown">Select a Client</div>
-                                <span class="chevron-down">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" aria-hidden="true">
-                                        <path fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m16 10-4 4-4-4"/>
-                                    </svg>
-                                </span>
-                                <span class="chevron-up" style="display: none;">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" aria-hidden="true" style="transform: rotate(180deg);">
-                                        <path fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m16 10-4 4-4-4"/>
-                                    </svg>
-                                </span>
-                            </div>
-                            <ul class="dropdown-list client-placement-list"></ul>
-                            <input class="client-placement-hidden" type="hidden" name="placement_id_${placementIndex}" value="">
-                        </div>
-                    </div>
-                    <div class="flex-display align-center">
-                        <input name="placement_month_${placementIndex}" placeholder="Month" class="text-input" style="width: 80px; border-bottom: 1px solid var(--ui-support-element-color);">
-                        <input name="placement_year_${placementIndex}" placeholder="Year" class="text-input" style="margin-left: 1rem; width: 100px; border-bottom: 1px solid var(--ui-support-element-color);">
-                        <input name="placement_compensation_${placementIndex}" placeholder="Amount" class="text-input" type="number" style="border-bottom: 1px solid var(--ui-support-element-color); margin-left: 1rem; width: 200px;">
-                        <input type="hidden" name="delete_placement_${placementIndex}" value="false" class="delete-marker">
-                        <div style="position: relative; top: -6px;">
-                            ${removePlacementButton}
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        $('#placement-records-wrapper-edit').append(newLine);
-
-        // Populate the dropdown list inside this new row
-        const $newRow = $('#placement-records-wrapper-edit .placement-line-item').last();
-        const $list = $newRow.find('.client-placement-list');
-
-        $.get(clientPlacementListUrl, function (data) {
-            $list.empty();
-            data.forEach(function (item) {
-                $list.append(`<li class="option" data-value="${item.id}">${item.name}</li>`);
-            });
-        });
-
-        $('input[name="placement_total_count"]').val(placementIndex);
-
-        // REMOVE PLACEMENT LINE (Shared)
-        $(document).on('click', '.remove-placement', function () {
-            const group = $(this).closest('.placement-line-item');
-            group.find('.delete-marker').val('true');
-            group.hide();
-        });
-
-        // DELETE PLACEMENT TOGGLE (Edit Mode)
-        $(document).on('click', '.delete-single-placement', function () {
-            $('#client-placement-toggle-wrapper').slideUp(200);
-            $('#client-placement-delete').val('true');
-            $('#client-placement').prop('checked', false).trigger('change');
-        });
-
-        $(document).on('click', function (e) {
-            if (!$(e.target).closest('.custom-dropdown').length) {
-                $('.dropdown-list').hide();
-            }
-        });
-
-    });
-}
-
 /**
  * Show a message in the .journal-messages container.
  * @param {string} msg
@@ -316,7 +166,7 @@ function HandleNewJournalEntry() {
     $('#journal-meeting-date').daterangepicker({
         autoApply: false,
         autoUpdateInput: false,
-        forceSingleDateMultiMonth: true,
+        // forceSingleDateMultiMonth: true,
         singleDatePicker: true,
         linkedCalendars: false,
         minDate: false,
@@ -338,6 +188,10 @@ function HandleNewJournalEntry() {
         e.preventDefault();
         var notes = $('#journal-notes').val().trim();
         var date = $('#journal-meeting-date').data('selected-date');
+
+        // Clear any previous error messages
+        $('.journal-messages').empty();
+
         if (!notes || !date) {
             addJournalMessage('Please enter both date and notes.');
             return;
@@ -353,6 +207,7 @@ function HandleNewJournalEntry() {
             success: function () {
                 $('#journal-notes').val('');
                 $('#journal-meeting-date').text('Select date').data('selected-date', '');
+                $('.journal-messages').empty(); // Clear any messages on success
                 LoadJournalEntries();
             },
             error: function (xhr) {
@@ -500,15 +355,49 @@ function LoadPlacementClients() {
 }
 
 function HandleNewPlacementRecord() {
-    $('#add-placement-record-btn').on('click', function () {
-        var placementId = $('#placement-client').val();
-        var month = $('#placement-month').val();
-        var year = $('#placement-year').val();
+    // Setup placement date picker
+    $('#placement-date').daterangepicker({
+        autoApply: false,
+        autoUpdateInput: false,
+        // forceSingleDateMultiMonth: true,
+        singleDatePicker: true,
+        linkedCalendars: false,
+        minDate: false,
+        locale: {cancelLabel: 'Clear'},
+        opens: 'center',
+        theme: ''
+    });
+
+    $('#placement-date').on('apply.daterangepicker', function (ev, picker) {
+        var date = picker.startDate.format('YYYY-MM-DD');
+        $(this).text(date);
+        $(this).data('selected-date', date);
+    });
+
+    $('#placement-date').on('cancel.daterangepicker', function (ev, picker) {
+        $(this).text('Select date');
+        $(this).data('selected-date', '');
+    });
+
+    $('#add-placement-record-btn').on('click', function() {
+        // Clear any previous error messages
+        $('.placement-messages').empty();
+
+        // Use direct selectors for hidden fields
+        var placementId = $('input[name="placement-client"]').val();
+        var placementDate = $('#placement-date').data('selected-date');
         var compensation = $('#placement-compensation').val();
-        if (!placementId || !month || !year || !compensation) {
-            addClientMessage('Please fill all placement fields.');
+
+        if (!placementId || !placementDate || !compensation) {
+            addClientMessage('Please fill in all placement fields.', 'error', this);
             return;
         }
+
+        // Extract month and year from the selected date
+        var dateObj = moment(placementDate);
+        var month = dateObj.month() + 1; // moment months are 0-indexed
+        var year = dateObj.year();
+
         $.ajax({
             url: placementRecordsUrl,
             method: 'POST',
@@ -517,17 +406,25 @@ function HandleNewPlacementRecord() {
                 month: month,
                 year: year,
                 compensation: compensation,
-                csrfmiddlewaretoken: '{{ csrf_token }}'
+                csrfmiddlewaretoken: getCSRFToken()
             },
-            success: function () {
-                $('#placement-client').val('');
-                $('#placement-month').val('');
-                $('#placement-year').val('');
-                $('#placement-compensation').val('');
+            success: function() {
+                // Clear fields after successful add
+                $('input[name="placement-client"]').val("");
+                $('#placement-compensation').val("");
+                $('#placement-date').text('Select date').data('selected-date', '');
+
+                // Reset custom dropdown UI for client
+                var $dropdown = $('input[name="placement-client"]').closest('.custom-dropdown, .client-placement-dropdown-wrapper');
+                $dropdown.find('.selected-option').text('Select Client');
+                $dropdown.find('.client-placement-hidden').val('');
+                $dropdown.find('.dropdown-list').hide();
+
+                $('.placement-messages').empty(); // Clear any messages on success
                 LoadPlacementRecords();
             },
-            error: function (xhr) {
-                addClientMessage('Error: ' + xhr.responseText);
+            error: function(xhr) {
+                addClientMessage('Error: ' + xhr.responseText, 'error', '#add-placement-record-btn');
             }
         });
     });
@@ -541,7 +438,7 @@ $(document).ready(function() {
     AddDocumentAction();
     SaveCandidate();
     CandidateEditSaveActions();
-    PlacementEditSaveActions();
+    // PlacementEditSaveActions();
     HandleNewJournalEntry();
     LoadPlacementClients();
     LoadJournalEntries();
@@ -550,4 +447,5 @@ $(document).ready(function() {
     LoadPlacementRecords();
     HandleClientPlacementDropdown();
     HandleNewPlacementRecord();
+    HandleClientPlacementDatePicker();
 });

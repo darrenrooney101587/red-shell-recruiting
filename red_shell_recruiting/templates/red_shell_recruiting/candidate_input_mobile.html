@@ -7,6 +7,7 @@
 {% endblock %}
 {% block css-extra %}
     <link rel="stylesheet" href="{% static 'css/candidate.css' %}?n={% css_invalidate_int %}">
+    <link rel="stylesheet" href="{% static 'css/mobile/daterangepicker.css' %}">
 {% endblock %}
 {% block content %}
     <div style="max-width:62.5rem; width: 100%; margin: 0 auto; margin-top: 1rem;">
@@ -40,11 +41,13 @@
             </div>
         </form>
     </div>
+{% endblock %}
+{% block extra-js %}
+    <script src="{% static 'js/moment.min.js' %}"></script>
+    <script src="{% static 'js/daterangepicker.js' %}"></script>
     <script>
-
         $(document).ready(function() {
             SubmitCandidate();
         });
-
     </script>
 {% endblock %}

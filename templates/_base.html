@@ -288,6 +288,32 @@
         $container.append(messageHtml);
     }
 
+    function HandleClientPlacementDatePicker() {
+        // Setup client placement date picker for candidate input forms
+        $('#client-placement-date').daterangepicker({
+            autoApply: false,
+            autoUpdateInput: false,
+            // forceSingleDateMultiMonth: true,
+            singleDatePicker: true,
+            linkedCalendars: false,
+            minDate: false,
+            locale: {cancelLabel: 'Clear'},
+            opens: 'center',
+            theme: ''
+        });
+
+        $('#client-placement-date').on('apply.daterangepicker', function (ev, picker) {
+            var date = picker.startDate.format('YYYY-MM-DD');
+            $(this).text(date);
+            $(this).data('selected-date', date);
+        });
+
+        $('#client-placement-date').on('cancel.daterangepicker', function (ev, picker) {
+            $(this).text('Select placement date');
+            $(this).data('selected-date', '');
+        });
+    }
+
     function getCSRFToken() {
         return $('#csrf-token-form input[name="csrfmiddlewaretoken"]').val();
     }
@@ -476,6 +502,7 @@
             const isChecked = $(this).is(':checked');
             if (isChecked) {
                 $('#client-placement-toggle-wrapper').slideDown(200);
+                HandleClientPlacementDatePicker();
             } else {
                 $('#client-placement-toggle-wrapper').slideUp(200);
                 $('#client-placement-dropdown').text('Select a Client Placement');

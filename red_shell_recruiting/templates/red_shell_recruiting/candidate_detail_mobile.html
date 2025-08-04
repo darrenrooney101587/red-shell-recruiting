@@ -197,17 +197,9 @@
                         <h3 style="color: var(--faded-gray-color)" class="small-title">Client</h3>
                         {% include 'red_shell_recruiting/components/candidate_placement_dropdown_component.html' with selected_placement=None name='placement-client' id_suffix='placement-records' all_placements=all_placements %}
                     </div>
-                    <div class="placement-mobile-row">
-                        <div class="placement-mobile-half">
-                            <h3 style="color: var(--faded-gray-color)" class="small-title">Month</h3>
-                            {% include 'red_shell_recruiting/components/month_dropdown_component.html' with selected_month=None name='placement-month' %}
-                        </div>
-                        <div class="placement-mobile-half">
-                            <h3 style="color: var(--faded-gray-color)" class="small-title">Year</h3>
-                            {% with year_range=1990|get_range:2027 %}
-                                {% include 'red_shell_recruiting/components/year_dropdown_component.html' with selected_year=None name='placement-year' year_range=year_range %}
-                            {% endwith %}
-                        </div>
+                    <div class="placement-mobile-full">
+{#                        <h3 style="color: var(--faded-gray-color)" class="small-title">Placement Date</h3>#}
+                        {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' text='Select date' id='placement-date' name='placement_date' required=True style='width:100%;' %}
                     </div>
                     <div class="placement-mobile-full">
                         <h3 style="color: var(--faded-gray-color)" class="small-title">Compensation</h3>
