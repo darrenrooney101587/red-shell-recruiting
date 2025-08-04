@@ -198,12 +198,11 @@
                         {% include 'red_shell_recruiting/components/candidate_placement_dropdown_component.html' with selected_placement=None name='placement-client' id_suffix='placement-records' all_placements=all_placements %}
                     </div>
                     <div class="placement-mobile-full">
-{#                        <h3 style="color: var(--faded-gray-color)" class="small-title">Placement Date</h3>#}
-                        {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' text='Select date' id='placement-date' name='placement_date' required=True style='width:100%;' %}
-                    </div>
-                    <div class="placement-mobile-full">
                         <h3 style="color: var(--faded-gray-color)" class="small-title">Compensation</h3>
                         <input type="number" id="placement-compensation" class="text-input" placeholder="-"  style="border-bottom: 0.0625rem solid var(--ui-support-element-color); width: 100%">
+                    </div>
+                    <div class="placement-mobile-full">
+                        {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' text='Select date' id='placement-date' name='placement_date' required=True style='width:100%;' %}
                     </div>
                 </div>
                 {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' color='green' text='Add Placement' extra_class='button green' style='width: 100%; margin-top: 1rem;' id='add-placement-record-btn' %}
