@@ -1,4 +1,4 @@
-<div class="custom-dropdown" style="border-bottom: 1px solid var(--ui-support-element-color); margin-bottom: 1rem; display: none;" id="city-dropdown-wrapper">
+<div class="custom-dropdown" style="border-bottom: 0.0625rem solid var(--ui-support-element-color); margin-bottom: 1rem; display: none;" id="city-dropdown-wrapper">
     <div class="flex-display space-between">
         <div class="selected-option" id="city-dropdown">Select a City</div>
         <span class="chevron-down">
@@ -8,8 +8,6 @@
             {% include 'red_shell_recruiting/components/svg_components.html' with type='chevron-up' %}
         </span>
     </div>
-    <ul class="dropdown-list" id="city-list">
-{#        <li class="option placeholder" data-value="">Select a City</li>#}
-    </ul>
+    <ul class="dropdown-list" id="city-list"></ul>
     <input required type="hidden" name="candidate-city" id="city-hidden">
 </div>

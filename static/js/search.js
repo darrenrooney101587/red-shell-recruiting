@@ -4,7 +4,7 @@ $(document).ready(function() {
     let isLoading = false;
     let lastSearchParams = ''; // Store the last search parameters
 
-        function resetDropdownCounts() {
+    function resetDropdownCounts() {
         // Reset title dropdown counts to global values
         $.ajax({
             url: '/candidate/api/candidate-titles/',
@@ -120,6 +120,24 @@ $(document).ready(function() {
 
                 isLoading = false;
                 $('#loading-indicator').hide();
+
+                $('.candidate-card').on('click', function() {
+                    var candidateId = $(this).data('candidate-id');
+                    if (candidateId) {
+                        window.location.href = '/candidate/candidate-detail/' + candidateId + '/';
+                    }
+                });
+
+                $(function () {
+                    $('[data-created-at]').each(function () {
+                        var utc = $(this).data('created-at');
+                        if (utc) {
+                            var local = new Date(utc);
+                            $(this).find('.created-at-local').text(local.toLocaleString());
+                        }
+                    });
+                });
+
             },
             error: function() {
                 isLoading = false;
@@ -128,7 +146,8 @@ $(document).ready(function() {
                     $('#load-more-candidates .loading-spinner').hide();
                     $('#load-more-candidates').prop('disabled', false);
                 }
-            }
+            },
+
         });
     }
 

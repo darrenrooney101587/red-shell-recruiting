@@ -51,6 +51,21 @@ def index(request):
         "candidates": CandidateProfile.objects.filter(created_by=request.user).order_by(
             "-created_at"
         )[:5],
+        "total_profiles": CandidateProfile.objects.count(),
+        "total_resumes": CandidateResume.objects.count(),
+        "total_documents": CandidateDocument.objects.count(),
+        "total_culinary_portfolios": CandidateCulinaryPortfolio.objects.count(),
+        "total_journal_entries": JournalEntry.objects.count(),
+        "total_placement_histories": CandidateClientPlacementHistory.objects.count(),
+        "titles_with_counts": CandidateProfileTitle.objects.annotate(
+            candidate_count=Count("candidateprofile", distinct=True)
+        ).order_by("-candidate_count", "display_name"),
+        "ownerships_with_counts": CandidateOwnership.objects.annotate(
+            candidate_count=Count("candidateprofile", distinct=True)
+        ).order_by("-candidate_count", "display_name"),
+        "sources_with_counts": CandidateProfileSource.objects.annotate(
+            candidate_count=Count("candidateprofile", distinct=True)
+        ).order_by("-candidate_count", "display_name"),
     }
     return render(request, "red_shell_recruiting/index.html", context)
 
@@ -102,10 +117,9 @@ def candidate_title_list_filtered(request):
 
     # Apply same filters as CandidateSearch view
     query = request.GET.get("q", "").strip()
-    title_id = request.GET.get("title_id")
     ownership_id = request.GET.get("ownership_id")
     source_id = request.GET.get("source_id")
-    deep_search = request.GET.get("deep_search") == "true"
+    deep_search = request.GET.get("deep_search") == "on"  # Changed from "true" to "on"
 
     # Apply filters (excluding title_id to get counts for all titles)
     if ownership_id:
@@ -135,9 +149,20 @@ def candidate_title_list_filtered(request):
                         WHERE candidate_culinary_portfolio.candidate_id = candidate_profile.id
                         AND candidate_culinary_portfolio.search_document @@ plainto_tsquery(%s)
                     )
+                    OR EXISTS (
+                        SELECT 1 FROM candidate_client_placement_history p
+                        JOIN candidate_client_placement cp ON p.placement_id = cp.id
+                        WHERE p.candidate_id = candidate_profile.id
+                        AND cp.display_name ILIKE %s
+                    )
+                    OR EXISTS (
+                        SELECT 1 FROM candidate_journal_entry j
+                        WHERE j.candidate_id = candidate_profile.id
+                        AND j.notes ILIKE %s
+                    )
                     """
                 ],
-                params=[query, query, query, query],
+                params=[query, query, query, query, f"%{query}%", f"%{query}%"],
             ).distinct()
         else:
             # Simple search
@@ -192,7 +217,7 @@ def candidate_source_list_filtered(request):
     query = request.GET.get("q", "").strip()
     title_id = request.GET.get("title_id")
     ownership_id = request.GET.get("ownership_id")
-    deep_search = request.GET.get("deep_search") == "true"
+    deep_search = request.GET.get("deep_search") == "on"  # Changed from "true" to "on"
 
     if title_id:
         candidates = candidates.filter(title_id=title_id)
@@ -201,6 +226,7 @@ def candidate_source_list_filtered(request):
 
     if query and "all" not in query:
         if deep_search:
+            # Use enhanced deep search logic including placement/journal
             candidates = CandidateProfile.objects.extra(
                 where=[
                     """
@@ -220,11 +246,38 @@ def candidate_source_list_filtered(request):
                         WHERE candidate_culinary_portfolio.candidate_id = candidate_profile.id
                         AND candidate_culinary_portfolio.search_document @@ plainto_tsquery(%s)
                     )
+                    OR EXISTS (
+                        SELECT 1 FROM candidate_client_placement_history p
+                        JOIN candidate_client_placement cp ON p.placement_id = cp.id
+                        WHERE p.candidate_id = candidate_profile.id
+                        AND (
+                            cp.display_name ILIKE %s
+                            OR CAST(p.month AS TEXT) ILIKE %s
+                            OR CAST(p.year AS TEXT) ILIKE %s
+                            OR CAST(p.compensation AS TEXT) ILIKE %s
+                        )
+                    )
+                    OR EXISTS (
+                        SELECT 1 FROM candidate_journal_entry j
+                        WHERE j.candidate_id = candidate_profile.id
+                        AND j.notes ILIKE %s
+                    )
                     """
                 ],
-                params=[query, query, query, query],
+                params=[
+                    query,
+                    query,
+                    query,
+                    query,
+                    f"%{query}%",
+                    f"%{query}%",
+                    f"%{query}%",
+                    f"%{query}%",
+                    f"%{query}%",
+                ],
             ).distinct()
         else:
+            # Simple search
             search_query = Q()
             search_query |= Q(first_name__icontains=query)
             search_query |= Q(last_name__icontains=query)
@@ -275,7 +328,7 @@ def candidate_ownership_list_filtered(request):
     query = request.GET.get("q", "").strip()
     title_id = request.GET.get("title_id")
     source_id = request.GET.get("source_id")
-    deep_search = request.GET.get("deep_search") == "true"
+    deep_search = request.GET.get("deep_search") == "on"  # Changed from "true" to "on"
 
     if title_id:
         candidates = candidates.filter(title_id=title_id)
@@ -303,9 +356,35 @@ def candidate_ownership_list_filtered(request):
                         WHERE candidate_culinary_portfolio.candidate_id = candidate_profile.id
                         AND candidate_culinary_portfolio.search_document @@ plainto_tsquery(%s)
                     )
+                    OR EXISTS (
+                        SELECT 1 FROM candidate_client_placement_history p
+                        JOIN candidate_client_placement cp ON p.placement_id = cp.id
+                        WHERE p.candidate_id = candidate_profile.id
+                        AND (
+                            cp.display_name ILIKE %s
+                            OR CAST(p.month AS TEXT) ILIKE %s
+                            OR CAST(p.year AS TEXT) ILIKE %s
+                            OR CAST(p.compensation AS TEXT) ILIKE %s
+                        )
+                    )
+                    OR EXISTS (
+                        SELECT 1 FROM candidate_journal_entry j
+                        WHERE j.candidate_id = candidate_profile.id
+                        AND j.notes ILIKE %s
+                    )
                     """
                 ],
-                params=[query, query, query, query],
+                params=[
+                    query,
+                    query,
+                    query,
+                    query,
+                    f"%{query}%",
+                    f"%{query}%",
+                    f"%{query}%",
+                    f"%{query}%",
+                    f"%{query}%",
+                ],
             ).distinct()
         else:
             search_query = Q()
@@ -497,7 +576,9 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
         ownership_id = request.GET.get("ownership_id")
         source_id = request.GET.get("source_id")
         query = request.GET.get("q", "").strip()
-        deep_search = request.GET.get("deep_search") == "true"
+        deep_search = (
+            request.GET.get("deep_search") == "on"
+        )  # Changed from "true" to "on"
         candidates = CandidateProfile.objects.all()
 
         if "all" in query:
@@ -512,9 +593,10 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
                 candidates = candidates.filter(source_id=source_id)
             if query:
                 if deep_search:
-                    # Existing deep search using PostgreSQL full-text search
+                    # Enhanced deep search using PostgreSQL full-text search + ILIKE for placement/journal
+                    # Apply to existing filtered queryset to preserve filters
                     candidates = (
-                        CandidateProfile.objects.extra(
+                        candidates.extra(
                             where=[
                                 """
                                 candidate_profile.search_document @@ plainto_tsquery(%s)
@@ -533,9 +615,35 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
                                     WHERE candidate_culinary_portfolio.candidate_id = candidate_profile.id
                                     AND candidate_culinary_portfolio.search_document @@ plainto_tsquery(%s)
                                 )
+                                OR EXISTS (
+                                    SELECT 1 FROM candidate_client_placement_history p
+                                    JOIN candidate_client_placement cp ON p.placement_id = cp.id
+                                    WHERE p.candidate_id = candidate_profile.id
+                                    AND (
+                                        cp.display_name ILIKE %s
+                                        OR CAST(p.month AS TEXT) ILIKE %s
+                                        OR CAST(p.year AS TEXT) ILIKE %s
+                                        OR CAST(p.compensation AS TEXT) ILIKE %s
+                                    )
+                                )
+                                OR EXISTS (
+                                    SELECT 1 FROM candidate_journal_entry j
+                                    WHERE j.candidate_id = candidate_profile.id
+                                    AND j.notes ILIKE %s
+                                )
                                 """
                             ],
-                            params=[query, query, query, query],
+                            params=[
+                                query,
+                                query,
+                                query,
+                                query,
+                                f"%{query}%",
+                                f"%{query}%",
+                                f"%{query}%",
+                                f"%{query}%",
+                                f"%{query}%",
+                            ],
                         )
                         .annotate(
                             rank=RawSQL(
@@ -581,6 +689,9 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
                 candidates = candidates.filter(placement_record__isnull=False)
             candidates = candidates.annotate(resume_count=Count("resumes"))
 
+        if candidates:
+            print(candidates.query)
+
         page_number = request.GET.get("page", 1)
         paginator = Paginator(candidates, self.paginate_by)
         page_obj = paginator.get_page(page_number)
@@ -596,10 +707,6 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
         context["selected_count"] = paginator.count
         context["total_count_profile"] = CandidateProfile.objects.count()
         context["total_count_resume"] = CandidateResume.objects.count()
-        context["all_sources"] = all_sources
-        context["all_ownerships"] = all_ownerships
-        context["titles"] = titles
-        context["selected_title_id"] = title_id
         context["selected_ownership_id"] = ownership_id
         context["selected_source_id"] = source_id
         return context

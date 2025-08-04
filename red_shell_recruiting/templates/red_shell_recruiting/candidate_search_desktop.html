@@ -13,17 +13,6 @@
         <div style="margin: 0 auto; display: table;">
             <form id="candidate-search-form" style="width: 100%;">
                 <div class="section flex-display vertical-align space-between" style="width: 100%;">
-                    <div class="flex-display column space-between" style="width: 250px;">
-                        <div class="flex-display vertical-align space-between" style="width: 100%; margin-bottom: 0.5rem;">
-                            <span style="margin-right: 1rem; font-size: 12px;">Total Candidates:</span>
-                            <span style="margin-right: 1rem; font-size: 12px;" id="total-count-profile">{{ total_count_profile }}</span>
-                        </div>
-                        <div class="flex-display vertical-align space-between" style="width: 100%;; margin-bottom: 0.5rem;">
-                            <span style="margin-right: 1rem; font-size: 12px;">Total Resumes:</span>
-                            <span style="margin-right: 1rem; font-size: 12px;" id="total-count-resume">{{ total_count_resume }}</span>
-                        </div>
-                    </div>
-                    <div style="height: 125px; border-right: 1px solid rgba(0,0,0,.1); margin-right: 1rem; margin-left: 1rem;"></div>
                     <div style="width: 100%;">
                         <div class="flex-display vertical-align space-between" style="width: 100%;">
                             <input style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" type="text" class="text-input" name="q" id="search-q" value="{{ query }}" placeholder="Search candidates..." />
@@ -38,12 +27,23 @@
                     </div>
                     <div style="height: 125px; border-right: 1px solid rgba(0,0,0,.1); margin-right: 1rem; margin-left: 1rem;"></div>
                     <div>
-                        <div class="flex-display column vertical-align">
+                        <div>
                             <div class="flex-display vertical-align justify-center" style="gap: 0.5rem; width: 100%; margin-bottom: 0.5rem;">
                                 <button style="min-width: 100px; width: 50%; text-align: center" class="button" type="button" id="search-btn">Search</button>
                                 <a style="min-width: 100px; width: 50%; text-align: center" href="#" class="button" id="all-btn">All</a>
                             </div>
-                            <a style="text-align: center; width: 100%" href="#" class="button" id="clear-btn">Clear</a>
+                            <div class="flex-display column vertical-align">
+                                <a style="text-align: center; width: 100%" href="#" class="button" id="clear-btn">Clear</a>
+                            </div>
+                            <hr>
+                            <div>
+                                <label style="margin-bottom: 1rem;" class="toggle flex-display vertical-align {% if not request.is_mobile %}align-start{% endif %}">
+                                    <input type="checkbox" name="deep_search" {% if request.GET.deep_search %}checked{% endif %} class="toggle-checkbox">
+                                    <div class="toggle-switch"></div>
+                                    <span>Deep Search</span>
+                                </label>
+                                <p style="font-size: 9px; margin-bottom: 0;">A deep search will search across profile, documents, resumes and portfolio</p>
+                            </div>
                         </div>
                     </div>
                 </div>

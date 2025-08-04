@@ -1,7 +1,7 @@
 {# Candidate Card Component #}
-<div class="candidate-card section" data-candidate-id="{{ candidate.id }}" style="width: 400px">
+<div class="candidate-card section" data-candidate-id="{{ candidate.id }}" style="width: 25rem">
     <div class="flex-display space-between vertical-align">
-        <div class="flex-display vertical-align">
+        <div class="flex-display space-between vertical-align">
             <h4>{{ candidate.first_name }} {{ candidate.last_name }}</h4>
             <div style="margin-left: 0.5rem;">
                 {% if candidate.linkedin_url %}
@@ -21,39 +21,39 @@
     <hr>
     <div class="flex-display space-between">
         <div class="flex-display column space-between">
-            <div class="flex-display vertical-align space-between" style="width: 155px; height: 20px">
-                <h5 style="margin-right: 0.5rem;">Actively Looking</h5>
+            <div class="flex-display vertical-align space-between" style="width: 9.6875rem; height: 1.25rem">
+                <h5 style="margin-right: 0.5rem; color: var(--theme-base-color); opacity: 0.7;">Actively Looking</h5>
                 {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.actively_looking %}
             </div>
-            <div class="flex-display vertical-align space-between" style="width: 155px;; height: 20px">
-                <h5 style="margin-right: 0.5rem;">Open to Relocation</h5>
+            <div class="flex-display vertical-align space-between" style="width: 9.6875rem; height: 1.25rem">
+                <h5 style="margin-right: 0.5rem; color: var(--theme-base-color); opacity: 0.7;">Open to Relocation</h5>
                 {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.open_to_relocation %}
             </div>
-            <div class="flex-display vertical-align space-between" style="width: 155px;; height: 20px">
-                <h5 style="margin-right: 0.5rem;">Currently Working</h5>
+            <div class="flex-display vertical-align space-between" style="width: 9.6875rem; height: 1.25rem">
+                <h5 style="margin-right: 0.5rem; color: var(--theme-base-color); opacity: 0.7;">Currently Working</h5>
                 {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.currently_working %}
             </div>
-            <div class="flex-display vertical-align space-between" style="width: 155px;; height: 20px">
+            <div class="flex-display vertical-align space-between" style="width: 9.6875rem; height: 1.25rem">
                 <h5 style="margin-right: 0.5rem;">Previously Placed</h5>
                 {% include 'red_shell_recruiting/components/success_fail_component.html' with value=candidate.placement_record.exists %}
             </div>
         </div>
-        <div class="flex-display" style="height: auto; min-height: 100px; width: 1px; border-left: 1px solid rgba(0,0,0,.1); margin-left: 1rem; margin-right: 1rem;"></div>
+        <div class="flex-display" style="height: auto; min-height: 6.25rem; width: 0.0625rem; border-left: 0.0625rem solid rgba(0,0,0,.1); margin-left: 1rem; margin-right: 1rem;"></div>
         <div class="flex-display space-between">
             <div class="flex-display column space-between">
-                <div class="flex-display vertical-align space-between" style="; height: 20px">
+                <div class="flex-display vertical-align space-between" style="height: 1.25rem">
                     <span class="font-responsive">{{ candidate.resumes.count }}</span>
                     <span class="font-responsive" style="margin-left: 0.5rem;">Resume(s)</span>
                 </div>
-                <div class="flex-display vertical-align space-between" style="; height: 20px">
+                <div class="flex-display vertical-align space-between" style="height: 1.25rem">
                     <span class="font-responsive">{{ candidate.culinary_portfolios.count }}</span>
                     <span class="font-responsive" style="margin-left: 0.5rem;">Portfolio(s)</span>
                 </div>
-                <div class="flex-display vertical-align space-between" style="; height: 20px">
+                <div class="flex-display vertical-align space-between" style="height: 1.25rem">
                     <span class="font-responsive">{{ candidate.documents.count }}</span>
                     <span class="font-responsive" style="margin-left: 0.5rem;">Document(s)</span>
                 </div>
-                <div class="flex-display vertical-align space-between" style="; height: 20px">
+                <div class="flex-display vertical-align space-between" style="height: 1.25rem">
                     <span class="font-responsive">{{ candidate.journal_entries.count }}</span>
                     <span class="font-responsive" style="margin-left: 0.5rem;">Journal Items(s)</span>
                 </div>

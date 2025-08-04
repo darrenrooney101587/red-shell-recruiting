@@ -13,14 +13,9 @@
             <form id="candidate-search-form" style="width: 100%;">
                 <div class="section  vertical-align">
                     <div class="" style="width: 100%;">
-{#                        <div class="flex-display space-between" style="border-right: 1px solid rgba(0,0,0,.1);">#}
-{#                            <span style="margin-right: 1rem;">Total Candidates: <span id="total-count-profile">{{ total_count_profile }}</span></span>#}
-{#                            <span style="margin-right: 1rem;">Total Resumes: <span id="total-count-resume">{{ total_count_resume }}</span></span>#}
-{#                        </div>#}
-{#                        <hr>#}
                         <div>
                             <div>
-                                <input type="text" class="text-input" name="q" id="search-q" value="{{ query|default_if_none:"" }}" placeholder="Search candidates..." style="border-bottom: 1px solid var(--ui-support-element-color); width: 100%;" />
+                                <input type="text" class="text-input" name="q" id="search-q" value="{{ query|default_if_none:"" }}" placeholder="Search candidates..." style="border-bottom: 0.0625rem solid var(--ui-support-element-color); width: 100%;" />
                             </div>
                             <div class="" style="margin-top: 1rem;">
                                 {% include 'red_shell_recruiting/components/candidate_search_toggle_section.html' %}
@@ -30,10 +25,10 @@
                             <hr>
                             <div class="flex-display column vertical-align">
                                 <div class="flex-display vertical-align justify-center" style="gap: 0.5rem; width: 100%; margin-bottom: 0.5rem;">
-                                    <button class="button font-responsive" type="button" id="search-btn" style="min-width: 100px; width: 50%; height: 40px; text-align: center">Search</button>
-                                    <a class="button font-responsive" href="#" id="all-btn" style="line-height: 30px; height: 40px; min-width: 100px; width: 50%; text-align: center">All</a>
+                                    <button class="button font-responsive" type="button" id="search-btn" style="min-width: 6.25rem; width: 50%; height: 2.5rem; text-align: center">Search</button>
+                                    <a class="button font-responsive" href="#" id="all-btn" style="line-height: 1.875rem; height: 2.5rem; min-width: 6.25rem; width: 50%; text-align: center">All</a>
                                 </div>
-                                <a class="button font-responsive" href="#" id="clear-btn" style="line-height: 30px; height: 40px; text-align: center; width: 100%">Clear</a>
+                                <a class="button font-responsive" href="#" id="clear-btn" style="line-height: 1.875rem; height: 2.5rem; text-align: center; width: 100%">Clear</a>
                             </div>
                         </div>
                     </div>

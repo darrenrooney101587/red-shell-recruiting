@@ -19,49 +19,49 @@
                 <div style="width: 33%; position: relative">
                     <div>
                         <span style="color: var(--faded-gray-color)" class="small-title">First Name</span>
-                        <input type="text" value="{{ candidate.first_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                        <input type="text" value="{{ candidate.first_name }}" class="text-input" style="border-bottom: 0.0625rem solid var(--ui-support-element-color)" disabled>
                     </div>
                     <div>
                         <span style="color: var(--faded-gray-color)" class="small-title">Last Name</span>
-                        <input type="text" value="{{ candidate.last_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                        <input type="text" value="{{ candidate.last_name }}" class="text-input" style="border-bottom: 0.0625rem solid var(--ui-support-element-color)" disabled>
                     </div>
                     <div>
                         <span style="color: var(--faded-gray-color)" class="small-title">State</span>
-                        <input type="text" value="{{ candidate.state }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                        <input type="text" value="{{ candidate.state }}" class="text-input" style="border-bottom: 0.0625rem solid var(--ui-support-element-color)" disabled>
                     </div>
                     <div>
                         <span style="color: var(--faded-gray-color)" class="small-title">City</span>
-                        <input type="text" value="{{ candidate.city }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                        <input type="text" value="{{ candidate.city }}" class="text-input" style="border-bottom: 0.0625rem solid var(--ui-support-element-color)" disabled>
                     </div>
                     <div>
                         <span style="color: var(--faded-gray-color)" class="small-title">Job Title</span>
-                        <input type="text" value="{{ candidate.title.display_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                        <input type="text" value="{{ candidate.title.display_name }}" class="text-input" style="border-bottom: 0.0625rem solid var(--ui-support-element-color)" disabled>
                     </div>
                     {% include 'red_shell_recruiting/components/candidate_linked_in_url.html' %}
                 </div>
                 <div style="width: 33%; position: relative">
                     <div>
                         <span style="color: var(--faded-gray-color)" class="small-title">Phone Number</span>
-                        <input type="tel" value="{{ candidate.phone_number }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                        <input type="tel" value="{{ candidate.phone_number }}" class="text-input" style="border-bottom: 0.0625rem solid var(--ui-support-element-color)" disabled>
                     </div>
                     <div>
                         <span style="color: var(--faded-gray-color)" class="small-title">Email</span>
-                        <input type="email" value="{{ candidate.email }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                        <input type="email" value="{{ candidate.email }}" class="text-input" style="border-bottom: 0.0625rem solid var(--ui-support-element-color)" disabled>
                     </div>
                     <div>
                         <span style="color: var(--faded-gray-color)" class="small-title">Compensation range</span>
                         <div class="flex-display">
-                            <input type="text" value="{{ candidate.compensation_from }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;" disabled>
-                            <input type="text" value="{{ candidate.compensation_to }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                            <input type="text" value="{{ candidate.compensation_from }}" class="text-input" style="border-bottom: 0.0625rem solid var(--ui-support-element-color); margin-right: 1rem;" disabled>
+                            <input type="text" value="{{ candidate.compensation_to }}" class="text-input" style="border-bottom: 0.0625rem solid var(--ui-support-element-color)" disabled>
                         </div>
                     </div>
                     <div>
                         <span style="color: var(--faded-gray-color)" class="small-title">Ownership</span>
-                        <input type="text" value="{{ candidate.ownership.display_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                        <input type="text" value="{{ candidate.ownership.display_name }}" class="text-input" style="border-bottom: 0.0625rem solid var(--ui-support-element-color)" disabled>
                     </div>
                     <div>
                         <span style="color: var(--faded-gray-color)" class="small-title">Source</span>
-                        <input type="text" value="{{ candidate.source.display_name }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)" disabled>
+                        <input type="text" value="{{ candidate.source.display_name }}" class="text-input" style="border-bottom: 0.0625rem solid var(--ui-support-element-color)" disabled>
                     </div>
                     <div class="grid-cols-2 gap-2 toggle-container" style="margin-top: 1rem;">
                         <label class="toggle flex-display vertical-align align-start">
@@ -84,7 +84,7 @@
                 <div style="width: 33%; position: relative">
                     <div style="margin-bottom: 1rem;">
                         <span style="color: var(--faded-gray-color)" class="small-title">Initial Notes</span>
-                        <textarea class="text-input" style="border: 1px solid var(--ui-support-element-color); height: 300px; padding: 0.5rem;" disabled>{{ candidate.entry_notes }}</textarea>
+                        <textarea class="text-input" style="border: 0.0625rem solid var(--ui-support-element-color); height: 18.75rem; padding: 0.5rem;" disabled>{{ candidate.entry_notes }}</textarea>
                     </div>
                 </div>
             </div>
@@ -109,11 +109,11 @@
                     <div style="width: 33%; position: relative">
                         <div>
                             <span style="color: var(--faded-gray-color)" class="small-title">First Name</span>
-                            <input type="text" id="candidate-first-name" name="candidate-first-name" class="text-input" placeholder="First Name" value="{{ candidate.first_name }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                            <input type="text" id="candidate-first-name" name="candidate-first-name" class="text-input" placeholder="First Name" value="{{ candidate.first_name }}" style="border-bottom: 0.0625rem solid var(--ui-support-element-color)">
                         </div>
                         <div>
                             <span style="color: var(--faded-gray-color)" class="small-title">Last Name</span>
-                            <input type="text" id="candidate-last-name" name="candidate-last-name" class="text-input" placeholder="Last Name" value="{{ candidate.last_name }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                            <input type="text" id="candidate-last-name" name="candidate-last-name" class="text-input" placeholder="Last Name" value="{{ candidate.last_name }}" style="border-bottom: 0.0625rem solid var(--ui-support-element-color)">
                         </div>
                         <div>
                             <span style="color: var(--faded-gray-color)" class="small-title">State</span>
@@ -129,23 +129,23 @@
                         </div>
                         <div>
                             <span style="color: var(--faded-gray-color)" class="small-title">LinkedIn Profile URL</span>
-                            <input type="text" name="candidate-linkedin-url" class="text-input" placeholder="Linkedin URL" value="{{ candidate.linkedin_url|default_if_none:"" }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                            <input type="text" name="candidate-linkedin-url" class="text-input" placeholder="Linkedin URL" value="{{ candidate.linkedin_url|default_if_none:"" }}" style="border-bottom: 0.0625rem solid var(--ui-support-element-color)">
                         </div>
                     </div>
                     <div style="width: 33%; position: relative">
                         <div>
                             <span style="color: var(--faded-gray-color)" class="small-title">Phone Number</span>
-                            <input type="tel" id="candidate-phone-number" name="candidate-phone-number" class="text-input" placeholder="Phone Number" value="{{ candidate.phone_number }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                            <input type="tel" id="candidate-phone-number" name="candidate-phone-number" class="text-input" placeholder="Phone Number" value="{{ candidate.phone_number }}" style="border-bottom: 0.0625rem solid var(--ui-support-element-color)">
                         </div>
                         <div>
                             <span style="color: var(--faded-gray-color)" class="small-title">Email</span>
-                            <input type="email" id="candidate-email" name="candidate-email" class="text-input" placeholder="Email" value="{{ candidate.email }}" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                            <input type="email" id="candidate-email" name="candidate-email" class="text-input" placeholder="Email" value="{{ candidate.email }}" style="border-bottom: 0.0625rem solid var(--ui-support-element-color)">
                         </div>
                         <div>
                             <span style="color: var(--faded-gray-color)" class="small-title">Compensation range</span>
                             <div class="flex-display">
-                                <input type="text" id="candidate-compensation-from" name="candidate-compensation-from" value="{{ candidate.compensation_from }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color); margin-right: 1rem;">
-                                <input type="text" id="candidate-compensation-to" name="candidate-compensation-to" value="{{ candidate.compensation_to }}" class="text-input" style="border-bottom: 1px solid var(--ui-support-element-color)">
+                                <input type="text" id="candidate-compensation-from" name="candidate-compensation-from" value="{{ candidate.compensation_from }}" class="text-input" style="border-bottom: 0.0625rem solid var(--ui-support-element-color); margin-right: 1rem;">
+                                <input type="text" id="candidate-compensation-to" name="candidate-compensation-to" value="{{ candidate.compensation_to }}" class="text-input" style="border-bottom: 0.0625rem solid var(--ui-support-element-color)">
                             </div>
                         </div>
                         <div>
@@ -161,17 +161,17 @@
                             {% include 'red_shell_recruiting/components/source_dropdown_component.html' with selected_source=candidate.source %}
                         </div>
                         <div class="grid-cols-2 gap-2 toggle-container" style="margin-top: 1rem; margin-bottom: 1rem;">
-                            <label class="toggle flex-display vertical-align align-start" style="margin-bottom: 1rem;">
+                            <label class="toggle flex-display vertical-align align-start">
                                 <input name="candidate-actively-looking" id="candidate-looking" class="toggle-checkbox" type="checkbox" {% if candidate.actively_looking %}checked{% endif %}>
                                 <div class="toggle-switch"></div>
                                 <span>Actively Looking</span>
                             </label>
-                            <label class="toggle flex-display vertical-align align-start" style="margin-bottom: 1rem;">
+                            <label class="toggle flex-display vertical-align align-start">
                                 <input name="candidate-open-to-relocation" id="candidate-relocation" class="toggle-checkbox" type="checkbox" {% if candidate.open_to_relocation %}checked{% endif %}>
                                 <div class="toggle-switch"></div>
                                 <span>Open to Relocation</span>
                             </label>
-                            <label class="toggle flex-display vertical-align align-start" style="margin-bottom: 1rem;">
+                            <label class="toggle flex-display vertical-align align-start">
                                 <input name="candidate-currently-working" id="candidate-working" class="toggle-checkbox" type="checkbox" {% if candidate.currently_working %}checked{% endif %}>
                                 <div class="toggle-switch"></div>
                                 <span>Currently Working</span>
@@ -182,9 +182,9 @@
                         <div style="margin-bottom: 1rem;">
                             <span style="color: var(--faded-gray-color)" class="small-title">Initial Notes</span>
                             {% if user|in_groups:"Site Admin" or user.is_superuser or user|has_perm:required_permission %}
-                                <textarea id="candidate-initial-notes" name="candidate-initial-notes" class="text-input" placeholder="Initial Notes" style="border: 1px solid var(--ui-support-element-color); height: 300px; padding: 0.5rem;">{{ candidate.entry_notes }}</textarea>
+                                <textarea id="candidate-initial-notes" name="candidate-initial-notes" class="text-input" placeholder="Initial Notes" style="border: 0.0625rem solid var(--ui-support-element-color); height: 18.75rem; padding: 0.5rem;">{{ candidate.entry_notes }}</textarea>
                             {% else %}
-                                <textarea id="candidate-initial-notes" name="candidate-initial-notes" class="text-input" placeholder="Initial Notes" style="border: 1px solid var(--ui-support-element-color); height: 300px; padding: 0.5rem;" disabled>{{ candidate.entry_notes }}</textarea>
+                                <textarea id="candidate-initial-notes" name="candidate-initial-notes" class="text-input" placeholder="Initial Notes" style="border: 0.0625rem solid var(--ui-support-element-color); height: 18.75rem; padding: 0.5rem;" disabled>{{ candidate.entry_notes }}</textarea>
                             {% endif %}
                         </div>
                     </div>
@@ -243,7 +243,7 @@
                     </div>
                     <div style="width: 250px;">
                         <h3 style="color: var(--faded-gray-color)" class="small-title">Compensation</h3>
-                        <input type="number" id="placement-compensation" class="text-input" placeholder="Compensation" style="width: 100%; border-bottom: 1px solid var(--ui-support-element-color);">
+                        <input type="number" id="placement-compensation" class="text-input" placeholder="Compensation" style="width: 100%; border-bottom: 0.0625rem solid var(--ui-support-element-color);">
                     </div>
                 </div>
                 {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' color='green' text='Add Placement' extra_class='button green' style='width: 150px;' id='add-placement-record-btn' %}

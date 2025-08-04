@@ -2,14 +2,102 @@
 {% block title %}Home{% endblock %}
 {% block content %}
     <h2>Welcome, {{ user_name }}</h2>
-    <p>These are you 5 last candidates created</p>
-    {% if candidates %}
-        <div class="flex-display flex-wrap" style="gap: 2rem; margin-top: 2rem;">
-            {% for candidate in candidates %}
-                {% include 'red_shell_recruiting/components/candidate_card.html' with candidate=candidate %}
-            {% endfor %}
+
+    <!-- System Statistics Section -->
+    <div class="system-stats">
+        <h3>System Overview</h3>
+
+        <!-- Total Counts Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number blue">{{ total_profiles }}</div>
+                <div class="stat-label">Total Profiles</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number green">{{ total_resumes }}</div>
+                <div class="stat-label">Total Resumes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number yellow">{{ total_documents }}</div>
+                <div class="stat-label">Total Documents</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number red">{{ total_culinary_portfolios }}</div>
+                <div class="stat-label">Culinary Portfolios</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number purple">{{ total_journal_entries }}</div>
+                <div class="stat-label">Journal Entries</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number teal">{{ total_placement_histories }}</div>
+                <div class="stat-label">Placement Records</div>
+            </div>
         </div>
-    {% else %}
-        <p style="margin-top: 2rem;">No recent candidates found.</p>
-    {% endif %}
+
+        <!-- Breakdown by Categories -->
+        <div class="breakdown-grid">
+            <!-- Titles Breakdown -->
+            <div class="breakdown-card">
+                <h4>Top Titles</h4>
+                <hr>
+                {% if titles_with_counts %}
+                    {% for title in titles_with_counts|slice:":5" %}
+                        <div class="breakdown-item">
+                            <span class="breakdown-name">{{ title.display_name }}</span>
+                            <span class="breakdown-badge blue">{{ title.candidate_count }}</span>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="no-data-message">No titles found</p>
+                {% endif %}
+            </div>
+
+            <!-- Ownership Breakdown -->
+            <div class="breakdown-card">
+                <h4>Top Ownership</h4>
+                <hr>
+                {% if ownerships_with_counts %}
+                    {% for ownership in ownerships_with_counts|slice:":5" %}
+                        <div class="breakdown-item">
+                            <span class="breakdown-name">{{ ownership.display_name }}</span>
+                            <span class="breakdown-badge green">{{ ownership.candidate_count }}</span>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="no-data-message">No ownership data found</p>
+                {% endif %}
+            </div>
+
+            <!-- Sources Breakdown -->
+            <div class="breakdown-card">
+                <h4>Top Sourced</h4>
+                <hr>
+                {% if sources_with_counts %}
+                    {% for source in sources_with_counts|slice:":5" %}
+                        <div class="breakdown-item">
+                            <span class="breakdown-name">{{ source.display_name }}</span>
+                            <span class="breakdown-badge yellow">{{ source.candidate_count }}</span>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="no-data-message">No source data found</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Candidates Section -->
+    <div class="recent-section">
+        <h3>Your 5 Most Recent Candidates</h3>
+        {% if candidates %}
+            <div class="flex-display flex-wrap recent-candidates">
+                {% for candidate in candidates %}
+                    {% include 'red_shell_recruiting/components/candidate_card.html' with candidate=candidate %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="no-candidates-message">No recent candidates found.</p>
+        {% endif %}
+    </div>
 {% endblock %}

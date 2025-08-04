@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="{% static 'css/candidate.css' %}?n={% css_invalidate_int %}">
 {% endblock %}
 {% block content %}
-    <div style="max-width:1000px; width: 100%; margin: 0 auto; margin-top: 1rem;">
+    <div style="max-width:62.5rem; width: 100%; margin: 0 auto; margin-top: 1rem;">
         <form class="section" action="{% url 'candidate-submit' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div style="margin-bottom: 1rem">
@@ -33,7 +33,7 @@
                     {% include 'red_shell_recruiting/components/candidate_input_section_two.html' %}
                 </div>
             </div>
-            <textarea tabindex="11" name="candidate-notes" style="border: 1px solid var(--ui-support-element-color); height: 200px; padding: 0.5rem;" class="text-input" id="candidate-notes" type="text" placeholder="Entry Notes" autocomplete="off"></textarea>
+            <textarea tabindex="11" name="candidate-notes" style="border: 0.0625rem solid var(--ui-support-element-color); height: 12.5rem; padding: 0.5rem;" class="text-input" id="candidate-notes" type="text" placeholder="Entry Notes" autocomplete="off"></textarea>
             <hr>
             <div class="flex-display space-between vertical-align space-between" style="width: 100%">
                 {% include 'red_shell_recruiting/components/candidate_input_resume.html' %}

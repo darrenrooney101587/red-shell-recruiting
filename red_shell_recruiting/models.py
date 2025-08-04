@@ -347,6 +347,7 @@ class JournalEntry(models.Model):
         ordering = ["-meeting_date", "-created_at"]
         verbose_name = "Journal Entry"
         verbose_name_plural = "Journal Entries"
+        db_table = "candidate_journal_entry"
 
     def __str__(self) -> str:
         """Return a string representation of the journal entry."""
