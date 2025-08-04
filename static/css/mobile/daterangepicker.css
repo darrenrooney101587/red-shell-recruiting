@@ -2,7 +2,7 @@
   position: absolute;
   color: inherit;
   background-color: #fff;
-  border-radius: 4px;
+  border-radius: 0.375rem;
   border: 1px solid #ddd;
   width: 278px;
   max-width: none;
@@ -153,7 +153,7 @@
   height: 35px;
   line-height: 24px;
   font-size: 12px;
-  border-radius: 4px;
+  border-radius: 0.375rem;
   border: 1px solid transparent;
   white-space: nowrap;
   cursor: pointer;
@@ -161,7 +161,7 @@
 
 .daterangepicker .calendar-table {
   border: 1px solid #fff;
-  border-radius: 4px;
+  border-radius: 0.375rem;
   background-color: #fff;
 }
 
@@ -456,9 +456,8 @@
   align-items: center;
 }
 .daterangepicker .drp-buttons .btn {
-  font-size: 1.25em;
-  padding: 16px 32px;
-  border-radius: 8px;
+  font-size: 0.75rem;
+  border-radius: 0.375rem;
   min-width: 120px;
 }
 
@@ -477,7 +476,7 @@ button.applyBtn.btn.btn-sm.btn-primary {
   top: 20px;
   z-index: 2;
   /* background: #fff; */
-  border-radius: 4px;
+  border-radius: 0.375rem;
   color: white;
 }
 .daterangepicker.mobile-vertical .drp-calendar.right .calendar-table {

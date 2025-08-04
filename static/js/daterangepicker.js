@@ -421,8 +421,9 @@
             .on('click.daterangepicker', '.next', $.proxy(this.clickNext, this))
             .on('mousedown.daterangepicker', 'td.available', $.proxy(this.clickDate, this))
             .on('mouseenter.daterangepicker', 'td.available', $.proxy(this.hoverDate, this))
-            .on('change.daterangepicker', 'select.yearselect', $.proxy(this.monthOrYearChanged, this))
-            .on('change.daterangepicker', 'select.monthselect', $.proxy(this.monthOrYearChanged, this))
+            .on('click.daterangepicker', '.month-list .option', $.proxy(this.customMonthChanged, this))
+            .on('click.daterangepicker', '.year-list .option', $.proxy(this.customYearChanged, this))
+            .on('click.daterangepicker', '.custom-dropdown', $.proxy(this.toggleCustomDropdown, this))
             .on('change.daterangepicker', 'select.hourselect,select.minuteselect,select.secondselect,select.ampmselect', $.proxy(this.timeChanged, this));
 
         this.container.find('.ranges')
@@ -728,29 +729,33 @@
                 var inMinYear = currentYear == minYear;
                 var inMaxYear = currentYear == maxYear;
 
-                var monthHtml = '<select class="monthselect">';
+                // Custom month dropdown
+                var monthHtml = '<div class="custom-dropdown month-dropdown-container" style="width: 56%; margin-right: 2%;">' +
+                    '<div class="selected-option month-dropdown" data-placeholder="Select Month">' +
+                    this.locale.monthNames[currentMonth] + '</div>' +
+                    '<input type="hidden" class="month-hidden" value="' + currentMonth + '">' +
+                    '<ul class="dropdown-list month-list" style="display: none;">';
+
                 for (var m = 0; m < 12; m++) {
-                    if ((!inMinYear || (minDate && m >= minDate.month())) && (!inMaxYear || (maxDate && m <= maxDate.month()))) {
-                        monthHtml += "<option value='" + m + "'" +
-                            (m === currentMonth ? " selected='selected'" : "") +
-                            ">" + this.locale.monthNames[m] + "</option>";
-                    } else {
-                        monthHtml += "<option value='" + m + "'" +
-                            (m === currentMonth ? " selected='selected'" : "") +
-                            " disabled='disabled'>" + this.locale.monthNames[m] + "</option>";
-                    }
+                    var disabled = (inMinYear && minDate && m < minDate.month()) || (inMaxYear && maxDate && m > maxDate.month());
+                    var optionClass = disabled ? 'option disabled' : 'option';
+                    monthHtml += '<li class="' + optionClass + '" data-value="' + m + '">' + this.locale.monthNames[m] + '</li>';
                 }
-                monthHtml += "</select>";
+                monthHtml += '</ul></div>';
 
-                var yearHtml = '<select class="yearselect">';
+                // Custom year dropdown
+                var yearHtml = '<div class="custom-dropdown year-dropdown-container" style="width: 40%;">' +
+                    '<div class="selected-option year-dropdown" data-placeholder="Select Year">' +
+                    currentYear + '</div>' +
+                    '<input type="hidden" class="year-hidden" value="' + currentYear + '">' +
+                    '<ul class="dropdown-list year-list" style="display: none;">';
+
                 for (var y = minYear; y <= maxYear; y++) {
-                    yearHtml += '<option value="' + y + '"' +
-                        (y === currentYear ? ' selected="selected"' : '') +
-                        '>' + y + '</option>';
+                    yearHtml += '<li class="option" data-value="' + y + '">' + y + '</li>';
                 }
-                yearHtml += '</select>';
+                yearHtml += '</ul></div>';
 
-                dateHtml = monthHtml + yearHtml;
+                dateHtml = '<div style="display: flex; width: 100%;">' + monthHtml + yearHtml + '</div>';
             }
 
             html += '<th colspan="5" class="month">' + dateHtml + '</th>';
@@ -1606,6 +1611,93 @@
                     this.element.val(newValue).trigger('change');
                 }
             }
+        },
+
+        toggleCustomDropdown: function(e) {
+            e.stopPropagation();
+            var $dropdown = $(e.currentTarget);
+            var $list = $dropdown.find('.dropdown-list');
+
+            // Hide all other dropdowns
+            this.container.find('.dropdown-list').not($list).hide();
+
+            // Toggle this dropdown
+            $list.toggle();
+        },
+
+        customMonthChanged: function(e) {
+            e.stopPropagation();
+            if ($(e.target).hasClass('disabled')) return;
+
+            var $option = $(e.target);
+            var month = parseInt($option.data('value'), 10);
+            var monthName = $option.text();
+
+            var $dropdown = $option.closest('.custom-dropdown');
+            var $display = $dropdown.find('.month-dropdown');
+            var $hidden = $dropdown.find('.month-hidden');
+            var $calendar = $dropdown.closest('.drp-calendar');
+
+            // Update display and hidden value
+            $display.text(monthName);
+            $hidden.val(month);
+
+            // Hide dropdown
+            $dropdown.find('.dropdown-list').hide();
+
+            // Get current year
+            var year = parseInt($calendar.find('.year-hidden').val(), 10);
+
+            // Update calendar
+            var isLeft = $calendar.hasClass('left');
+            if (isLeft) {
+                this.leftCalendar.month.month(month).year(year);
+                if (this.linkedCalendars)
+                    this.rightCalendar.month = this.leftCalendar.month.clone().add(1, 'month');
+            } else {
+                this.rightCalendar.month.month(month).year(year);
+                if (this.linkedCalendars)
+                    this.leftCalendar.month = this.rightCalendar.month.clone().subtract(1, 'month');
+            }
+
+            this.updateCalendars();
+        },
+
+        customYearChanged: function(e) {
+            e.stopPropagation();
+
+            var $option = $(e.target);
+            var year = parseInt($option.data('value'), 10);
+            var yearName = $option.text();
+
+            var $dropdown = $option.closest('.custom-dropdown');
+            var $display = $dropdown.find('.year-dropdown');
+            var $hidden = $dropdown.find('.year-hidden');
+            var $calendar = $dropdown.closest('.drp-calendar');
+
+            // Update display and hidden value
+            $display.text(yearName);
+            $hidden.val(year);
+
+            // Hide dropdown
+            $dropdown.find('.dropdown-list').hide();
+
+            // Get current month
+            var month = parseInt($calendar.find('.month-hidden').val(), 10);
+
+            // Update calendar
+            var isLeft = $calendar.hasClass('left');
+            if (isLeft) {
+                this.leftCalendar.month.month(month).year(year);
+                if (this.linkedCalendars)
+                    this.rightCalendar.month = this.leftCalendar.month.clone().add(1, 'month');
+            } else {
+                this.rightCalendar.month.month(month).year(year);
+                if (this.linkedCalendars)
+                    this.leftCalendar.month = this.rightCalendar.month.clone().subtract(1, 'month');
+            }
+
+            this.updateCalendars();
         },
 
         remove: function() {

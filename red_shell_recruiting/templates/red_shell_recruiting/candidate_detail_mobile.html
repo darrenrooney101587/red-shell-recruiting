@@ -89,7 +89,7 @@
             </div>
             <hr>
             <div class="flex-display flex-end" style="width: 100%; margin-bottom: 1rem;">
-                {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' color='green' text='Edit Candidate' extra_class='flex-display vertical-align justify-center' style='width: 100%; height: 3.125rem;' id='edit-button' %}
+                {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' color='green' text='Edit Candidate' extra_class='flex-display vertical-align justify-center' style='width: 100%;' id='edit-button' %}
             </div>
         </div>
     </div>
@@ -178,8 +178,8 @@
             </div>
             <hr>
             <div style="width: 100%" class="flex-display vertical-align justify-center space-between">
-                {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' color='red' text='Cancel' style='height: 3.125rem; width: 9.375rem;' id='cancel-button' %}
-                {% include 'red_shell_recruiting/components/candidate_button.html' with type='submit' color='green' text='Save Changes' extra_class='flex-display vertical-align justify-center' style='height: 3.125rem; width: 9.375rem;' %}
+                {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' color='red' text='Cancel' style=' width: 9.375rem;' id='cancel-button' %}
+                {% include 'red_shell_recruiting/components/candidate_button.html' with type='submit' color='green' text='Save Changes' extra_class='flex-display vertical-align justify-center' style=' width: 9.375rem;' %}
             </div>
             <hr>
         </form>
@@ -206,7 +206,7 @@
                         <input type="number" id="placement-compensation" class="text-input" placeholder="-"  style="border-bottom: 0.0625rem solid var(--ui-support-element-color); width: 100%">
                     </div>
                 </div>
-                {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' color='green' text='Add Placement' extra_class='button green' style='height: 3.125rem; width: 100%; margin-top: 1rem;' id='add-placement-record-btn' %}
+                {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' color='green' text='Add Placement' extra_class='button green' style='width: 100%; margin-top: 1rem;' id='add-placement-record-btn' %}
             </div>
             <div id="placement-records-list" style="margin-top: 1rem;"></div>
         </div>
@@ -226,9 +226,9 @@
                     </div>
                 </div>
                 <div style="margin-bottom: 1rem;">
-                    {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' text='Select date' id='journal-meeting-date' name='meeting_date' required=True style='width:100%; height: 2.8125rem;' %}
+                    {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' text='Select date' id='journal-meeting-date' name='meeting_date' required=True style='width:100%; ' %}
                 </div>
-                {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' color='green' text='Add Journal Entry' extra_class='button green ' style='height: 2.8125rem; width: 100%;' id='add-journal-entry-btn' %}
+                {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' color='green' text='Add Journal Entry' extra_class='button green ' style=' width: 100%;' id='add-journal-entry-btn' %}
             </div>
             <hr>
             <div id="journal-entries-list" style="margin-top: 1rem;"></div>
@@ -259,11 +259,11 @@
             <hr>
             <div class="section-actions">
                 <input required type="file" id="candidate-resume" name="candidate_resume" accept=".pdf, .doc, .docx">
-                <button id="trigger-resume-upload" class="button flex-display vertical-align space-between" style="height: 2.8125rem;">
+                <button id="trigger-resume-upload" class="button flex-display vertical-align space-between" style="">
                     <span>Attach Resume</span>
                 </button>
                 <div class="file-name ellipsis" id="file-name"></div>
-                {% with button_type='button' button_color='green' button_text='Upload' button_extra_class='button green flex-display vertical-align space-between' button_style='display:none; margin-left: 1rem; height: 2.8125rem;' button_id='add-resume-button' %}
+                {% with button_type='button' button_color='green' button_text='Upload' button_extra_class='button green flex-display vertical-align space-between' button_style='display:none; margin-left: 1rem; ' button_id='add-resume-button' %}
                     {% include 'red_shell_recruiting/components/candidate_button.html' with type=button_type color=button_color text=button_text extra_class=button_extra_class style=button_style id=button_id %}
                 {% endwith %}
             </div>
@@ -292,11 +292,11 @@
             <hr>
             <div class="section-actions">
                 <input type="file" id="candidate-culinary-portfolio" name="candidate_culinary_portfolio" accept=".pdf, .doc, .docx">
-                <button id="trigger-portfolio-upload" class="button flex-display vertical-align space-between" style="height: 2.8125rem;">
+                <button id="trigger-portfolio-upload" class="button flex-display vertical-align space-between" style="">
                     <span>Attach Portfolio</span>
                 </button>
                 <div class="file-name ellipsis" id="portfolio-file-name"></div>
-                {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' color='green' text='Upload' extra_class='button green flex-display vertical-align space-between' style='display:none; margin-left: 1rem; height: 2.8125rem;' id='add-portfolio-button' %}
+                {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' color='green' text='Upload' extra_class='button green flex-display vertical-align space-between' style='display:none; margin-left: 1rem; ' id='add-portfolio-button' %}
             </div>
         </div>
         <hr>
@@ -323,11 +323,11 @@
             <hr>
             <div class="section-actions">
                 <input type="file" id="candidate-document" name="candidate_document" accept=".pdf,.doc,.docx">
-                <button type="button" id="trigger-document-upload" class="button flex-display vertical-align space-between" style="height: 2.8125rem;">
+                <button type="button" id="trigger-document-upload" class="button flex-display vertical-align space-between" style="">
                     <span style="margin-left: 0.1875rem;">Attach Document</span>
                 </button>
                 <div class="file-name ellipsis" id="document-file-name"></div>
-                {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' color='green' text='Upload' extra_class='button green flex-display vertical-align space-between' style='display: none; margin-left: 1rem; height: 2.8125rem;' id='add-document-button' %}
+                {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' color='green' text='Upload' extra_class='button green flex-display vertical-align space-between' style='display: none; margin-left: 1rem; ' id='add-document-button' %}
             </div>
         </div>
     </div>

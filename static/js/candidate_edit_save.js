@@ -359,8 +359,8 @@ function HandleNewPlacementRecord() {
     $('#placement-date').daterangepicker({
         autoApply: false,
         autoUpdateInput: false,
-        // forceSingleDateMultiMonth: true,
         singleDatePicker: true,
+        showDropdowns: true, // Enable year/month dropdowns
         linkedCalendars: false,
         minDate: false,
         locale: {cancelLabel: 'Clear'},
