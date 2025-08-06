@@ -6,7 +6,7 @@
 {% endblock %}
 {% block css-extra %}
     <link rel="stylesheet" href="{% static 'css/candidate.css' %}?n={% css_invalidate_int %}">
-    <link rel="stylesheet" href="{% static 'css/daterangepicker.css' %}">
+    <link rel="stylesheet" href="{% static 'css/daterangepicker.css' %}?n={% css_invalidate_int %}">
 {% endblock %}
 {% block content %}
     <div style="max-width:62.5rem; width: 50%; margin: 0 auto; margin-top: 4rem;">
