@@ -560,6 +560,7 @@ class CandidateSearch(LoginRequiredMixin, TemplateView):
         """Get context data for candidate search, including dropdowns and filters."""
         context = super().get_context_data(**kwargs)
         request = self.request
+
         toggle_filters = {
             "actively_looking": request.GET.get("actively_looking"),
             "open_to_relocation": request.GET.get("open_to_relocation"),
@@ -838,79 +839,17 @@ class CandidateDetail(LoginRequiredMixin, TemplateView):
 
         candidate.save()
 
-        # ----- Portfolio upload (if applicable) -----
-        culinary_file = request.FILES.get("candidate_culinary_portfolio")
-
-        if culinary_file:
-            portfolio = CandidateCulinaryPortfolio.objects.create(
-                candidate=candidate, file=culinary_file
-            )
-            update_portfolio_search_vector.delay(portfolio.id)
-
-        # ----- Resume upload (if applicable) -----
-        uploaded_file = request.FILES.get("resume-file")
-        if uploaded_file:
-            CandidateResume.objects.create(candidate=candidate, file=uploaded_file)
-
-        # ----- If toggle is OFF: delete all placements and return -----
-        if request.POST.get("remove_all_placements") == "true":
-            CandidateClientPlacementHistory.objects.filter(candidate=candidate).delete()
-            return redirect("candidate-detail", candidate_id=candidate.id)
-
-        # ----- Handle placement records -----
-        placement_total = int(request.POST.get("placement_total_count", 0))
-
-        for i in range(1, placement_total + 1):
-            placement_id = request.POST.get(f"placement_id_{i}")
-            placement_month = request.POST.get(f"placement_month_{i}")
-            placement_year = request.POST.get(f"placement_year_{i}")
-            placement_compensation = request.POST.get(f"placement_compensation_{i}")
-            if placement_compensation is not None:
-                placement_compensation = str(placement_compensation).replace(",", "")
-            record_id = request.POST.get(f"placement_record_id_{i}")
-            delete_flag = request.POST.get(f"delete_placement_{i}") == "true"
-
-            if delete_flag and record_id:
-                CandidateClientPlacementHistory.objects.filter(
-                    id=record_id, candidate=candidate
-                ).delete()
-                continue
-
-            if (
-                not placement_id
-                or not placement_month
-                or not placement_year
-                or not placement_compensation
-            ):
-                continue  # skip incomplete rows
-
-            if record_id:
-                try:
-                    record = CandidateClientPlacementHistory.objects.get(
-                        id=record_id, candidate=candidate
-                    )
-                    record.placement_id = placement_id
-                    record.month = int(placement_month)
-                    record.year = int(placement_year)
-                    record.compensation = float(placement_compensation)
-                    record.save()
-                except CandidateClientPlacementHistory.DoesNotExist:
-                    continue
-            else:
-                CandidateClientPlacementHistory.objects.create(
-                    candidate=candidate,
-                    placement_id=placement_id,
-                    month=int(placement_month),
-                    year=int(placement_year),
-                    compensation=float(placement_compensation),
-                )
-
         return redirect("candidate-detail", candidate_id=candidate.id)
 
 
 class ArchiveResume(LoginRequiredMixin, View):
     def post(self, request, resume_id):
-        resume = get_object_or_404(CandidateResume, id=resume_id)
+        try:
+            resume = get_object_or_404(CandidateResume, id=resume_id)
+        except:
+            return JsonResponse(
+                {"success": False, "error": "Resume not found"}, status=404
+            )
 
         s3 = boto3.client(
             "s3",
@@ -931,40 +870,45 @@ class ArchiveResume(LoginRequiredMixin, View):
             s3.delete_object(Bucket=bucket, Key=original_key)
         except ClientError as e:
             if e.response["Error"]["Code"] == "NoSuchKey":
-                return render(
-                    request,
-                    "500.html",
+                return JsonResponse(
                     {
-                        "message": f"The resume could not be found in S3 at: {original_key}"
+                        "success": False,
+                        "error": f"The resume could not be found in S3 at: {original_key}",
                     },
                     status=500,
                 )
-            return render(
-                request,
-                "500.html",
+            return JsonResponse(
                 {
-                    "message": "An unexpected AWS error occurred while archiving the resume."
+                    "success": False,
+                    "error": "An unexpected AWS error occurred while archiving the resume.",
                 },
                 status=500,
             )
         except Exception:
-            return render(
-                request,
-                "500.html",
-                {"message": "An unexpected error occurred while archiving the resume."},
+            return JsonResponse(
+                {
+                    "success": False,
+                    "error": "An unexpected error occurred while archiving the resume.",
+                },
                 status=500,
             )
-        s3.delete_object(Bucket=bucket, Key=original_key)
 
         resume.archived = True
         resume.save(update_fields=["archived"])
 
-        return redirect("candidate-detail", candidate_id=resume.candidate.id)
+        return JsonResponse(
+            {"success": True, "message": "Resume archived successfully"}
+        )
 
 
 class ArchiveDocument(LoginRequiredMixin, View):
     def post(self, request, document_id):
-        document = get_object_or_404(CandidateDocument, id=document_id)
+        try:
+            document = get_object_or_404(CandidateDocument, id=document_id)
+        except:
+            return JsonResponse(
+                {"success": False, "error": "Document not found"}, status=404
+            )
 
         s3 = boto3.client(
             "s3",
@@ -985,44 +929,46 @@ class ArchiveDocument(LoginRequiredMixin, View):
             s3.delete_object(Bucket=bucket, Key=original_key)
         except ClientError as e:
             if e.response["Error"]["Code"] == "NoSuchKey":
-                return render(
-                    request,
-                    "500.html",
+                return JsonResponse(
                     {
-                        "message": f"The document could not be found in S3 at: {original_key}"
+                        "success": False,
+                        "error": f"The document could not be found in S3 at: {original_key}",
                     },
                     status=500,
                 )
             else:
-                return render(
-                    request,
-                    "500.html",
+                return JsonResponse(
                     {
-                        "message": "An unexpected error occurred while archiving the document."
+                        "success": False,
+                        "error": "An unexpected error occurred while archiving the document.",
                     },
                     status=500,
                 )
         except Exception:
-            return render(
-                request,
-                "500.html",
+            return JsonResponse(
                 {
-                    "message": "An unexpected error occurred while archiving the document."
+                    "success": False,
+                    "error": "An unexpected error occurred while archiving the document.",
                 },
                 status=500,
             )
 
-        s3.delete_object(Bucket=bucket, Key=original_key)
-
         document.archived = True
         document.save(update_fields=["archived"])
 
-        return redirect("candidate-detail", candidate_id=document.candidate.id)
+        return JsonResponse(
+            {"success": True, "message": "Document archived successfully"}
+        )
 
 
 class ArchiveCulinaryPortfolio(LoginRequiredMixin, View):
     def post(self, request, portfolio_id):
-        portfolio = get_object_or_404(CandidateCulinaryPortfolio, id=portfolio_id)
+        try:
+            portfolio = get_object_or_404(CandidateCulinaryPortfolio, id=portfolio_id)
+        except:
+            return JsonResponse(
+                {"success": False, "error": "Portfolio not found"}, status=404
+            )
 
         s3 = boto3.client(
             "s3",
@@ -1035,49 +981,45 @@ class ArchiveCulinaryPortfolio(LoginRequiredMixin, View):
         archive_key = original_key.replace("portfolios/", "portfolios/archive/")
 
         try:
-            # Copy to archive location
             s3.copy_object(
                 Bucket=bucket,
                 CopySource={"Bucket": bucket, "Key": original_key},
                 Key=archive_key,
             )
-            # Delete original
             s3.delete_object(Bucket=bucket, Key=original_key)
         except ClientError as e:
             if e.response["Error"]["Code"] == "NoSuchKey":
-                return render(
-                    request,
-                    "500.html",
+                return JsonResponse(
                     {
-                        "message": f"The portfolio could not be found in S3 at: {original_key}"
+                        "success": False,
+                        "error": f"The portfolio could not be found in S3 at: {original_key}",
                     },
                     status=500,
                 )
             else:
-                return render(
-                    request,
-                    "500.html",
+                return JsonResponse(
                     {
-                        "message": "An unexpected error occurred while archiving the portfolio."
+                        "success": False,
+                        "error": "An unexpected error occurred while archiving the portfolio.",
                     },
                     status=500,
                 )
         except Exception:
-            return render(
-                request,
-                "500.html",
+            return JsonResponse(
                 {
-                    "message": "An unexpected error occurred while archiving the portfolio."
+                    "success": False,
+                    "error": "An unexpected error occurred while archiving the portfolio.",
                 },
                 status=500,
             )
 
-        # Update DB
         portfolio.archived = True
-        portfolio.file.name = archive_key  # update file path
+        portfolio.file.name = archive_key
         portfolio.save(update_fields=["archived", "file"])
 
-        return redirect("candidate-detail", candidate_id=portfolio.candidate.id)
+        return JsonResponse(
+            {"success": True, "message": "Portfolio archived successfully"}
+        )
 
 
 class UploadResume(LoginRequiredMixin, View):

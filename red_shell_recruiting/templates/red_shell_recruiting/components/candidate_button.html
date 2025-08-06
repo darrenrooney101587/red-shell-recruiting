@@ -1,5 +1,5 @@
 {% load tags %}
-<button type="{{ type|default:'button' }}" class="button flex-display vertical-align justify-center{% if color %} {{ color }}{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"{% if style %} style="{{ style }}"{% endif %}{% if id %} id="{{ id }}"{% endif %}>
+<button type="{{ type|default:'button' }}" class="button flex-display vertical-align justify-center{% if color %} {{ color }}{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}"{% if style %} style="{{ style }}"{% endif %}{% if id %} id="{{ id }}"{% endif %}{% if data_type %} data-type="{{ data_type }}"{% endif %}{% if data_id %} data-id="{{ data_id }}"{% endif %}>
     {% if icon %}
         <span class="button-icon">
             {% if icon == 'close' %}

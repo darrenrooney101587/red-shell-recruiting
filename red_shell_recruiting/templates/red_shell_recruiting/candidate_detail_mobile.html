@@ -3,7 +3,7 @@
 {% load filters %}
 {% load tags %}
 {% block title %}
-    Edit Candidate
+    {{ candidate.first_name }} {{ candidate.last_name }} - Candidate Details
 {% endblock %}
 {% block css-extra %}
     <link rel="stylesheet" href="{% static 'css/candidate.css' %}?n={% css_invalidate_int %}">
@@ -242,14 +242,7 @@
                 {% for resume in resumes %}
                     <li class="section-list-item{% if not forloop.first %} section-list-item-border{% endif %}">
                         <a href="{{ resume.get_signed_url }}" download>{{ resume.file.name|filename }}</a>
-                        <form method="post" action="{% url 'archive-resume' resume.id %}" style="display: inline;">
-                            {% csrf_token %}
-                            <button class="button" type="submit" style="margin-left: 0.5rem; padding: 0;">
-                                <div style="position: relative; top: 0.125rem">
-                                    {% include 'red_shell_recruiting/components/svg_components.html' with type='close' %}
-                                </div>
-                            </button>
-                        </form>
+                        {% include 'red_shell_recruiting/components/candidate_button.html' with extra_class='archive-btn button' text='Remoave' data_type='resume' data_id=resume.id style='margin-left: 0.5rem; padding: 0;' %}
                     </li>
                 {% empty %}
                     <li class="small-title" style="opacity: 0.6">No resumes uploaded yet.</li>
@@ -275,14 +268,7 @@
                 {% for portfolio in portfolios %}
                     <li class="section-list-item{% if not forloop.first %} section-list-item-border{% endif %}">
                         <a href="{{ portfolio.get_signed_url }}" download>{{ portfolio.file.name|filename }}</a>
-                        <form method="post" action="{% url 'archive-culinary-portfolio' portfolio.id %}" style="display: inline;">
-                            {% csrf_token %}
-                            <button class="button" type="submit" style="margin-left: 0.5rem; padding: 0;">
-                                <div style="position: relative; top: 0.125rem">
-                                    {% include 'red_shell_recruiting/components/svg_components.html' with type='close' %}
-                                </div>
-                            </button>
-                        </form>
+                        {% include 'red_shell_recruiting/components/candidate_button.html' with extra_class='archive-btn button' data_type='culinary-portfolio' data_id=portfolio.id icon='close' style='margin-left: 0.5rem; padding: 0;' %}
                     </li>
                 {% empty %}
                     <li class="small-title" style="opacity: 0.6">No portfolios uploaded yet.</li>
@@ -295,7 +281,10 @@
                     <span>Attach Portfolio</span>
                 </button>
                 <div class="file-name ellipsis" id="portfolio-file-name"></div>
-                {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' color='green' text='Upload' extra_class='button green flex-display vertical-align space-between' style='display:none; margin-left: 1rem; ' id='add-portfolio-button' %}
+                {% with button_type='button' button_color='green' button_text='Upload' button_extra_class='button green flex-display vertical-align space-between' button_style='display:none; margin-left: 1rem;' button_id='add-portfolio-button' %}
+                    {% include 'red_shell_recruiting/components/candidate_button.html' with type=button_type color=button_color text=button_text extra_class=button_extra_class style=button_style id=button_id %}
+                {% endwith %}
+                {% include 'red_shell_recruiting/components/candidate_button.html' with text='Upload' extra_class='button green flex-display vertical-align space-between' %}
             </div>
         </div>
         <hr>
@@ -306,14 +295,11 @@
                 {% for document in documents %}
                     <li class="section-list-item{% if not forloop.first %} section-list-item-border{% endif %}">
                         <a href="{{ document.get_signed_url }}" download>{{ document.file.name|filename }}</a>
-                        <form method="post" action="{% url 'archive-document' document.id %}" style="display: inline;">
-                            {% csrf_token %}
-                            <button class="button" type="submit" style="margin-left: 0.5rem; padding: 0;">
-                                <div style="position: relative; top: 0.125rem">
-                                    {% include 'red_shell_recruiting/components/svg_components.html' with type='close' %}
-                                </div>
-                            </button>
-                        </form>
+                        <button class="archive-btn button" type="button" data-type="document" data-id="{{ document.id }}" style="margin-left: 0.5rem; padding: 0;">
+                            <div style="position: relative; top: 0.125rem">
+                                {% include 'red_shell_recruiting/components/svg_components.html' with type='close' %}
+                            </div>
+                        </button>
                     </li>
                 {% empty %}
                     <li class="small-title" style="opacity: 0.6">No document uploaded yet.</li>
@@ -326,12 +312,16 @@
                     <span style="margin-left: 0.1875rem;">Attach Document</span>
                 </button>
                 <div class="file-name ellipsis" id="document-file-name"></div>
-                {% include 'red_shell_recruiting/components/candidate_button.html' with type='button' color='green' text='Upload' extra_class='button green flex-display vertical-align space-between' style='display: none; margin-left: 1rem; ' id='add-document-button' %}
+                {% with button_type='button' button_color='green' button_text='Upload' button_extra_class='button green flex-display vertical-align space-between' button_style='display: none; margin-left: 1rem;' button_id='add-document-button' %}
+                    {% include 'red_shell_recruiting/components/candidate_button.html' with type=button_type color=button_color text=button_text extra_class=button_extra_class style=button_style id=button_id %}
+                {% endwith %}
             </div>
         </div>
     </div>
+{% endblock %}
+{% block script %}
+    {{ block.super }}
     <script src="{% static 'js/candidate_edit_save.js' %}" crossorigin="anonymous"></script>
-    <script src="{% static 'js/moment.min.js' %}"></script>
     <script src="{% static 'js/daterangepicker.js' %}"></script>
     <script>
 
@@ -363,14 +353,6 @@
                     }
                 });
             }
-
-            // Add mobile-vertical class to daterangepicker on mobile
-            $(document).on('DOMNodeInserted', function(e) {
-                var $drp = $(e.target);
-                if ($drp.hasClass('daterangepicker')) {
-                    $drp.addClass('mobile-vertical');
-                }
-            });
 
         });
     </script>

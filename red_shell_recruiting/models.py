@@ -186,15 +186,33 @@ class CandidateDocument(models.Model):
     search_document = SearchVectorField(null=True)
     archived = models.BooleanField(default=False)
 
+    def __str__(self):
+        return f"Document for {self.candidate}"
+
+    def get_signed_url(self, expiration=3600):
+        s3_client = boto3.client(
+            "s3",
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            region_name=settings.AWS_S3_REGION_NAME,
+        )
+
+        bucket_name = settings.AWS_STORAGE_BUCKET_NAME
+        object_key = self.file.name
+
+        signed_url = s3_client.generate_presigned_url(
+            "get_object",
+            Params={"Bucket": bucket_name, "Key": object_key},
+            ExpiresIn=expiration,
+        )
+        return signed_url
+
     class Meta:
         managed = True
         db_table = "candidate_document"
         indexes = [GinIndex(fields=["search_document"])]
         verbose_name_plural = "Candidate Documents"
         verbose_name = "Candidate Document"
-
-    def __str__(self):
-        return f"Document for {self.candidate}"
 
 
 class CandidateResume(models.Model):

@@ -430,6 +430,59 @@ function HandleNewPlacementRecord() {
     });
 }
 
+/**
+ * Handles archive button clicks for resumes, portfolios, and documents via AJAX.
+ */
+function HandleArchiveButtons() {
+    $(document).on('click', '.archive-btn', function(e) {
+        e.preventDefault();
+        const $button = $(this);
+        const type = $button.data('type');
+        const id = $button.data('id');
+
+        let url;
+        switch(type) {
+            case 'resume':
+                url = "/candidate/api/resume/archive/" + id + "/";
+                break;
+            case 'culinary-portfolio':
+                url = "/candidate/api/archive/culinary-portfolio/" + id + "/";
+                break;
+            case 'document':
+                url = "/candidate/api/document/archive/" + id + "/";
+                break;
+            default:
+                return;
+        }
+
+        $.ajax({
+            url: url,
+            type: 'POST',
+            headers: {
+                'X-CSRFToken': getCSRFToken()
+            },
+            success: function(response) {
+                if (response.success) {
+                    $button.closest('li').fadeOut(300, function() {
+                        $(this).remove();
+                    });
+                } else {
+                    console.log(response.error);
+                }
+            },
+            error: function(xhr, status, error) {
+                let errorMessage = 'Error archiving file';
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    errorMessage = response.error || errorMessage;
+                } catch (e) {
+                    errorMessage = xhr.status === 404 ? 'File not found' : errorMessage;
+                }
+                console.log(errorMessage);
+            }
+        });
+    });
+}
 
 $(document).ready(function() {
     // Initialize actions
@@ -448,4 +501,5 @@ $(document).ready(function() {
     HandleClientPlacementDropdown();
     HandleNewPlacementRecord();
     HandleClientPlacementDatePicker();
+    HandleArchiveButtons();
 });
